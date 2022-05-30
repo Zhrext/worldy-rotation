@@ -1,0 +1,11 @@
+<Bindings>
+  <Binding name="WORLDYROTATION_TOGGLE" description="Toggle On/Off the Addon." category="ADDONS">
+    WorldyRotation.CmdHandler("toggle");
+  </Binding>
+  <Binding name="WORLDYROTATION_CDS" description="Toggle On/Off the CDs." header="WORLDYROTATION" category="ADDONS">
+    WorldyRotation.CmdHandler("cds");
+  </Binding>
+  <Binding name="WORLDYROTATION_AOE" description="Toggle On/Off the AoE." category="ADDONS">
+    WorldyRotation.CmdHandler("aoe");
+  </Binding>
+</Bindings>

@@ -1,0 +1,14 @@
+## Interface: 90100
+
+## Title: Worldy|cFFA330C9Rotation|r [|cFFEDA55FClass|r]
+## Author: (YOUR_NAME)
+## Notes: Worldy Rotation - Class Module.
+
+## DefaultState: Enabled
+## LoadOnDemand: 1
+## Dependencies: WorldyRotation
+
+Settings.lua
+Class.lua
+Events.lua
+Spec.lua
