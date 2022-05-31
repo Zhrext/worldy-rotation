@@ -44,6 +44,11 @@ local Settings = {
   Discipline = WR.GUISettings.APL.Priest.Discipline
 }
 
+-- Macros
+local M = {
+  PowerWordFortitudePlayer = {MacroID = "PowerWordFortitudePlayer", MacroText = "/cast [@player] " .. S.PowerWordFortitude:Name()}
+}
+
 local function num(val)
   if val then return 1 else return 0 end
 end
@@ -57,6 +62,10 @@ local function Precombat()
   -- food
   -- augmentation
   -- snapshot_stats
+  -- power_word_fortitude
+  if S.PowerWordFortitude:IsCastable() and not Player:BuffUp(S.PowerWordFortitude) then
+    if Cast(M.PowerWordFortitudePlayer) then return "power_word_fortitude precombat 0"; end
+  end
   -- smite
   if S.Smite:IsCastable() then
     if Cast(S.Smite, not Target:IsSpellInRange(S.Smite), true) then return "smite precombat 2"; end
@@ -229,7 +238,9 @@ local function APL()
 end
 
 local function Init()
-  --HR.Print("Discipline Priest rotation is currently a work in progress, but has been updated for patch 9.1.5.")
+  WR.Print("Discipline Priest Rotation by Worldy");
+  WR.Bind(S.Smite);
+  WR.Bind(M.PowerWordFortitudePlayer);
 end
 
 WR.SetAPL(256, APL, Init)

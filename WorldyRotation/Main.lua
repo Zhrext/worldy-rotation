@@ -39,7 +39,8 @@
   WR.MainFrame:SetIgnoreParentAlpha(true);
   WR.MainFrame:SetIgnoreParentScale(true);
   WR.MainFrame:SetClampedToScreen(true);
-  WR.MainFrame.t = {};
+  WR.MainFrame.Textures = {};
+  WR.MainFrame.Macros = {};
 
   function WR.MainFrame:Resize ()
     local _, screenHeight = GetPhysicalScreenSize()
@@ -50,9 +51,9 @@
   end
 
   function WR.MainFrame:CreatePixelTexture (pixel)
-    WR.MainFrame.t[pixel] = WR.MainFrame:CreateTexture();
-    WR.MainFrame.t[pixel]:SetColorTexture(0,0,0,1);
-    WR.MainFrame.t[pixel]:SetPoint("TOPLEFT", WR.MainFrame, pixel, 0);
+    WR.MainFrame.Textures[pixel] = WR.MainFrame:CreateTexture();
+    WR.MainFrame.Textures[pixel]:SetColorTexture(0,0,0,1);
+    WR.MainFrame.Textures[pixel]:SetPoint("TOPLEFT", WR.MainFrame, pixel, 0);
   end
 
   function WR.MainFrame:ChangePixel (pixel, data)
@@ -68,14 +69,20 @@
     local b = c%256;
     local g = ((c-b)/256)%256;
     local r = ((c-b)/65536)-(g/256);
-    self.t[pixel]:SetColorTexture(r/255, g/255, b/255, 1);
+    self.Textures[pixel]:SetColorTexture(r/255, g/255, b/255, 1);
   end
 
-  function WR.MainFrame:ChangeKeybind (keybind)
-    local bind = WR.GetKeybindInfo(keybind);
-    self:ChangePixel(2, bind.key);
-    self:ChangePixel(3, bind.mod1);
-    self:ChangePixel(4, bind.mod2);
+  function WR.MainFrame:ChangeBind (Bind)
+    local BindEx = WR.GetBindInfo(Bind);
+    self:ChangePixel(2, BindEx.Key);
+    self:ChangePixel(3, BindEx.Mod1);
+    self:ChangePixel(4, BindEx.Mod2);
+  end
+
+  function WR.MainFrame:AddMacroFrame (Object)
+    self.Macros[Object.MacroID] = CreateFrame("Button", Object.MacroID, self, "SecureActionButtonTemplate");
+    self.Macros[Object.MacroID]:SetAttribute("type", "macro");
+    self.Macros[Object.MacroID]:SetAttribute("macrotext", Object.MacroText);
   end
 
   -- AddonLoaded
@@ -263,12 +270,15 @@
               WR.Print(CurrResult);
               PrevResult = CurrResult;
             elseif CurrResult == nil then
-              WR.MainFrame:ChangeKeybind(nil);
+              WR.MainFrame:ChangeBind(nil);
               PrevResult = nil;
             end
           else
             WR.APLs[SpecID]();
           end
+        else
+          WR.MainFrame:ChangeBind(nil);
+          PrevResult = nil;
         end
       end
     end
@@ -276,11 +286,11 @@
 
   -- Is the player ready ?
   function WR.Ready ()
-    return not Player:IsDeadOrGhost() and not Player:IsMounted() and not Player:IsInVehicle() and not C_PetBattles.IsInBattle();
+    return not Player:IsDeadOrGhost() and not Player:IsMounted() and not Player:IsInVehicle() and not C_PetBattles.IsInBattle() and not Player:IsCasting() and not Player:IsChanneling() and Player:GCDRemains() == 0;
   end
 
   -- Used to force a short/long pulse wait, it also resets the icons.
   function WR.ChangePulseTimer (Offset)
-    WR.MainFrame:ChangeKeybind(nil);
+    WR.MainFrame:ChangeBind(nil);
     WR.Timer.Pulse = GetTime() + Offset;
   end

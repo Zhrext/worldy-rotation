@@ -11,11 +11,14 @@
   local Spell = HL.Spell;
   local Item = HL.Item;
   -- Lua
+  local tableinsert = table.insert;
+  local tableremove = table.remove;
   local mathmin = math.min;
   local print = print;
   local select = select;
   local stringlower = string.lower;
   local strsplit = strsplit;
+  local strsplittable = strsplittable;
   local tostring = tostring;
   -- File Locals
 
@@ -44,36 +47,103 @@
   -- Main Cast
   WR.CastOffGCDOffset = 1;
   function WR.Cast (Object, OutofRange, Immovable)
-    -- TODO(Worldy): Extend this section with auto bind behavior.
-    local KeybindAction = nil;
-    local Keybind = nil;
+    local Bind = nil;
     local SpellID = Object.SpellID;
-    if SpellID then
-      KeybindAction = HL.Action.FindBySpellID(SpellID);
-      if KeybindAction then
-        Keybind = KeybindAction.HotKey;
-      end
-    end
     local ItemID = Object.ItemID;
-    if ItemID then
-      KeybindAction = HL.Action.FindByItemID(ItemID);
-      if KeybindAction then
-        Keybind = KeybindAction.HotKey;
-      end
+    local MacroID = Object.MacroID;
+    if SpellID then
+      Bind = WR.SpellBinds[SpellID];
+    elseif ItemID then
+      Bind = WR.ItemBinds[ItemID];
+    elseif MacroID then
+      Bind = WR.MacroBinds[MacroID];
     end
     
     local PoolResource = 999910
-    local Usable = Object:IsUsable();
+    local Usable = MacroID or Object:IsUsable();
     local ShowPooling = Object.SpellID == PoolResource
 
     if ShowPooling or not Usable or OutofRange or (Immovable and Player:IsMoving()) then
-      WR.MainFrame:ChangeKeybind(nil);
+      WR.MainFrame:ChangeBind(nil);
     else
-      WR.MainFrame:ChangeKeybind(Keybind);
+      WR.MainFrame:ChangeBind(Bind);
     end
     
     Object.LastDisplayTime = GetTime();
     return true;
+  end
+
+--- ======= BINDS =======
+  -- Main Bind
+  do
+    WR.SpellBinds = {};
+    WR.ItemBinds = {};
+    WR.MacroBinds = {};
+    local FreeBinds = {};
+    local CommonKeys = {
+      "1", "2", "3", "4", "5", "6", "J", "K", "L"
+    };
+    local UncommonKeys = {
+      "F1", "F2", "F3", "F4", "F5", "F6",
+      "Numpad 0", "Numpad 1", "Numpad 2", "Numpad 3", "Numpad 4", "Numpad 5", "Numpad 6", "Numpad 7", "Numpad 8", "Numpad 9", "Numpad +", "Numpad -",
+      "[", "]", "\\", ";", "'", "`", ",", ".", "/"
+    };
+    local RareKeys = {
+      "7", "8", "9", "0", "-", "=",
+      "F7", "F8", "F9", "F10", "F11", "F12"
+    };
+    local ModifierKeys = {
+      "SHIFT:", "CTRL:", "ALT:"
+    };
+    local ModifierKeyCombs = {
+      "CTRL:SHIFT:", "ALT:SHIFT:"
+    };
+    local SetupKeys = true;
+    function WR.Bind (Object)
+      if SetupKeys then
+        WR.AddFreeBinds(CommonKeys);
+        WR.AddFreeBinds(UncommonKeys);
+        WR.AddFreeBinds(RareKeys);
+        SetupKeys = false;
+      end
+      local Bind = FreeBinds[#FreeBinds];
+      tableremove(FreeBinds, #FreeBinds);
+      WR.Unbind(Bind);
+      local SpellID = Object.SpellID;
+      local ItemID = Object.ItemID;
+      local MacroID = Object.MacroID;
+      if SpellID then
+        SetBindingSpell(Bind:gsub(":", "-"), Object:Name());
+        WR.SpellBinds[SpellID] = Bind;
+      elseif ItemID then
+        SetBindingItem(Bind:gsub(":", "-"), Object:Name());
+        WR.ItemBinds[ItemID] = Bind;
+      elseif MacroID then
+        WR.MainFrame:AddMacroFrame(Object);
+        SetBindingClick(Bind:gsub(":", "-"), MacroID);
+        WR.MacroBinds[MacroID] = Bind;
+      end
+    end
+    function WR.Unbind (Key)
+      local NumBindings = GetNumBindings();
+      for i = 1, NumBindings do
+        local Key1, Key2 = GetBindingKey(GetBinding(i));
+        if Key1 == Key or Key2 == Key then
+          SetBinding(Key);
+        end
+      end
+    end
+    function WR.AddFreeBinds (Keys)
+      for i = 1, #Keys do
+        tableinsert(FreeBinds, Keys[i]);
+        for j = 1, #ModifierKeys do
+          tableinsert(FreeBinds, ModifierKeys[j] .. Keys[i]);
+        end
+        for j = 1, #ModifierKeyCombs do
+          tableinsert(FreeBinds, ModifierKeyCombs[j] .. Keys[i]);
+        end
+      end
+    end
   end
 
 --- ======= COMMANDS =======
@@ -128,7 +198,7 @@
     end
   end
 
-  -- Get keybind info.
+  -- Get bind info.
   do
     local KeyCode = {
       ["1"] = 2,
@@ -180,8 +250,8 @@
       [","] = 51,
       ["."] = 52,
       ["/"] = 53,
-      ["N/"] = 53,
-      ["N*"] = 55,
+      ["Numpad /"] = 53,
+      ["Numpad *"] = 55,
       ["ALT"] = 56,
       [" "] = 57,
       ["F1"] = 59,
@@ -194,56 +264,47 @@
       ["F8"] = 66,
       ["F9"] = 67,
       ["F10"] = 68,
-      ["N7"] = 71,
-      ["N8"] = 72,
-      ["N9"] = 73,
-      ["N9"] = 73,
-      ["N-"] = 74,
-      ["N4"] = 75,
-      ["N5"] = 76,
-      ["N6"] = 77,
-      ["N+"] = 78,
-      ["N1"] = 79,
-      ["N2"] = 80,
-      ["N3"] = 81,
-      ["N0"] = 82,
+      ["Numpad 7"] = 71,
+      ["Numpad 8"] = 72,
+      ["Numpad 9"] = 73,
+      ["Numpad 9"] = 73,
+      ["Numpad -"] = 74,
+      ["Numpad 4"] = 75,
+      ["Numpad 5"] = 76,
+      ["Numpad 6"] = 77,
+      ["Numpad +"] = 78,
+      ["Numpad 1"] = 79,
+      ["Numpad 2"] = 80,
+      ["Numpad 3"] = 81,
+      ["Numpad 0"] = 82,
       ["F11"] = 87,
       ["F12"] = 88,
     }
-    function WR.GetKeybindInfo(keybind)
-      local key, mod1, mod2;
-      if keybind ~= nil then
-        for i = 1, #keybind do
-          local isEnd = i == #keybind;
-          local c = keybind:sub(i, i);
-          if isEnd then
-            key = c;
-          else
-            if c == "A" then
-              mod1 = "ALT";
-            elseif c == "C" then
-              mod1 = "CTRL";
-            elseif c == "S" then
-              mod2 = "SHIFT";
-            elseif c == "M" then
-              WR.Print("Keybind '" .. keybind .. "' is not supported.");
-            elseif c == "N" or c == "F" then
-              key = c .. keybind:sub(i+1, i+1);
-              break;
-            end
-          end
+    function WR.GetBindInfo(Bind)
+      local Key, Mod1, Mod2;
+      if Bind ~= nil then
+        local BindParts = strsplittable(":", Bind);
+        if #BindParts == 1 then
+          Key = BindParts[1];
+        elseif #BindParts == 2 then
+          Mod1 = BindParts[1];
+          Key = BindParts[2];
+        elseif #BindParts == 3 then
+          Mod1 = BindParts[1];
+          Mod2 = BindParts[2];
+          Key = BindParts[3];
         end
       end
-      local bind = {};
-      if key then
-        bind.key = KeyCode[tostring(key)];
+      local BindEx = {};
+      if Key then
+        BindEx.Key = KeyCode[tostring(Key)];
       end
-      if mod1 then
-        bind.mod1 = KeyCode[tostring(mod1)];
+      if Mod1 then
+        BindEx.Mod1 = KeyCode[tostring(Mod1)];
       end
-      if mod2 then
-        bind.mod2 = KeyCode[tostring(mod2)];
+      if Mod2 then
+        BindEx.Mod2 = KeyCode[tostring(Mod2)];
       end
-      return bind;
+      return BindEx;
     end
   end
