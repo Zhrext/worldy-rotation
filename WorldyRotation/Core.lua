@@ -11,22 +11,24 @@
   local Spell = HL.Spell;
   local Item = HL.Item;
   -- Lua
+  local error = error
   local tableinsert = table.insert;
   local tableremove = table.remove;
   local mathmin = math.min;
   local print = print;
   local select = select;
+  local setmetatable = setmetatable
   local stringlower = string.lower;
   local strsplit = strsplit;
   local strsplittable = strsplittable;
   local tostring = tostring;
+  local type = type
   -- File Locals
 
 
 --- ======= GLOBALIZE =======
   -- Addon
   WorldyRotation = WR;
-
 
 --- ============================ CONTENT ============================
 --- ======= CORE =======
@@ -41,6 +43,34 @@
   function WR.SetAPL (Spec, APL, APLInit)
     WR.APLs[Spec] = APL;
     WR.APLInits[Spec] = APLInit;
+  end
+
+  -- Define Macro
+  local function Class()
+    local Class = {}
+    Class.__index = Class
+    setmetatable(Class, {
+      __call =
+      function(self, ...)
+        local Object = {}
+        setmetatable(Object, self)
+        Object:New(...)
+        return Object
+      end
+    })
+    return Class
+  end
+
+  local Macro = Class()
+  WR.Macro = Macro
+  
+  function Macro:New(MacroID, MacroText)
+    if type(MacroID) ~= "string" then error("Invalid MacroID.") end
+    if type(MacroText) ~= "string" then error("Invalid MacroText.") end
+  
+    -- Attributes
+    self.MacroID = MacroID
+    self.MacroText = MacroText
   end
 
 --- ======= CASTS =======

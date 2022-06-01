@@ -51,7 +51,19 @@
   do
     local CreateARPanelOption = {
       Enabled = function (Panel, Setting, Name)
-        CreatePanelOption("CheckButton", Panel, Setting, "Show: " .. Name, "Enable if you want to use " .. Name .. ".");
+        CreatePanelOption("CheckButton", Panel, Setting, "Use: " .. Name, "Enable if you want to use " .. Name .. ".");
+      end,
+      HP = function(Panel, Setting, Name)
+        CreatePanelOption("Slider", Panel, Setting, {0, 100, 1}, "HP: " .. Name, "Set the HP threshold of " .. Name .. ". Set to 0 to disable.");
+      end,
+      AoE = function(Panel, Setting, Name)
+        CreatePanelOption("Slider", Panel, Setting, {0, 5, 1}, "AoE: " .. Name, "Set the AoE count of " .. Name .. ". Set to 0 to disable.");
+      end,
+      AoEGroup = function(Panel, Setting, Name)
+        CreatePanelOption("Slider", Panel, Setting, {1, 5, 1}, "Group: " .. Name, "Set the AoE group count of " .. Name .. ".");
+      end,
+      AoERaid = function(Panel, Setting, Name)
+        CreatePanelOption("Slider", Panel, Setting, {1, 5, 1}, "Raid: " .. Name, "Set the AoE raid count of " .. Name .. ".");
       end,
     };
     function WR.GUI.CreateARPanelOption (Type, Panel, Setting, ...)

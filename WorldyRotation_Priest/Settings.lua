@@ -21,9 +21,88 @@ WR.GUISettings.APL.Priest = {
       Potions = true,
       Racials = true,
       Trinkets = true,
+      PowerWordFortitude = true,
     },
   },
-  Discipline = {
+  Holy = {
+    General = {
+      Enabled = {
+        AngelicFeather = true,
+        BodyAndSoul = true,
+        Dispel = true,
+        OutOfCombatHealing = true,
+      },
+    },
+    Cooldown = {
+      Enabled = {
+        PowerInfusionSolo = true,
+      },
+      HP = {
+        Apotheosis = 60,
+        DivineHymn = 50,
+        GuardianSpirit = 20,
+        HolyWordSalvation = 50,
+      },
+      AoEGroup = {
+        Apotheosis = 3,
+        DivineHymn = 3,
+        HolyWordSalvation = 4,
+      },
+      AoERaid = {
+        Apotheosis = 6,
+        DivineHymn = 6,
+        HolyWordSalvation = 8,
+      },
+    },
+    Defensive = {
+      Enabled = {
+        Fade = true,
+      },
+      HP = {
+        DesperatePrayer = 40,
+      },
+    },
+    Damage = {
+      Enabled = {
+        BoonOfTheAscended = true,
+        DivineStar = true,
+      },
+      AoE = {
+        DivineStar = 1,
+        HolyNova = 3,
+      },
+    },
+    Healing = {
+      HP = {
+        HP = {
+          CircleOfHealing = 85,
+          FlashHeal = 65,
+          Halo = 85,
+          Heal = 80,
+          HolyWordSanctify = 85,
+          HolyWordSerenity = 70,
+          PrayerOfHealing = 0,
+          PrayerOfMending = 99,
+          Renew = 0,
+        },
+      },
+      AoEGroup = {
+        AoEGroup = {
+          CircleOfHealing = 3,
+          Halo = 3,
+          HolyWordSanctify = 3,
+          PrayerOfHealing = 3,
+        },
+      },
+      AoERaid = {
+        AoERaid = {
+          CircleOfHealing = 4,
+          Halo = 5,
+          HolyWordSanctify = 4,
+          PrayerOfHealing = 4,
+        },
+      },
+    },
   },
 }
 
@@ -32,9 +111,23 @@ WR.GUI.LoadSettingsRecursively(WR.GUISettings)
 -- Child Panels
 local ARPanel = WR.GUI.Panel
 local CP_Priest = CreateChildPanel(ARPanel, "Priest")
-local CP_Discipline = CreateChildPanel(CP_Priest, "Discipline")
+local CP_Holy = CreateChildPanel(CP_Priest, "Holy")
+local CP_Holy_General = CreateChildPanel(CP_Holy, "General")
+local CP_Holy_Cooldown = CreateChildPanel(CP_Holy, "Cooldown")
+local CP_Holy_Defensive = CreateChildPanel(CP_Holy, "Defensive")
+local CP_Holy_Damage = CreateChildPanel(CP_Holy, "Damage")
+local CP_Holy_Healing = CreateChildPanel(CP_Holy, "Healing")
+local CP_Holy_Healing_HP = CreateChildPanel(CP_Holy_Healing, "HP")
+local CP_Holy_Healing_AoEGroup = CreateChildPanel(CP_Holy_Healing, "AoEGroup")
+local CP_Holy_Healing_AoERaid = CreateChildPanel(CP_Holy_Healing, "AoERaid")
 
 CreateARPanelOptions(CP_Priest, "APL.Priest.Commons")
 
---Discipline
-CreateARPanelOptions(CP_Discipline, "APL.Priest.Discipline")
+--Holy
+CreateARPanelOptions(CP_Holy_General, "APL.Priest.Holy.General")
+CreateARPanelOptions(CP_Holy_Cooldown, "APL.Priest.Holy.Cooldown")
+CreateARPanelOptions(CP_Holy_Defensive, "APL.Priest.Holy.Defensive")
+CreateARPanelOptions(CP_Holy_Damage, "APL.Priest.Holy.Damage")
+CreateARPanelOptions(CP_Holy_Healing_HP, "APL.Priest.Holy.Healing.HP")
+CreateARPanelOptions(CP_Holy_Healing_AoEGroup, "APL.Priest.Holy.Healing.AoEGroup")
+CreateARPanelOptions(CP_Holy_Healing_AoERaid, "APL.Priest.Holy.Healing.AoERaid")

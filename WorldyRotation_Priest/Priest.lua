@@ -12,11 +12,11 @@ local Player     = Unit.Player
 local Target     = Unit.Target
 local Pet        = Unit.Pet
 local Spell      = HL.Spell
-local MultiSpell = HL.MultiSpell
 local Item       = HL.Item
 local MergeTableByKey = HL.Utils.MergeTableByKey
 -- WorldyRotation
 local WR         = WorldyRotation
+local Macro      = WR.Macro
 
 --- ============================ CONTENT ============================
 
@@ -36,18 +36,21 @@ Spell.Priest.Commons = {
   LightsJudgment                        = Spell(255647),
   -- Abilities
   DesperatePrayer                       = Spell(19236),
-  HolyNova                              = Spell(132157), -- Melee, 12
-  MindBlast                             = Spell(8092),
-  MindSear                              = Spell(48045), -- Splash, 10
+  DispelMagic                           = Spell(528),
+  Fade                                  = Spell(586),
   PowerInfusion                         = Spell(10060),
   PowerInfusionBuff                     = Spell(10060),
+  PowerWordFortitude                    = Spell(21562),
+  PowerWordFortitudeBuff                = Spell(21562),
+  PowerWordShield                       = Spell(17),
+  PowerWordShieldBuff                   = Spell(17),
+  PowerWordShieldDebuff                 = Spell(6788),
   ShadowWordDeath                       = Spell(32379),
   ShadowWordPain                        = Spell(589),
   ShadowWordPainDebuff                  = Spell(589),
   Smite                                 = Spell(585),
-  -- Talents
-  DivineStar                            = Spell(110744),
   -- Covenant Abilities
+  AscendedBlast                         = Spell(325283),
   AscendedNova                          = Spell(325020), -- Melee, 8
   BoonoftheAscended                     = Spell(325013),
   BoonoftheAscendedBuff                 = Spell(325013),
@@ -57,87 +60,42 @@ Spell.Priest.Commons = {
   Mindgames                             = Spell(323673),
   UnholyNova                            = Spell(324724), -- Melee, 15
   WrathfulFaerieDebuff                  = Spell(342132),
-  -- Soulbind Abilities
-  FieldofBlossoms                       = Spell(319191),
-  GroveInvigoration                     = Spell(322721),
-  PustuleEruption                       = Spell(351094),
-  VolatileSolvent                       = Spell(323074),
-  VolatileSolventHumanBuff              = Spell(323491),
-  -- Trinket Effects
-  ScarsofFraternalStrifeBuff4           = Spell(368638),
   -- Other
   Pool                                  = Spell(999910)
 }
-Spell.Priest.Shadow = MergeTableByKey(Spell.Priest.Commons, {
-  -- Base Spells
-  DarkThoughtBuff                       = Spell(341207),
-  DevouringPlague                       = Spell(335467),
-  DevouringPlagueDebuff                 = Spell(335467),
-  Dispersion                            = Spell(47585),
-  Mindbender                            = MultiSpell(200174,34433),
-  MindFlay                              = Spell(15407),
-  Shadowform                            = Spell(232698),
-  ShadowformBuff                        = Spell(232698),
-  Silence                               = Spell(15487),
-  VampiricTouch                         = Spell(34914),
-  VampiricTouchDebuff                   = Spell(34914),
-  VoidBolt                              = Spell(205448),
-  VoidEruption                          = Spell(228260), -- Splash, 10
-  VoidformBuff                          = Spell(194249),
-  -- Talents
-  Damnation                             = Spell(341374),
-  FortressOfTheMind                     = Spell(193195),
-  HungeringVoid                         = Spell(345218),
-  HungeringVoidDebuff                   = Spell(345219),
-  Misery                                = Spell(238558),
-  PsychicLink                           = Spell(199484),
-  SearingNightmare                      = Spell(341385), -- Splash, 10
-  ShadowCrash                           = Spell(205385), -- Splash, 8
-  SurrenderToMadness                    = Spell(319952),
-  TwistofFate                           = Spell(109142),
-  UnfurlingDarkness                     = Spell(341273),
-  UnfurlingDarknessBuff                 = Spell(341282),
-  VoidTorrent                           = Spell(263165),
-  -- Covenant Abilities
-  AscendedBlast                         = Spell(325283),
-  -- Conduit/Soulbind Effects
-  CombatMeditation                      = Spell(328266),
-  DissonantEchoes                       = Spell(338342),
-  DissonantEchoesBuff                   = Spell(343144),
-  FieldofBlossoms                       = Spell(319191),
-  GroveInvigoration                     = Spell(322721),
-  RedirectedAnimaBuff                   = Spell(342814),
-  -- Tier Set Effects
-  LivingShadowBuff                      = Spell(363578)
-})
-
-Spell.Priest.Discipline = MergeTableByKey(Spell.Priest.Commons, {
-  -- Base Spells
-  Penance                               = Spell(47540),
-  PowerWordRadiance                     = Spell(194509),
-  PowerWordFortitude                    = Spell(21562),
-  -- Talents
-  Schism                                = Spell(214621),
-  Mindbender                            = MultiSpell(123040, 34433),
-  PowerWordSolace                       = Spell(129250),
-  ShadowCovenant                        = Spell(314867),
-  ShadowCovenantBuff                    = Spell(322105),
-  PurgeTheWicked                        = Spell(204197),
-  PurgeTheWickedDebuff                  = Spell(204213),
-  Halo                                  = Spell(120517),
-  SpiritShell                           = Spell(109964),
-  -- Covenant Abilities
-  AscendedBlast                         = Spell(325315),
-})
 
 Spell.Priest.Holy = MergeTableByKey(Spell.Priest.Commons, {
   -- Base Spells
+  BodyandSoul                           = Spell(64129),
+  CircleofHealing                       = Spell(204883),
+  DivineHymn                            = Spell(64843),
+  FlashHeal                             = Spell(2061),
+  GuardianSpirit                        = Spell(47788),
+  Heal                                  = Spell(2060),
   HolyFire                              = Spell(14914),
   HolyFireDebuff                        = Spell(14914),
+  HolyNova                              = Spell(132157), -- Melee, 12
   HolyWordChastise                      = Spell(88625),
+  HolyWordSanctify                      = Spell(34861),
+  HolyWordSerenity                      = Spell(2050),
+  MassResurrection                      = Spell(212036),
+  PrayerofHealing                       = Spell(596),
+  PrayerofMending                       = Spell(33076),
+  PrayerofMendingBuff                   = Spell(41635),
+  Purify                                = Spell(527),
+  Renew                                 = Spell(139),
+  RenewBuff                             = Spell(139),
+  Resurrection                          = Spell(2006),
+  SurgeofLightBuff                      = Spell(114255),
   -- Talents
+  AngelicFeather                        = Spell(121536),
+  AngelicFeatherBuff                    = Spell(121557),
   Apotheosis                            = Spell(200183),
+  DivineStar                            = Spell(110744),
   Halo                                  = Spell(120517),
+  HolyWordSalvation                     = Spell(265202),
+  -- Legendary
+  FlashConcentrationBuff                = Spell(336267),
 })
 
 -- Items
@@ -146,7 +104,7 @@ Item.Priest.Commons = {
   -- Potion
   PotionofSpectralIntellect        = Item(171352),
   -- Trinkets
-  ArchitectsIngenuityCore         = Item(188268, {13, 14}),
+  ArchitectsIngenuityCore          = Item(188268, {13, 14}),
   DarkmoonDeckPutrescence          = Item(173069, {13, 14}),
   DreadfireVessel                  = Item(184030, {13, 14}),
   EmpyrealOrdinance                = Item(180117, {13, 14}),
@@ -161,11 +119,73 @@ Item.Priest.Commons = {
   TheFirstSigil                    = Item(188271, {13, 14}),
 }
 
-Item.Priest.Shadow = MergeTableByKey(Item.Priest.Commons, {
-})
-
-Item.Priest.Discipline = MergeTableByKey(Item.Priest.Commons, {
-})
-
 Item.Priest.Holy = MergeTableByKey(Item.Priest.Commons, {
+})
+
+-- Macros
+if not Macro.Priest then Macro.Priest = {} end
+Macro.Priest.Commons = {
+  -- Base Spells
+  PowerInfusionPlayer              = Macro("PowerInfusionPlayer", "/cast [@player] " .. Spell.Priest.Commons.PowerInfusion:Name()),
+  PowerWordFortitudePlayer         = Macro("PowerWordFortitudePlayer", "/cast [@player] " .. Spell.Priest.Commons.PowerWordFortitude:Name()),
+  PowerWordShieldPlayer            = Macro("PowerWordShieldPlayer", "/cast [@player] " .. Spell.Priest.Commons.PowerWordShield:Name()),
+  ShadowWordDeathMouseover         = Macro("ShadowWordDeathMouseover", "/cast [@mouseover] " .. Spell.Priest.Commons.ShadowWordDeath:Name()),
+  ShadowWordPainMouseover          = Macro("ShadowWordPainMouseover", "/cast [@mouseover] " .. Spell.Priest.Commons.ShadowWordPain:Name()),
+}
+
+Macro.Priest.Holy = MergeTableByKey(Macro.Priest.Commons, {
+  -- Base Spells
+  GuardianSpiritFocus              = Macro("GuardianSpiritFocus", "/cast [@focus] " .. Spell.Priest.Holy.GuardianSpirit:Name()),
+  FlashHealFocus                   = Macro("FlashHealFocus", "/cast [@focus] " .. Spell.Priest.Holy.FlashHeal:Name()),
+  HolyWordSanctifyCursor           = Macro("HolyWordSanctifyCursor", "/cast [@cursor] " .. Spell.Priest.Holy.HolyWordSanctify:Name()),
+  PurifyFocus                      = Macro("PurifyFocus", "/cast [@focus] " .. Spell.Priest.Holy.Purify:Name()),
+  -- Talents
+  AngelicFeatherPlayer             = Macro("AngelicFeatherPlayer", "/cast [@player] " .. Spell.Priest.Holy.AngelicFeather:Name()),
+  -- Focus
+  FocusTarget                      = Macro("FocusTarget", "/focus target"),
+  FocusPlayer                      = Macro("FocusPlayer", "/focus player"),
+  FocusParty1                      = Macro("FocusParty1", "/focus party1"),
+  FocusParty2                      = Macro("FocusParty2", "/focus party2"),
+  FocusParty3                      = Macro("FocusParty3", "/focus party3"),
+  FocusParty4                      = Macro("FocusParty4", "/focus party4"),
+  FocusRaid1                       = Macro("FocusRaid1", "/focus raid1"),
+  FocusRaid2                       = Macro("FocusRaid2", "/focus raid2"),
+  FocusRaid3                       = Macro("FocusRaid3", "/focus raid3"),
+  FocusRaid4                       = Macro("FocusRaid4", "/focus raid4"),
+  FocusRaid5                       = Macro("FocusRaid5", "/focus raid5"),
+  FocusRaid6                       = Macro("FocusRaid6", "/focus raid6"),
+  FocusRaid7                       = Macro("FocusRaid7", "/focus raid7"),
+  FocusRaid8                       = Macro("FocusRaid8", "/focus raid8"),
+  FocusRaid9                       = Macro("FocusRaid9", "/focus raid9"),
+  FocusRaid10                      = Macro("FocusRaid10", "/focus raid10"),
+  FocusRaid11                      = Macro("FocusRaid11", "/focus raid11"),
+  FocusRaid12                      = Macro("FocusRaid12", "/focus raid12"),
+  FocusRaid13                      = Macro("FocusRaid13", "/focus raid13"),
+  FocusRaid14                      = Macro("FocusRaid14", "/focus raid14"),
+  FocusRaid15                      = Macro("FocusRaid15", "/focus raid15"),
+  FocusRaid16                      = Macro("FocusRaid16", "/focus raid16"),
+  FocusRaid17                      = Macro("FocusRaid17", "/focus raid17"),
+  FocusRaid18                      = Macro("FocusRaid18", "/focus raid18"),
+  FocusRaid19                      = Macro("FocusRaid19", "/focus raid19"),
+  FocusRaid20                      = Macro("FocusRaid20", "/focus raid20"),
+  FocusRaid21                      = Macro("FocusRaid21", "/focus raid21"),
+  FocusRaid22                      = Macro("FocusRaid22", "/focus raid22"),
+  FocusRaid23                      = Macro("FocusRaid23", "/focus raid23"),
+  FocusRaid24                      = Macro("FocusRaid24", "/focus raid24"),
+  FocusRaid25                      = Macro("FocusRaid25", "/focus raid25"),
+  FocusRaid26                      = Macro("FocusRaid26", "/focus raid26"),
+  FocusRaid27                      = Macro("FocusRaid27", "/focus raid27"),
+  FocusRaid28                      = Macro("FocusRaid28", "/focus raid28"),
+  FocusRaid29                      = Macro("FocusRaid29", "/focus raid29"),
+  FocusRaid30                      = Macro("FocusRaid30", "/focus raid30"),
+  FocusRaid31                      = Macro("FocusRaid31", "/focus raid31"),
+  FocusRaid32                      = Macro("FocusRaid32", "/focus raid32"),
+  FocusRaid33                      = Macro("FocusRaid33", "/focus raid33"),
+  FocusRaid34                      = Macro("FocusRaid34", "/focus raid34"),
+  FocusRaid35                      = Macro("FocusRaid35", "/focus raid35"),
+  FocusRaid36                      = Macro("FocusRaid36", "/focus raid36"),
+  FocusRaid37                      = Macro("FocusRaid37", "/focus raid37"),
+  FocusRaid38                      = Macro("FocusRaid38", "/focus raid38"),
+  FocusRaid39                      = Macro("FocusRaid39", "/focus raid39"),
+  FocusRaid40                      = Macro("FocusRaid40", "/focus raid40"),
 })

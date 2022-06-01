@@ -11,5 +11,5 @@
 Settings.lua
 Priest.lua
 Events.lua
-Discipline.lua
+Holy.lua
 Overrides.lua

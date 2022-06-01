@@ -167,8 +167,8 @@
     --  [66]    = "WorldyRotation_Paladin",       -- Protection
     --  [70]    = "WorldyRotation_Paladin",       -- Retribution
     -- Priest
-      [256]   = "WorldyRotation_Priest",        -- Discipline
-    --  [257]   = "WorldyRotation_Priest",        -- Holy
+    --  [256]   = "WorldyRotation_Priest",        -- Discipline
+      [257]   = "WorldyRotation_Priest",        -- Holy
     --  [258]   = "WorldyRotation_Priest",        -- Shadow
     ---- Rogue
     --  [259]   = "WorldyRotation_Rogue",         -- Assassination
