@@ -311,7 +311,7 @@ end
 
 local function Racial()
   -- arcane_torrent,if=mana.pct<=95
-  if Settings.Holy.General.Enabled.Racials and S.ArcaneTorrent:IsCastable() and (Player:ManaPercentage() <= 95) then
+  if Settings.Holy.General.Enabled.Racials and S.ArcaneTorrent:IsReady() and Player:ManaPercentage() <= 95 then
     if Cast(S.ArcaneTorrent) then return "arcane_torrent racials 1"; end
   end
 end

@@ -51,10 +51,10 @@ function Commons.CanDoTUnit(Unit, HealthThreshold)
 end
 
 -- Interrupt
-function Commons.Interrupt(Range, Spell, Setting, StunSpells)
+function Commons.Interrupt(Range, Spell, StunSpells)
   if Settings.InterruptEnabled and Target:IsInterruptible() and Target:IsInRange(Range) then
     if Spell:IsCastable() then
-      if WR.Cast(Spell, Setting) then return "Cast " .. Spell:Name() .. " (Interrupt)"; end
+      if WR.Cast(Spell) then return "Cast " .. Spell:Name() .. " (Interrupt)"; end
     elseif Settings.InterruptWithStun and Target:CanBeStunned() then
       if StunSpells then
         for i = 1, #StunSpells do

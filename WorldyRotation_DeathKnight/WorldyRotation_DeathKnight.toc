@@ -1,0 +1,15 @@
+## Interface: 90205
+
+## Title: Worldy|cFFA330C9Rotation|r [|cFFC41F3BDeathKnight|r]
+## Author: Worldy
+## Notes: Worldy Rotation - DeathKnight Module.
+
+## DefaultState: Enabled
+## LoadOnDemand: 1
+## Dependencies: WorldyRotation
+
+Settings.lua
+DeathKnight.lua
+Events.lua
+Blood.lua
+Overrides.lua

@@ -139,7 +139,7 @@
 --- ======= MAIN =======
   local EnabledRotation = {
     ---- Death Knight
-    --  [250]   = "WorldyRotation_DeathKnight",   -- Blood
+      [250]   = "WorldyRotation_DeathKnight",   -- Blood
     --  [251]   = "WorldyRotation_DeathKnight",   -- Frost
     --  [252]   = "WorldyRotation_DeathKnight",   -- Unholy
     ---- Demon Hunter

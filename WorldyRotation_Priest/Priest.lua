@@ -26,7 +26,7 @@ Spell.Priest.Commons = {
   -- Racials
   AncestralCall                         = Spell(274738),
   ArcanePulse                           = Spell(260364),
-  ArcaneTorrent                         = Spell(50613),
+  ArcaneTorrent                         = Spell(232633),
   BagofTricks                           = Spell(312411),
   Berserking                            = Spell(26297),
   BerserkingBuff                        = Spell(26297),
