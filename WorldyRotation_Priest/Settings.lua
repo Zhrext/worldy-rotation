@@ -18,10 +18,6 @@ local CreateARPanelOptions = WR.GUI.CreateARPanelOptions
 WR.GUISettings.APL.Priest = {
   Commons = {
     Enabled = {
-      Potions = true,
-      Racials = true,
-      Trinkets = true,
-      PowerWordFortitude = true,
     },
   },
   Holy = {
@@ -32,6 +28,10 @@ WR.GUISettings.APL.Priest = {
         Dispel = true,
         FlashConcentration = true,
         OutOfCombatHealing = true,
+        Potions = true,
+        PowerWordFortitude = true,
+        Racials = true,
+        Trinkets = true,
       },
     },
     Cooldown = {
@@ -61,6 +61,8 @@ WR.GUISettings.APL.Priest = {
       },
       HP = {
         DesperatePrayer = 40,
+        Healthstone = 40,
+        PhialOfSerenity = 40,
       },
     },
     Damage = {

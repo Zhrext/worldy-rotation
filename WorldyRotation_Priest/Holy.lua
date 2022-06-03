@@ -12,8 +12,6 @@ local Player     = Unit.Player
 local Target     = Unit.Target
 local Focus      = Unit.Focus
 local Mouseover  = Unit.MouseOver
-local Party      = Unit.Party
-local Raid       = Unit.Raid
 local Pet        = Unit.Pet
 local Spell      = HL.Spell
 local Item       = HL.Item
@@ -42,6 +40,7 @@ local OnUseExcludes = {}
 -- Rotation Var
 local Enemies12yMelee, EnemiesCount12yMelee
 local EnemiesCount8ySplash
+local DispellableDebuffs
 
 -- GUI Settings
 local Everyone = WR.Commons.Everyone
@@ -77,7 +76,7 @@ local function GetFocusUnit()
     return Player
   end
   if Settings.Holy.General.Enabled.Dispel and S.Purify:IsReady() then
-    local DispellableFriendlyUnit = Everyone.DispellableFriendlyUnit()
+    local DispellableFriendlyUnit = Everyone.DispellableFriendlyUnit(DispellableDebuffs)
     if DispellableFriendlyUnit then
       return DispellableFriendlyUnit
     end
@@ -107,7 +106,7 @@ end
 
 local function Cooldown()
   -- power_infusion
-  if Settings.Holy.Cooldown.Enabled.PowerInfusionSolo and Everyone.IsSoloMode() and S.PowerInfusion:IsReady() then
+  if CDsON() and Settings.Holy.Cooldown.Enabled.PowerInfusionSolo and Everyone.IsSoloMode() and S.PowerInfusion:IsReady() then
     if Cast(M.PowerInfusionPlayer) then return "power_infusion cooldown 1"; end
   end
   if Focus then
@@ -138,6 +137,21 @@ local function Damage()
   end
   if Mouseover and Mouseover:NPCID() == ExplosiveNPCID and S.ShadowWordPain:IsReady() then
     if Cast(M.ShadowWordPainMouseover, not Mouseover:IsSpellInRange(S.ShadowWordPain)) then return "shadow_word_pain damage 2"; end
+  end
+  -- use_trinket
+  if (Settings.Holy.General.Enabled.Trinkets) then
+    local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
+    if TrinketToUse then
+      if Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 13) then
+        if Cast(M.Trinket1) then return "use_trinket " .. TrinketToUse:Name() .. " damage 1"; end
+      elseif Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 14) then
+        if Cast(M.Trinket2) then return "use_trinket " .. TrinketToUse:Name() .. " damage 2"; end
+      end
+    end
+  end
+  -- use_potion_of_spectral_intellect
+  if I.PotionofSpectralIntellect:IsReady() and (Player:BloodlustUp() or Target:TimeToDie() <= 30) then
+    if Cast(M.PotionofSpectralIntellect) then return "potion damage 1"; end
   end
   if CovenantID == 1 then
     -- ascended_blast
@@ -203,11 +217,19 @@ local function Defensive()
   if Player:HealthPercentage() <= Settings.Holy.Defensive.HP.DesperatePrayer and S.DesperatePrayer:IsReady() then
     if Cast(S.DesperatePrayer) then return "desperate_prayer defensive 2"; end
   end
+  -- healthstone
+  if Player:HealthPercentage() <= Settings.Holy.Defensive.HP.Healthstone and I.Healthstone:IsReady() then
+    if Cast(M.Healthstone) then return "healthstone defensive 3"; end
+  end
+  -- phial_of_serenity
+  if Player:HealthPercentage() <= Settings.Holy.Defensive.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
+    if Cast(M.PhialofSerenity) then return "phial_of_serenity defensive 4"; end
+  end
 end
 
 local function Dispel()
   -- purify
-  if Focus and #Everyone.DispellableFriendlyUnits() > 0 and S.Purify:IsReady() then
+  if Focus and Everyone.DispellableFriendlyUnit(DispellableDebuffs) and S.Purify:IsReady() then
     if Cast(M.PurifyFocus) then return "purify dispel 1"; end
   end
 end
@@ -245,15 +267,15 @@ local function Healing()
     if Cast(M.CircleofHealingFocus) then return "circle_of_healing healing 7"; end
   end
   -- divine_star
-  if Focus:HealthPercentage() < Settings.Holy.Healing.HP.DivineStar and S.DivineStar:IsReady() and Focus:IsInRange(24) then
-    if Cast(S.DivineStar) then return "divine_star healing 8"; end
+  if Focus:HealthPercentage() < Settings.Holy.Healing.HP.DivineStar and S.DivineStar:IsAvailable() and S.DivineStar:IsReady() and not Focus:IsFacingBlacklisted() then
+    if Cast(S.DivineStar, not Focus:IsInRange(24)) then return "divine_star healing 8"; end
   end
   -- renew
   if Focus:HealthPercentage() <= Settings.Holy.Healing.HP.Renew and S.Renew:IsReady() and not Focus:BuffUp(S.RenewBuff) then
     if Cast(M.RenewFocus) then return "renew healing 9"; end
   end
   -- halo
-  if AreUnitsBelowHealthPercentage(Settings.Holy.Healing, "Halo") and S.Halo:IsReady() then
+  if AreUnitsBelowHealthPercentage(Settings.Holy.Healing, "Halo") and S.Halo:IsAvailable() and S.Halo:IsReady() then
     if Cast(S.Halo, nil, true) then return "halo healing 10"; end
   end
   -- prayer_of_healing
@@ -287,8 +309,15 @@ local function Movement()
   end
 end
 
+local function Racial()
+  -- arcane_torrent,if=mana.pct<=95
+  if Settings.Holy.General.Enabled.Racials and S.ArcaneTorrent:IsCastable() and (Player:ManaPercentage() <= 95) then
+    if Cast(S.ArcaneTorrent) then return "arcane_torrent racials 1"; end
+  end
+end
+
 local function Combat()
-  -- dispels
+  -- dispel
   if Settings.Holy.General.Enabled.Dispel then
     local ShouldReturn = Dispel(); if ShouldReturn then return ShouldReturn; end
   end
@@ -300,6 +329,8 @@ local function Combat()
   if Focus and Focus:Exists() and not Focus:IsDeadOrGhost() and Focus:IsInRange(40) then
     ShouldReturn = Healing(); if ShouldReturn then return ShouldReturn; end
   end
+  -- racial
+  ShouldReturn = Racial(); if ShouldReturn then return ShouldReturn; end
   -- damage
   if Everyone.TargetIsValid() then
     ShouldReturn = Damage(); if ShouldReturn then return ShouldReturn; end
@@ -307,7 +338,7 @@ local function Combat()
 end
 
 local function OutOfCombat()
-  -- dispels
+  -- dispel
   if Settings.Holy.General.Enabled.Dispel then
     local ShouldReturn = Dispel(); if ShouldReturn then return ShouldReturn; end
   end
@@ -316,7 +347,7 @@ local function OutOfCombat()
     local ShouldReturn = Healing(); if ShouldReturn then return ShouldReturn; end
   end
   -- resurrection
-  if Target:IsAPlayer() and Target:IsDeadOrGhost() and not Player:CanAttack(Target) then
+  if Target and Target:Exists() and Target:IsAPlayer() and Target:IsDeadOrGhost() and not Player:CanAttack(Target) then
     local DeadFriendlyUnitsCount = Everyone.DeadFriendlyUnitsCount()
     if DeadFriendlyUnitsCount > 1 then
       if Cast(S.MassResurrection, nil, true) then return "mass_resurrection outofcombat 1"; end
@@ -325,7 +356,7 @@ local function OutOfCombat()
     end
   end
   -- power_word_fortitude
-  if Settings.Commons.Enabled.PowerWordFortitude and S.PowerWordFortitude:IsReady() and not Player:BuffUp(S.PowerWordFortitudeBuff) then
+  if Settings.Holy.General.Enabled.PowerWordFortitude and S.PowerWordFortitude:IsReady() and not Player:BuffUp(S.PowerWordFortitudeBuff) then
     if Cast(M.PowerWordFortitudePlayer) then return "power_word_fortitude_player outofcombat 3"; end
   end
 end
@@ -375,13 +406,11 @@ local function AutoBind()
   WR.Bind(S.Smite)
 
   -- Bind Items
-  local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
-  if TrinketToUse then
-    WR.Bind(TrinketToUse)
-  end
-  if I.PotionofSpectralIntellect then
-    WR.Bind(I.PotionofSpectralIntellect)
-  end
+  WR.Bind(M.Trinket1)
+  WR.Bind(M.Trinket2)
+  WR.Bind(M.Healthstone)
+  WR.Bind(M.PotionofSpectralIntellect)
+  WR.Bind(M.PhialofSerenity)
 
   -- Bind Macros
   WR.Bind(M.AngelicFeatherPlayer)
@@ -417,6 +446,68 @@ end
 local function Init()
   WR.Print("Holy Priest by Worldy")
   AutoBind()
+  DispellableDebuffs = {
+    Spell(325885), -- Anguished Cries
+    Spell(325224), -- Anima Injection
+    Spell(321968), -- Bewildering Pollen
+    Spell(327882), -- Blightbeak
+    Spell(324859), -- Bramblethorn Entanglement
+    Spell(317963), -- Burden of Knowledge
+    Spell(322358), -- Burning Strain
+    Spell(243237), -- Burst
+    Spell(360148), -- Bursting Dread
+    Spell(338729), -- Charged Anima
+    Spell(328664), -- Chilled
+    Spell(323347), -- Clinging Darkness
+    Spell(320512), -- Corroded Claws
+    Spell(319070), -- Corrosive Gunk
+    Spell(325725), -- Cosmic Artifice
+    Spell(365297), -- Crushing Prism
+    Spell(327481), -- Dark Lance
+    Spell(324652), -- Debilitating Plague
+    Spell(330700), -- Decaying Blight
+    Spell(364522), -- Devouring Blood
+    Spell(356324), -- Empowered Glyph of Restraint
+    Spell(328331), -- Forced Confession
+    -- NOTE(Worldy): Manually.
+    -- 320788, -- Frozen Binds
+    Spell(320248), -- Genetic Alteration
+    Spell(355915), -- Glyph of Restraint
+    Spell(364031), -- Gloom
+    Spell(338353), -- Goresplatter
+    Spell(328180), -- Gripping Infection
+    Spell(346286), -- Hazardous Liquids
+    Spell(320596), -- Heaving Retch
+    Spell(332605), -- Hex
+    Spell(328002), -- Hurl Spores
+    Spell(357029), -- Hyperlight Bomb
+    Spell(317661), -- Insidious Venom
+    Spell(327648), -- Internal Strife
+    Spell(322818), -- Lost Confidence
+    Spell(319626), -- Phantasmal Parasite
+    Spell(349954), -- Purification Protocol
+    Spell(324293), -- Rasping Scream
+    Spell(328756), -- Repulsive Visage
+    -- NOTE(Worldy): Manually.
+    -- 360687, -- Runecarver's Deathtouch
+    Spell(355641), -- Scintillate
+    Spell(332707), -- Shadow Word: Pain
+    Spell(334505), -- Shimmerdust Sleep
+    Spell(339237), -- Sinlight Visions
+    Spell(325701), -- Siphon Life
+    Spell(329110), -- Slime Injection
+    Spell(333708), -- Soul Corruption
+    Spell(322557), -- Soul Split
+    Spell(356031), -- Stasis Beam
+    Spell(326632), -- Stony Veins
+    Spell(353835), -- Suppression
+    Spell(326607), -- Turn to Stone
+    Spell(360241), -- Unsettling Dreams
+    Spell(340026), -- Wailing Grief
+    Spell(320529), -- Wasting Blight
+    Spell(341949), -- Withering Blight
+    Spell(321038), -- Wrack Soul
+  }
 end
 
 

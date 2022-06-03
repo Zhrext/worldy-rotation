@@ -102,7 +102,10 @@ Spell.Priest.Holy = MergeTableByKey(Spell.Priest.Commons, {
 if not Item.Priest then Item.Priest = {} end
 Item.Priest.Commons = {
   -- Potion
+  Healthstone                      = Item(5512),
   PotionofSpectralIntellect        = Item(171352),
+  -- Covenant
+  PhialofSerenity                  = Item(177278),
   -- Trinkets
   ArchitectsIngenuityCore          = Item(188268, {13, 14}),
   DarkmoonDeckPutrescence          = Item(173069, {13, 14}),
@@ -147,6 +150,12 @@ Macro.Priest.Holy = MergeTableByKey(Macro.Priest.Commons, {
   RenewFocus                       = Macro("RenewFocus", "/cast [@focus] " .. Spell.Priest.Holy.Renew:Name()),
   -- Talents
   AngelicFeatherPlayer             = Macro("AngelicFeatherPlayer", "/cast [@player] " .. Spell.Priest.Holy.AngelicFeather:Name()),
+  -- Items
+  Trinket1                         = Macro("Trinket1", "/use 13"),
+  Trinket2                         = Macro("Trinket2", "/use 14"),
+  Healthstone                      = Macro("Healthstone", "/use " .. Item.Priest.Commons.Healthstone:Name()),
+  PotionofSpectralIntellect        = Macro("PotionofSpectralIntellect", "/use " .. Item.Priest.Commons.PotionofSpectralIntellect:Name()),
+  PhialofSerenity                  = Macro("PhialofSerenity", "/use " .. Item.Priest.Commons.PhialofSerenity:Name()),
   -- Focus
   FocusTarget                      = Macro("FocusTarget", "/focus target"),
   FocusPlayer                      = Macro("FocusPlayer", "/focus player"),
