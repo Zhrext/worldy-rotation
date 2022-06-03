@@ -30,6 +30,7 @@ WR.GUISettings.APL.Priest = {
         AngelicFeather = true,
         BodyAndSoul = true,
         Dispel = true,
+        FlashConcentration = true,
         OutOfCombatHealing = true,
       },
     },

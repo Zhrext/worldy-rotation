@@ -42,7 +42,6 @@ local OnUseExcludes = {}
 -- Rotation Var
 local Enemies12yMelee, EnemiesCount12yMelee
 local EnemiesCount8ySplash
-local CurrentFocusUnitID
 
 -- GUI Settings
 local Everyone = WR.Commons.Everyone
@@ -72,20 +71,20 @@ end, "PLAYER_EQUIPMENT_CHANGED")
 -- Rotation Utils
 local function GetFocusUnit()
   if Everyone.TargetIsValidHealableNpc() then
-    return "target"
+    return Target
   end
   if Everyone.IsSoloMode() then
-    return "player"
+    return Player
   end
   if Settings.Holy.General.Enabled.Dispel and S.Purify:IsReady() then
     local DispellableFriendlyUnit = Everyone.DispellableFriendlyUnit()
     if DispellableFriendlyUnit then
-      return DispellableFriendlyUnit:ID()
+      return DispellableFriendlyUnit
     end
   end
   local LowestFriendlyUnit = Everyone.LowestFriendlyUnit()
   if LowestFriendlyUnit then
-    return LowestFriendlyUnit:ID()
+    return LowestFriendlyUnit
   end
 end
 
@@ -99,11 +98,10 @@ end
 
 -- Rotation Parts
 local function FocusUnit()
-  local NewFocusUnitID = GetFocusUnit()
-  if NewFocusUnitID ~= nil and (Focus == nil or not Focus:Exists() or NewFocusUnitID ~= CurrentFocusUnitID or not Focus:IsInRange(40)) then
-    CurrentFocusUnitID = NewFocusUnitID
-    local FocusUnitKey = "Focus" .. Utils.UpperCaseFirst(NewFocusUnitID)
-    if Cast(M[FocusUnitKey]) then return "focus " .. NewFocusUnitID .. " focus_unit 1"; end
+  local NewFocusUnit = GetFocusUnit()
+  if NewFocusUnit ~= nil and (Focus == nil or not Focus:Exists() or NewFocusUnit:GUID() ~= Focus:GUID() or not Focus:IsInRange(40)) then
+    local FocusUnitKey = "Focus" .. Utils.UpperCaseFirst(NewFocusUnit:ID())
+    if Cast(M[FocusUnitKey]) then return "focus " .. NewFocusUnit:ID() .. " focus_unit 1"; end
   end
 end
 
@@ -217,7 +215,7 @@ end
 local function Healing()
   local FlashHealIsInstantCast = Player:BuffUp(S.SurgeofLightBuff)
   -- flash_heal
-  if FlashConcentrationEquipped and Player:BuffUp(S.FlashConcentrationBuff) and Player:BuffRemains(S.FlashConcentrationBuff) <= 6 and S.FlashHeal:IsReady() then
+  if Settings.Holy.General.Enabled.FlashConcentration and FlashConcentrationEquipped and Player:BuffUp(S.FlashConcentrationBuff) and Player:BuffRemains(S.FlashConcentrationBuff) <= 6 and S.FlashHeal:IsReady() then
     if Cast(M.FlashHealFocus, nil, not FlashHealIsInstantCast) then return "flash_heal healing 1"; end
   end
   if CovenantID == 1 then
