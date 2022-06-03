@@ -92,7 +92,7 @@ do
     end
     if Commons.IsSoloMode() then
       return {Player};
-    elseif Player:IsInParty() then
+    elseif Player:IsInParty() and not Player:IsInRaid() then
       return PartyUnits;
     elseif Player:IsInRaid() then
       return RaidUnits;
@@ -178,6 +178,19 @@ do
     end
     return DispellableUnits;
   end
+  function Commons.DispellableFriendlyUnit()
+    local DispellableFriendlyUnits = Commons.DispellableFriendlyUnits();
+    local DispellableFriendlyUnitsCount = #DispellableFriendlyUnits;
+    if DispellableFriendlyUnitsCount > 0 then
+      for i = 1, DispellableFriendlyUnitsCount do
+        local DispellableFriendlyUnit = DispellableFriendlyUnits[i];
+        if not Commons.UnitGroupRole(DispellableFriendlyUnit) == "TANK" then
+          return DispellableFriendlyUnit;
+        end
+      end
+      return DispellableFriendlyUnits[1];
+    end
+  end
 end
 
 -- Get assigned unit role.
@@ -185,7 +198,6 @@ function Commons.UnitGroupRole(GroupUnit)
   if GroupUnit:IsAPlayer() then
     return UnitGroupRolesAssigned(GroupUnit:ID());
   end
-  return nil;
 end
 
 -- Get lowest friendly unit.
@@ -194,7 +206,7 @@ function Commons.LowestFriendlyUnit()
   local FriendlyUnits = Commons.FriendlyUnits();
   for i = 1, #FriendlyUnits do
     local FriendlyUnit = FriendlyUnits[i];
-    if FriendlyUnit:Exists() and not FriendlyUnit:IsDeadOrGhost() and FriendlyUnit:IsInRange(40) then
+    if FriendlyUnit and FriendlyUnit:Exists() and not FriendlyUnit:IsDeadOrGhost() and FriendlyUnit:IsInRange(40) then
       if not LowestUnit or FriendlyUnit:HealthPercentage() < LowestUnit:HealthPercentage() then
         LowestUnit = FriendlyUnit;
       end

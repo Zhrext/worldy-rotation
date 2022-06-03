@@ -74,33 +74,28 @@ WR.GUISettings.APL.Priest = {
     },
     Healing = {
       HP = {
-        HP = {
-          CircleOfHealing = 85,
-          FlashHeal = 65,
-          Halo = 85,
-          Heal = 80,
-          HolyWordSanctify = 85,
-          HolyWordSerenity = 70,
-          PrayerOfHealing = 0,
-          PrayerOfMending = 99,
-          Renew = 0,
-        },
+        CircleOfHealing = 85,
+        DivineStar = 85,
+        FlashHeal = 65,
+        Halo = 85,
+        Heal = 80,
+        HolyWordSanctify = 85,
+        HolyWordSerenity = 70,
+        PrayerOfHealing = 0,
+        PrayerOfMending = 99,
+        Renew = 0,
       },
       AoEGroup = {
-        AoEGroup = {
-          CircleOfHealing = 3,
-          Halo = 3,
-          HolyWordSanctify = 3,
-          PrayerOfHealing = 3,
-        },
+        CircleOfHealing = 3,
+        Halo = 3,
+        HolyWordSanctify = 3,
+        PrayerOfHealing = 3,
       },
       AoERaid = {
-        AoERaid = {
-          CircleOfHealing = 4,
-          Halo = 5,
-          HolyWordSanctify = 4,
-          PrayerOfHealing = 4,
-        },
+        CircleOfHealing = 4,
+        Halo = 5,
+        HolyWordSanctify = 4,
+        PrayerOfHealing = 4,
       },
     },
   },
@@ -117,9 +112,6 @@ local CP_Holy_Cooldown = CreateChildPanel(CP_Holy, "Cooldown")
 local CP_Holy_Defensive = CreateChildPanel(CP_Holy, "Defensive")
 local CP_Holy_Damage = CreateChildPanel(CP_Holy, "Damage")
 local CP_Holy_Healing = CreateChildPanel(CP_Holy, "Healing")
-local CP_Holy_Healing_HP = CreateChildPanel(CP_Holy_Healing, "HP")
-local CP_Holy_Healing_AoEGroup = CreateChildPanel(CP_Holy_Healing, "AoEGroup")
-local CP_Holy_Healing_AoERaid = CreateChildPanel(CP_Holy_Healing, "AoERaid")
 
 CreateARPanelOptions(CP_Priest, "APL.Priest.Commons")
 
@@ -128,6 +120,4 @@ CreateARPanelOptions(CP_Holy_General, "APL.Priest.Holy.General")
 CreateARPanelOptions(CP_Holy_Cooldown, "APL.Priest.Holy.Cooldown")
 CreateARPanelOptions(CP_Holy_Defensive, "APL.Priest.Holy.Defensive")
 CreateARPanelOptions(CP_Holy_Damage, "APL.Priest.Holy.Damage")
-CreateARPanelOptions(CP_Holy_Healing_HP, "APL.Priest.Holy.Healing.HP")
-CreateARPanelOptions(CP_Holy_Healing_AoEGroup, "APL.Priest.Holy.Healing.AoEGroup")
-CreateARPanelOptions(CP_Holy_Healing_AoERaid, "APL.Priest.Holy.Healing.AoERaid")
+CreateARPanelOptions(CP_Holy_Healing, "APL.Priest.Holy.Healing")

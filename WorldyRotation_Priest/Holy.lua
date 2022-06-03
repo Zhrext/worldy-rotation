@@ -11,12 +11,13 @@ local Unit       = HL.Unit
 local Player     = Unit.Player
 local Target     = Unit.Target
 local Focus      = Unit.Focus
-local Mouseover  = Unit.Mouseover
+local Mouseover  = Unit.MouseOver
 local Party      = Unit.Party
 local Raid       = Unit.Raid
 local Pet        = Unit.Pet
 local Spell      = HL.Spell
 local Item       = HL.Item
+local Utils      = HL.Utils
 -- WorldyRotation
 local WR         = WorldyRotation
 local Macro      = WR.Macro
@@ -40,9 +41,8 @@ local OnUseExcludes = {}
 
 -- Rotation Var
 local Enemies12yMelee, EnemiesCount12yMelee
-local Enemies30y, EnemiesCount30y
 local EnemiesCount8ySplash
-local CurrentFocusUnit
+local CurrentFocusUnitID
 
 -- GUI Settings
 local Everyone = WR.Commons.Everyone
@@ -72,45 +72,38 @@ end, "PLAYER_EQUIPMENT_CHANGED")
 -- Rotation Utils
 local function GetFocusUnit()
   if Everyone.TargetIsValidHealableNpc() then
-    return "Target"
+    return "target"
   end
   if Everyone.IsSoloMode() then
-    return "Player"
+    return "player"
   end
   if Settings.Holy.General.Enabled.Dispel and S.Purify:IsReady() then
-    local DispellableFriendlyUnits = Everyone.DispellableFriendlyUnits()
-    local DispellableFriendlyUnitsCount = #DispellableFriendlyUnits
-    if DispellableFriendlyUnitsCount > 0 then
-      for i = 1, DispellableFriendlyUnitsCount do
-        local DispellableFriendlyUnit = DispellableFriendlyUnits[i]
-        if not Everyone.UnitGroupRole(DispellableFriendlyUnit) == "TANK" then
-          return DispellableFriendlyUnit:ID()
-        end
-      end
-      return DispellableFriendlyUnits[1]:ID()
+    local DispellableFriendlyUnit = Everyone.DispellableFriendlyUnit()
+    if DispellableFriendlyUnit then
+      return DispellableFriendlyUnit:ID()
     end
   end
-  return Everyone.LowestFriendlyUnit()
+  local LowestFriendlyUnit = Everyone.LowestFriendlyUnit()
+  if LowestFriendlyUnit then
+    return LowestFriendlyUnit:ID()
+  end
 end
 
 local function AreUnitsBelowHealthPercentage(SettingTable, SettingName)
-  if Everyone.IsSoloMode() then
-    return false
-  elseif Player:IsInParty() then
+  if Player:IsInParty() and not Player:IsInRaid() then
     return Everyone.FriendlyUnitsBelowHealthPercentageCount(SettingTable.HP[SettingName]) >= SettingTable.AoEGroup[SettingName]
   elseif Player:IsInRaid() then
     return Everyone.FriendlyUnitsBelowHealthPercentageCount(SettingTable.HP[SettingName]) >= SettingTable.AoERaid[SettingName]
   end
-  return false
 end
 
 -- Rotation Parts
 local function FocusUnit()
-  local NewFocusUnit = GetFocusUnit()
-  if NewFocusUnit and (CurrentFocusUnit == nil or not NewFocusUnit == CurrentFocusUnit or not Focus:Exists() or not Focus:IsInRange(40)) then
-    CurrentFocusUnit = NewFocusUnit
-    local FocusUnitKey = "Focus" .. CurrentFocusUnit
-    if Cast(M[FocusUnitKey]) then return "focus " .. CurrentFocusUnit .. " focus_unit 1"; end
+  local NewFocusUnitID = GetFocusUnit()
+  if NewFocusUnitID ~= nil and (Focus == nil or not Focus:Exists() or NewFocusUnitID ~= CurrentFocusUnitID or not Focus:IsInRange(40)) then
+    CurrentFocusUnitID = NewFocusUnitID
+    local FocusUnitKey = "Focus" .. Utils.UpperCaseFirst(NewFocusUnitID)
+    if Cast(M[FocusUnitKey]) then return "focus " .. NewFocusUnitID .. " focus_unit 1"; end
   end
 end
 
@@ -140,17 +133,6 @@ local function Cooldown()
 end
 
 local function Damage()
-  Enemies12yMelee = Player:GetEnemiesInMeleeRange(12)
-  Enemies30y = Player:GetEnemiesInRange(30)
-  if AoEON() then
-    EnemiesCount12yMelee = #Enemies12yMelee
-    EnemiesCount30y = #Enemies30y
-    EnemiesCount8ySplash = Target:GetEnemiesInSplashRangeCount(8)
-  else
-    EnemiesCount12yMelee = 1
-    EnemiesCount30y = 1
-    EnemiesCount8ySplash = 1
-  end
   -- explosive
   local ExplosiveNPCID = 120651
   if Target:NPCID() == ExplosiveNPCID and S.ShadowWordPain:IsReady() then
@@ -197,11 +179,11 @@ local function Damage()
     if Cast(S.BoonoftheAscended, nil, true) then return "boon_of_the_ascended damage 11"; end
   end
   -- holy_nova
-  if Enemies12yMelee > Settings.Holy.Damage.AoE.HolyNova and S.HolyNova:IsReady() then
+  if EnemiesCount12yMelee > Settings.Holy.Damage.AoE.HolyNova and S.HolyNova:IsReady() then
     if Cast(S.HolyNova) then return "holy_nova damage 12"; end
   end
   -- shadow_word_pain
-  if not Target:BuffUp(S.ShadowWordPainDebuff) and Target:TimeToDie() > 3 and S.ShadowWordPain:IsReady() then
+  if not Target:DebuffUp(S.ShadowWordPainDebuff) and Target:TimeToDie() > 3 and S.ShadowWordPain:IsReady() then
     if Cast(S.ShadowWordPain, not Target:IsSpellInRange(S.ShadowWordPain)) then return "shadow_word_pain damage 13"; end
   end
   -- smite
@@ -220,7 +202,7 @@ local function Defensive()
     if Cast(S.Fade) then return "fade defensive 1"; end
   end
   -- desperate_prayer
-  if Player:HealthPercentage() <= Player.Holy.Defensive.HP.DesperatePrayer and S.DesperatePrayer:IsReady() then
+  if Player:HealthPercentage() <= Settings.Holy.Defensive.HP.DesperatePrayer and S.DesperatePrayer:IsReady() then
     if Cast(S.DesperatePrayer) then return "desperate_prayer defensive 2"; end
   end
 end
@@ -249,14 +231,51 @@ local function Healing()
     end
   end
   -- holy_word_sanctify
-  if AreUnitsBelowHealthPercentage(Settings.Holy.Healing, "HolyWordSanctify") and S.HolyWordSanctify:IsReady() and Mouseover and Mouseover:HealthPercentage() <= Settings.Holy.Healing.HP.HolyWordSanctify then
+  if AreUnitsBelowHealthPercentage(Settings.Holy.Healing, "HolyWordSanctify") and S.HolyWordSanctify:IsReady() and Mouseover and Mouseover:IsAPlayer() and not Player:CanAttack(Mouseover) then
     if Cast(M.HolyWordSanctifyCursor) then return "holy_word_sanctify healing 4"; end
   end
   -- holy_word_serenity
   if Focus:HealthPercentage() <= Settings.Holy.Healing.HP.HolyWordSerenity and S.HolyWordSerenity:IsReady() then
     if Cast(M.HolyWordSerenityFocus) then return "holy_word_serenity healing 5"; end
   end
-  -- TODO(Worldy)
+  -- prayer_of_mending
+  if Focus:HealthPercentage() <= Settings.Holy.Healing.HP.PrayerOfMending and S.PrayerofMending:IsReady() then
+    if Cast(M.PrayerofMendingFocus) then return "prayer_of_mending healing 6"; end
+  end
+  -- circle_of_healing
+  if AreUnitsBelowHealthPercentage(Settings.Holy.Healing, "CircleOfHealing") and S.CircleofHealing:IsReady() then
+    if Cast(M.CircleofHealingFocus) then return "circle_of_healing healing 7"; end
+  end
+  -- divine_star
+  if Focus:HealthPercentage() < Settings.Holy.Healing.HP.DivineStar and S.DivineStar:IsReady() and Focus:IsInRange(24) then
+    if Cast(S.DivineStar) then return "divine_star healing 8"; end
+  end
+  -- renew
+  if Focus:HealthPercentage() <= Settings.Holy.Healing.HP.Renew and S.Renew:IsReady() and not Focus:BuffUp(S.RenewBuff) then
+    if Cast(M.RenewFocus) then return "renew healing 9"; end
+  end
+  -- halo
+  if AreUnitsBelowHealthPercentage(Settings.Holy.Healing, "Halo") and S.Halo:IsReady() then
+    if Cast(S.Halo, nil, true) then return "halo healing 10"; end
+  end
+  -- prayer_of_healing
+  if AreUnitsBelowHealthPercentage(Settings.Holy.Healing, "PrayerOfHealing") and S.PrayerofHealing:IsReady() then
+    if Cast(M.PrayerofHealingFocus, nil, true) then return "prayer_of_healing healing 11"; end
+  end
+  -- fae_guardians
+  if CovenantID == 3 and AreUnitsBelowHealthPercentage(Settings.Holy.Healing, "FaeGuardians") and S.FaeGuardians:IsReady() then
+    if Cast(S.FaeGuardians) then return "fae_guardians healing 12"; end
+  end
+  -- flash_heal
+  if S.FlashHeal:IsReady() and (not Player:BuffUp(S.FlashConcentrationBuff) or Player:BuffStack(S.FlashConcentrationBuff) < 5) then
+    if Focus:HealthPercentage() <= Settings.Holy.Healing.HP.FlashHeal or  Focus:HealthPercentage() <= Settings.Holy.Healing.HP.Heal then
+      if Cast(M.FlashHealFocus, nil, not FlashHealIsInstantCast) then return "flash_heal healing 13"; end
+    end
+  end
+  -- heal
+  if Focus:HealthPercentage() <= Settings.Holy.Healing.HP.Heal and S.Heal:IsReady() then
+    if Cast(M.HealFocus, nil, true) then return "heal healing 14"; end
+  end
 end
 
 local function Movement()
@@ -322,6 +341,14 @@ local function APL()
   if Player:AffectingCombat() or Settings.Holy.General.Enabled.Dispel then
     local ShouldReturn = FocusUnit(); if ShouldReturn then return ShouldReturn; end
   end
+  Enemies12yMelee = Player:GetEnemiesInMeleeRange(12)
+  if AoEON() then
+    EnemiesCount12yMelee = #Enemies12yMelee
+    EnemiesCount8ySplash = Target:GetEnemiesInSplashRangeCount(8)
+  else
+    EnemiesCount12yMelee = 1
+    EnemiesCount8ySplash = 1
+  end
   if Player:AffectingCombat() then
     -- Combat
     local ShouldReturn = Combat(); if ShouldReturn then return ShouldReturn; end
@@ -360,14 +387,19 @@ local function AutoBind()
 
   -- Bind Macros
   WR.Bind(M.AngelicFeatherPlayer)
+  WR.Bind(M.CircleofHealingFocus)
   WR.Bind(M.FlashHealFocus)
   WR.Bind(M.GuardianSpiritFocus)
+  WR.Bind(M.HealFocus)
   WR.Bind(M.HolyWordSanctifyCursor)
   WR.Bind(M.HolyWordSerenityFocus)
   WR.Bind(M.PowerInfusionPlayer)
   WR.Bind(M.PowerWordFortitudePlayer)
   WR.Bind(M.PowerWordShieldPlayer)
+  WR.Bind(M.PrayerofHealingFocus)
+  WR.Bind(M.PrayerofMendingFocus)
   WR.Bind(M.PurifyFocus)
+  WR.Bind(M.RenewFocus)
   WR.Bind(M.ShadowWordDeathMouseover)
   WR.Bind(M.ShadowWordPainMouseover)
 
@@ -386,9 +418,7 @@ end
 
 local function Init()
   WR.Print("Holy Priest by Worldy")
-  C_Timer.After(1, function ()
-    AutoBind()
-  end)
+  AutoBind()
 end
 
 

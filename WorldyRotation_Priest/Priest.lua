@@ -135,10 +135,16 @@ Macro.Priest.Commons = {
 
 Macro.Priest.Holy = MergeTableByKey(Macro.Priest.Commons, {
   -- Base Spells
+  CircleofHealingFocus             = Macro("CircleofHealingFocus", "/cast [@focus] " .. Spell.Priest.Holy.CircleofHealing:Name()),
   GuardianSpiritFocus              = Macro("GuardianSpiritFocus", "/cast [@focus] " .. Spell.Priest.Holy.GuardianSpirit:Name()),
   FlashHealFocus                   = Macro("FlashHealFocus", "/cast [@focus] " .. Spell.Priest.Holy.FlashHeal:Name()),
+  HealFocus                        = Macro("HealFocus", "/cast [@focus] " .. Spell.Priest.Holy.Heal:Name()),
   HolyWordSanctifyCursor           = Macro("HolyWordSanctifyCursor", "/cast [@cursor] " .. Spell.Priest.Holy.HolyWordSanctify:Name()),
+  HolyWordSerenityFocus            = Macro("HolyWordSerenityFocus", "/cast [@focus] " .. Spell.Priest.Holy.HolyWordSerenity:Name()),
+  PrayerofHealingFocus             = Macro("PrayerofHealingFocus", "/cast [@focus] " .. Spell.Priest.Holy.PrayerofHealing:Name()),
+  PrayerofMendingFocus             = Macro("PrayerofMendingFocus", "/cast [@focus] " .. Spell.Priest.Holy.PrayerofMending:Name()),
   PurifyFocus                      = Macro("PurifyFocus", "/cast [@focus] " .. Spell.Priest.Holy.Purify:Name()),
+  RenewFocus                       = Macro("RenewFocus", "/cast [@focus] " .. Spell.Priest.Holy.Renew:Name()),
   -- Talents
   AngelicFeatherPlayer             = Macro("AngelicFeatherPlayer", "/cast [@player] " .. Spell.Priest.Holy.AngelicFeather:Name()),
   -- Focus

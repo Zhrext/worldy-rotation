@@ -95,10 +95,11 @@
 
     if ShowPooling or not Usable or OutofRange or (Immovable and Player:IsMoving()) then
       WR.MainFrame:ChangeBind(nil);
-    else
-      WR.MainFrame:ChangeBind(Bind);
+      Object.LastDisplayTime = GetTime();
+      return false
     end
     
+    WR.MainFrame:ChangeBind(Bind);
     Object.LastDisplayTime = GetTime();
     return true;
   end
