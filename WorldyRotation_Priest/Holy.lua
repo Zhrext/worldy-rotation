@@ -389,6 +389,7 @@ end
 
 local function AutoBind()
   -- Bind Spells
+  WR.Bind(S.ArcaneTorrent)
   WR.Bind(S.Apotheosis)
   WR.Bind(S.AscendedBlast)
   WR.Bind(S.AscendedNova)
