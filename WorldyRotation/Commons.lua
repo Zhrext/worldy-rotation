@@ -36,7 +36,7 @@ do
     184493,
   };
   function Commons.TargetIsValidHealableNpc()
-    return Target:Exists() and not Player:CanAttack(Target) and not Target:IsDeadOrGhost() and Utils.ValueIsInArray(HealableNpcIDs, Target:ID());
+    return Target:Exists() and not Player:CanAttack(Target) and not Target:IsDeadOrGhost() and Utils.ValueIsInArray(HealableNpcIDs, Target:NPCID());
   end
 end
 
