@@ -122,6 +122,14 @@
           end
           WR.MainFrame:ChangePixel(0, 424242);
           WR.MainFrame:ChangePixel(1, WR.ON());
+          
+          WR.ToggleFrame:Init();
+
+          -- Load additionnal settings
+          local CP_General = GUI.GetPanelByName("General")
+          if CP_General then
+            CreatePanelOption("Button", CP_General, "ButtonMove", "Lock/Unlock", "Enable the moving of the frames.", function() WR.ToggleFrame:ToggleLock(); end);
+          end
 
           -- Modules
           C_Timer.After(2, function ()
@@ -135,6 +143,170 @@
       end
     end
   );
+
+--- ======= TOGGLE FRAME =======
+  WR.ToggleFrame = CreateFrame("Frame", "WorldyRotation_ToggleFrame", UIParent);
+  WR.ToggleFrame:SetFrameStrata(WR.MainFrame:GetFrameStrata());
+  WR.ToggleFrame:SetFrameLevel(WR.MainFrame:GetFrameLevel() - 1);
+  WR.ToggleFrame:SetSize(64, 20);
+  WR.ToggleFrame:SetPoint("CENTER", 0, 0);
+  WR.ToggleFrame:SetClampedToScreen(true);
+
+  function WR.ToggleFrame:Unlock ()
+    -- Unlock the UI
+    self:EnableMouse(true);
+    self:SetMovable(true);
+    WorldyRotationDB.Locked = false;
+  end
+  function WR.ToggleFrame:Lock ()
+    self:EnableMouse(false);
+    self:SetMovable(false);
+    WorldyRotationDB.Locked = true;
+  end
+  function WR.ToggleFrame:ToggleLock ()
+    if WorldyRotationDB.Locked then
+      self:Unlock();
+      WR.Print("UI is now |cff00ff00unlocked|r.");
+    else
+      self:Lock ();
+      WR.Print("UI is now |cffff0000locked|r.");
+    end
+  end
+
+  function WR.ToggleFrame:Init ()
+    -- Frame Init
+    self:SetFrameStrata(WR.MainFrame:GetFrameStrata());
+    self:SetFrameLevel(WR.MainFrame:GetFrameLevel() - 1);
+    self:SetWidth(64);
+    self:SetHeight(20);
+  
+    -- Anchor based on Settings
+    if WorldyRotationDB and WorldyRotationDB.ToggleFramePos then
+      self:SetPoint(WorldyRotationDB.ToggleFramePos[1], WorldyRotationDB.ToggleFramePos[2], WorldyRotationDB.ToggleFramePos[3], WorldyRotationDB.ToggleFramePos[4], WorldyRotationDB.ToggleFramePos[5]);
+    else
+      self:SetPoint("CENTER", 0, 0);
+    end
+  
+    -- Start Move
+    local function StartMove (self)
+      if self:IsMovable() then
+        self:StartMoving();
+      end
+    end
+    self:SetScript("OnMouseDown", StartMove);
+    -- Stop Move
+    local function StopMove (self)
+      self:StopMovingOrSizing();
+      if not WorldyRotationDB then WorldyRotationDB = {}; end
+      local point, relativeTo, relativePoint, xOffset, yOffset, relativeToName;
+      point, relativeTo, relativePoint, xOffset, yOffset = self:GetPoint();
+      if not relativeTo then
+        relativeToName = "UIParent";
+      else
+        relativeToName = relativeTo:GetName();
+      end
+      WorldyRotationDB.ToggleFramePos = {
+        point,
+        relativeToName,
+        relativePoint,
+        xOffset,
+        yOffset
+      };
+    end
+    self:SetScript("OnMouseUp", StopMove);
+    self:SetScript("OnHide", StopMove);
+    self:Lock();
+    self:Show();
+  
+    -- Button Creation
+    self.Button = {};
+    self:AddButton("O", 1, "On/Off", "toggle");
+    self:AddButton("C", 2, "CDs", "cds");
+    self:AddButton("A", 3, "AoE", "aoe");
+  end
+  -- Add a button
+  function WR.ToggleFrame:AddButton (Text, i, Tooltip, CmdArg)
+    local ButtonFrame = CreateFrame("Button", "$parentButton"..tostring(i), self);
+    ButtonFrame:SetFrameStrata(self:GetFrameStrata());
+    ButtonFrame:SetFrameLevel(self:GetFrameLevel() - 1);
+    ButtonFrame:SetWidth(20);
+    ButtonFrame:SetHeight(20);
+    ButtonFrame:SetPoint("LEFT", self, "LEFT", 20*(i-1)+i, 0);
+  
+    -- Button Tooltip (Optional)
+    if Tooltip then
+      ButtonFrame:SetScript("OnEnter",
+          function ()
+            Mixin(GameTooltip, BackdropTemplateMixin);
+            GameTooltip:SetOwner(WR.ToggleFrame, "ANCHOR_BOTTOM", 0, 0);
+            GameTooltip:ClearLines();
+            GameTooltip:SetBackdropColor(0, 0, 0, 1);
+            GameTooltip:SetText(Tooltip, nil, nil, nil, 1, true);
+            GameTooltip:Show();
+          end
+      );
+      ButtonFrame:SetScript("OnLeave",
+          function ()
+            GameTooltip:Hide();
+          end
+      );
+    end
+  
+    -- Button Text
+    ButtonFrame:SetNormalFontObject("GameFontNormalSmall");
+    ButtonFrame.text = Text;
+  
+    -- Button Texture
+    local NormalTexture = ButtonFrame:CreateTexture();
+    NormalTexture:SetTexture("Interface/Buttons/UI-Silver-Button-Up");
+    NormalTexture:SetTexCoord(0, 0.625, 0, 0.7875);
+    NormalTexture:SetAllPoints();
+    ButtonFrame:SetNormalTexture(NormalTexture);
+    local HighlightTexture = ButtonFrame:CreateTexture();
+    HighlightTexture:SetTexture("Interface/Buttons/UI-Silver-Button-Highlight");
+    HighlightTexture:SetTexCoord(0, 0.625, 0, 0.7875);
+    HighlightTexture:SetAllPoints();
+    ButtonFrame:SetHighlightTexture(HighlightTexture);
+    local PushedTexture = ButtonFrame:CreateTexture();
+    PushedTexture:SetTexture("Interface/Buttons/UI-Silver-Button-Down");
+    PushedTexture:SetTexCoord(0, 0.625, 0, 0.7875);
+    PushedTexture:SetAllPoints();
+    ButtonFrame:SetPushedTexture(PushedTexture);
+  
+    -- Button Setting
+    if type(WorldyRotationCharDB) ~= "table" then
+      WorldyRotationCharDB = {};
+    end
+    if type(WorldyRotationCharDB.Toggles) ~= "table" then
+      WorldyRotationCharDB.Toggles = {};
+    end
+    if type(WorldyRotationCharDB.Toggles[i]) ~= "boolean" then
+      WorldyRotationCharDB.Toggles[i] = true;
+    end
+  
+    -- OnClick Callback
+    ButtonFrame:SetScript("OnMouseDown",
+        function (self, Button)
+          if Button == "LeftButton" then
+            WR.CmdHandler(CmdArg);
+          end
+        end
+    );
+  
+    self.Button[i] = ButtonFrame;
+  
+    WR.ToggleFrame:UpdateButtonText(i);
+  
+    ButtonFrame:Show();
+  end
+  -- Update a button text
+  function WR.ToggleFrame:UpdateButtonText (i)
+    if WorldyRotationCharDB.Toggles[i] then
+      self.Button[i]:SetFormattedText("|cff00ff00%s|r", self.Button[i].text);
+    else
+      self.Button[i]:SetFormattedText("|cffff0000%s|r", self.Button[i].text);
+    end
+  end
 
 --- ======= MAIN =======
   local EnabledRotation = {

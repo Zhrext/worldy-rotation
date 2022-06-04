@@ -185,12 +185,15 @@
       WorldyRotationCharDB.Toggles[1] = not WorldyRotationCharDB.Toggles[1];
       WR.Print("WorldyRotation is now "..(WorldyRotationCharDB.Toggles[1] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
       WR.MainFrame:ChangePixel(1, WR.ON());
+      WR.ToggleFrame:UpdateButtonText(1);
     elseif Argument == "cds" then
       WorldyRotationCharDB.Toggles[2] = not WorldyRotationCharDB.Toggles[2];
       WR.Print("CDs are now "..(WorldyRotationCharDB.Toggles[2] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
+      WR.ToggleFrame:UpdateButtonText(2);
     elseif Argument == "aoe" then
       WorldyRotationCharDB.Toggles[3] = not WorldyRotationCharDB.Toggles[3];
       WR.Print("AoE is now "..(WorldyRotationCharDB.Toggles[3] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
+      WR.ToggleFrame:UpdateButtonText(3);
     elseif Argument == "help" then
       WR.Print("|cffffff00--[Toggles]--|r");
       WR.Print("  On/Off: |cff8888ff/wr toggle|r");
