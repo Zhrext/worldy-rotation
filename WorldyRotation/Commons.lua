@@ -136,13 +136,31 @@ function Commons.UnitGroupRole(GroupUnit)
   end
 end
 
+-- Mind Control Blacklist
+do
+  local MindControllSpells = {
+    Spell(362075)
+  };
+  function Commons.IsMindControlled(FriendlyUnit)
+    if FriendlyUnit and FriendlyUnit:Exists() and not FriendlyUnit:IsDeadOrGhost() then
+      for i = 1, #MindControllSpells do
+        if FriendlyUnit:DebuffUp(MindControllSpells[i], true) then
+          return true;
+        end
+      end
+    end
+    return false;
+  end
+end
+
+
 -- Get lowest friendly unit.
 function Commons.LowestFriendlyUnit()
   local LowestUnit;
   local FriendlyUnits = Commons.FriendlyUnits();
   for i = 1, #FriendlyUnits do
     local FriendlyUnit = FriendlyUnits[i];
-    if FriendlyUnit and FriendlyUnit:Exists() and not FriendlyUnit:IsDeadOrGhost() and FriendlyUnit:IsInRange(40) then
+    if FriendlyUnit and FriendlyUnit:Exists() and not FriendlyUnit:IsDeadOrGhost() and FriendlyUnit:IsInRange(40) and not Commons.IsMindControlled(FriendlyUnit) then
       if not LowestUnit or FriendlyUnit:HealthPercentage() < LowestUnit:HealthPercentage() then
         LowestUnit = FriendlyUnit;
       end
