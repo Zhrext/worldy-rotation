@@ -215,9 +215,9 @@ local function Racials()
     if Cast(S.BagofTricks, not Target:IsSpellInRange(S.BagofTricks)) then return "bag_of_tricks racials 14"; end
   end
   -- arcane_torrent,if=runic_power.deficit>20
-  if S.ArcaneTorrent:IsCastable() and (Player:RunicPowerDeficit() > 20) then
-    if Cast(S.ArcaneTorrent, not Target:IsInRange(8)) then return "arcane_torrent racials 16"; end
-  end
+  --if S.ArcaneTorrent:IsCastable() and (Player:RunicPowerDeficit() > 20) then
+  --  if Cast(S.ArcaneTorrent, not Target:IsInRange(8)) then return "arcane_torrent racials 16"; end
+  --end
 end
 
 local function Covenants()
@@ -241,6 +241,7 @@ local function Covenants()
   if S.ShackleTheUnworthy:IsCastable() and (Player:Rune() < 3 and Player:RunicPower() < 100) then
     if Cast(S.ShackleTheUnworthy, not Target:IsSpellInRange(S.ShackleTheUnworthy)) then return "shackle_the_unworthy covenants 18"; end
   end
+  return false
 end
 
 local function DRWUp()
@@ -370,44 +371,22 @@ local function APL()
 
   -- call precombat
   if not Player:AffectingCombat() then
-    local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
+    --local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
   end
   if Everyone.TargetIsValid() then
     -- Defensives
     local ShouldReturn = Defensives(); if ShouldReturn then return ShouldReturn; end
     -- Interrupts
     local ShouldReturn = Everyone.Interrupt(15, S.MindFreeze, StunInterrupts); if ShouldReturn then return ShouldReturn; end
-    -- Display Pool icon if PoolDuringBlooddrinker is true
-    if Settings.Blood.PoolDuringBlooddrinker and Player:IsChanneling(S.Blooddrinker) and Player:BuffUp(S.BoneShieldBuff) and UnitsWithoutBloodPlague == 0 and not Player:ShouldStopCasting() and Player:CastRemains() > 0.2 then
-      if WR.Cast(S.Pool) then return "Pool During Blooddrinker"; end
-    end
     -- auto_attack
     -- variable,name=death_strike_dump_amount,if=!covenant.night_fae,value=70
     -- variable,name=death_strike_dump_amount,if=covenant.night_fae,value=55
     VarDeathStrikeDumpAmt = (CovenantID == 3) and 55 or 70
-    -- potion,if=buff.dancing_rune_weapon.up
-    --if I.PotionofSpectralStrength:IsReady() and Settings.Commons.Enabled.Potions and (Player:BuffUp(S.DancingRuneWeaponBuff)) then
-    --  if Cast(I.PotionofSpectralStrength, nil, Settings.Commons.DisplayStyle.Potions) then return "potion main 2"; end
-    --end
-    -- use_items
-    --if (Settings.Commons.Enabled.Trinkets) then
-    --  local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
-    --  if TrinketToUse then
-    --    if Cast(TrinketToUse, nil, Settings.Commons.DisplayStyle.Trinkets) then return "Generic use_items for " .. TrinketToUse:Name(); end
-    --  end
-    --end
-    -- use_item,name=gavel_of_the_first_arbiter
-    --if I.GaveloftheFirstArbiter:IsEquippedAndReady() then
-    --  if Cast(I.GaveloftheFirstArbiter, nil, Settings.Commons.DisplayStyle.Items, not Target:IsInRange(30)) then return "gavel_of_the_first_arbiter main 3"; end
-    --end
     -- raise_dead
     if CDsON() and S.RaiseDead:IsCastable() then
       if Cast(S.RaiseDead) then return "raise_dead main 4"; end
     end
-    -- blooddrinker,if=!buff.dancing_rune_weapon.up&(!covenant.night_fae|buff.deaths_due.remains>7)
-    if S.Blooddrinker:IsReady() and (Player:BuffDown(S.DancingRuneWeaponBuff) and (CovenantID ~= 3 or Player:BuffRemains(S.DeathsDueBuff) > 7)) then
-      if Cast(S.Blooddrinker, not Target:IsSpellInRange(S.Blooddrinker)) then return "blooddrinker main 6"; end
-    end
+    
     -- call_action_list,name=racials
     if (CDsON()) then
       local ShouldReturn = Racials(); if ShouldReturn then return ShouldReturn; end
@@ -481,7 +460,6 @@ local function AutoBind()
   
   -- Bind Macros
   WR.Bind(M.DeathAndDecayPlayer)
-end.DeathAndDecayPlayer)
 end
 
 local function Init()
