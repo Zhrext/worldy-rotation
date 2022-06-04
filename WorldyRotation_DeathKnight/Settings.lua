@@ -40,7 +40,7 @@ WR.GUISettings.APL.DeathKnight = {
 
 WR.GUI.LoadSettingsRecursively(WR.GUISettings)
 -- Panels
-local ARPanel = HR.GUI.Panel
+local ARPanel = WR.GUI.Panel
 local CP_Deathknight = CreateChildPanel(ARPanel, "DeathKnight")
 local CP_Blood = CreateChildPanel(CP_Deathknight, "Blood")
 
