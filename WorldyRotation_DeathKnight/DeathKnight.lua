@@ -137,7 +137,7 @@ Macro.DeathKnight.Commons = {
   DeathAndDecayPlayer              = Macro("DeathAndDecayPlayer", "/cast [@player] " .. Spell.DeathKnight.Commons.DeathAndDecay:Name()),
 }
 
-Macro.DeathKnight.Holy = MergeTableByKey(Macro.DeathKnight.Commons, {
+Macro.DeathKnight.Blood = MergeTableByKey(Macro.DeathKnight.Commons, {
   -- Items
   Trinket1                         = Macro("Trinket1", "/use 13"),
   Trinket2                         = Macro("Trinket2", "/use 14"),
