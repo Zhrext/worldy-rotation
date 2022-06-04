@@ -172,8 +172,8 @@
     --  [258]   = "WorldyRotation_Priest",        -- Shadow
     ---- Rogue
     --  [259]   = "WorldyRotation_Rogue",         -- Assassination
-    --  [260]   = "WorldyRotation_Rogue",         -- Outlaw
     --  [261]   = "WorldyRotation_Rogue",         -- Subtlety
+      [260]   = "WorldyRotation_Rogue",         -- Outlaw
     ---- Shaman
     --  [262]   = "WorldyRotation_Shaman",        -- Elemental
     --  [263]   = "WorldyRotation_Shaman",        -- Enhancement

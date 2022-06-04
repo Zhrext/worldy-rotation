@@ -1,0 +1,15 @@
+## Interface: 90200
+
+## Title: Worldy|cFFA330C9Rotation|r [|cFFFFF569Rogue|r]
+## Author: Worldy
+## Notes: Worldy Rotation - Rogue Module.
+
+## DefaultState: Enabled
+## LoadOnDemand: 1
+## Dependencies: WorldyRotation
+
+Settings.lua
+Rogue.lua
+Events.lua
+Outlaw.lua
+Overrides.lua
