@@ -446,7 +446,31 @@ local function AutoBind()
   WR.Bind(S.Asphyxiate)
   WR.Bind(S.BloodBoil)
   WR.Bind(S.DancingRuneWeapon)
-  -- TODO ...
+  WR.Bind(S.DeathsCaress)
+  WR.Bind(S.HeartStrike)
+  WR.Bind(S.IceboundFortitude)
+  WR.Bind(S.Marrowrend)
+  WR.Bind(S.RuneTap)
+  WR.Bind(S.VampiricBlood)
+  WR.Bind(S.DeathAndDecay)
+  WR.Bind(S.DeathStrike)
+  WR.Bind(S.RaiseDead)
+  WR.Bind(S.SacrificialPact)
+  -- Covenant Abilities
+  WR.Bind(S.AbominationLimb)
+  WR.Bind(S.DeathsDue)
+  WR.Bind(S.Fleshcraft)
+  WR.Bind(S.ShackleTheUnworthy)
+  WR.Bind(S.SwarmingMist)
+  
+  -- Talents
+  WR.Bind(S.Blooddrinker)
+  WR.Bind(S.BloodTap)
+  WR.Bind(S.Bonestorm)
+  WR.Bind(S.Consumption)
+  WR.Bind(S.Tombstone)
+  
+  
   
   -- Bind Items
   WR.Bind(M.Trinket1)
@@ -457,6 +481,7 @@ local function AutoBind()
   
   -- Bind Macros
   WR.Bind(M.DeathAndDecayPlayer)
+end.DeathAndDecayPlayer)
 end
 
 local function Init()
