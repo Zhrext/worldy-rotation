@@ -458,7 +458,7 @@
 
   -- Is the player ready ?
   function WR.Ready ()
-    return not Player:IsDeadOrGhost() and not Player:IsMounted() and not Player:IsInVehicle() and not C_PetBattles.IsInBattle() and not Player:IsCasting() and not Player:IsChanneling() and Player:GCDRemains() == 0;
+    return not Player:IsDeadOrGhost() and not Player:IsMounted() and not Player:IsInVehicle() and not C_PetBattles.IsInBattle() and Player:CastEnd() - HL.Latency() <= 0 and Player:GCDRemains() - HL.Latency() <= 0;
   end
 
   -- Used to force a short/long pulse wait, it also resets the icons.
