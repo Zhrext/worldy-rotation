@@ -355,9 +355,9 @@
     --  [266]   = "WorldyRotation_Warlock",       -- Demonology
     --  [267]   = "WorldyRotation_Warlock",       -- Destruction
     ---- Warrior
-    --  [71]    = "WorldyRotation_Warrior",       -- Arms
-    --  [72]    = "WorldyRotation_Warrior",       -- Fury
-    --  [73]    = "WorldyRotation_Warrior"        -- Protection
+      [71]    = "WorldyRotation_Warrior",       -- Arms
+      [72]    = "WorldyRotation_Warrior",       -- Fury
+      [73]    = "WorldyRotation_Warrior"        -- Protection
   };
   local LatestSpecIDChecked = 0;
   function WR.PulseInit ()
