@@ -420,6 +420,7 @@ local function AutoBind()
   WR.Bind(S.RagingBlow)
   WR.Bind(S.Rampage)
   WR.Bind(S.Recklessness)
+  WR.Bind(S.StormBolt)
   WR.Bind(S.VictoryRush)
   WR.Bind(S.Whirlwind)
   -- Bind Items

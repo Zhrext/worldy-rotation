@@ -161,7 +161,7 @@ local function Aoe()
   -- ravager
   if S.Ravager:IsCastable() then
     SuggestRageDump(10)
-    if Cast(S.Ravager, not Target:IsSpellInRange(S.Ravager)) then return "ravager aoe 2"; end
+    if Cast(M.RavagerPlayer, not Target:IsSpellInRange(S.Ravager)) then return "ravager aoe 2"; end
   end
   -- dragon_roar
   if S.DragonRoar:IsCastable() then
@@ -194,7 +194,7 @@ local function Generic()
   -- ravager
   if S.Ravager:IsCastable() then
     SuggestRageDump(10)
-    if Cast(S.Ravager, not Target:IsSpellInRange(S.Ravager)) then return "ravager generic 2"; end
+    if Cast(M.RavagerPlayer, not Target:IsSpellInRange(S.Ravager)) then return "ravager generic 2"; end
   end
   -- dragon_roar
   if S.DragonRoar:IsCastable() then
@@ -373,6 +373,7 @@ local function AutoBind()
   WR.Bind(S.Fireblood)
   WR.Bind(S.LightsJudgment)
   -- Bind Spells
+  WR.Bind(S.Avatar)
   WR.Bind(S.BattleShout)
   WR.Bind(S.Charge)
   WR.Bind(S.DemoralizingShout)
@@ -387,7 +388,6 @@ local function AutoBind()
   WR.Bind(S.ShieldBlock)
   WR.Bind(S.ShieldSlam)
   WR.Bind(S.ThunderClap)
-  WR.Bind(S.Ravager)
   WR.Bind(S.VictoryRush)
   -- Bind Items
   WR.Bind(M.Trinket1)
@@ -396,6 +396,7 @@ local function AutoBind()
   WR.Bind(M.PotionofSpectralStrength)
   WR.Bind(M.PhialofSerenity)
   -- Bind Macros
+  WR.Bind(M.RavagerPlayer)
   WR.Bind(M.SpearofBastionPlayer)
 end
 

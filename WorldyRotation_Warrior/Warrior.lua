@@ -49,7 +49,7 @@ Spell.Warrior.Commons = {
   StormBolt                             = Spell(107570),
   -- Covenant Abilities (Shadowlands)
   AncientAftershock                     = Spell(325886),
-  Condemn                               = MultiSpell(330325, 330334, 317485, 317349),
+  Condemn                               = Spell(330325),
   CondemnDebuff                         = Spell(317491),
   ConquerorsBanner                      = Spell(324143),
   ConquerorsFrenzyBuff                  = Spell(343672),
@@ -69,7 +69,7 @@ Spell.Warrior.Fury = MergeTableByKey(Spell.Warrior.Commons, {
   Bloodthirst                           = Spell(23881),
   CrushingBlow                          = Spell(335097),
   EnrageBuff                            = Spell(184362),
-  Execute                               = MultiSpell(5308, 280735),
+  Execute                               = Spell(5308),
   MeatCleaverBuff                       = Spell(85739),
   RagingBlow                            = Spell(85288),
   Rampage                               = Spell(184367),
@@ -101,7 +101,7 @@ Spell.Warrior.Arms = MergeTableByKey(Spell.Warrior.Commons, {
   ColossusSmash                         = Spell(167105),
   ColossusSmashDebuff                   = Spell(208086),
   DeepWoundsDebuff                      = Spell(262115),
-  Execute                               = MultiSpell(163201, 281000),
+  Execute                               = Spell(163201),
   MortalStrike                          = Spell(12294),
   Overpower                             = Spell(7384),
   OverpowerBuff                         = Spell(7384),
@@ -209,4 +209,5 @@ Macro.Warrior.Arms = MergeTableByKey(Macro.Warrior.Commons, {
 })
 
 Macro.Warrior.Protection = MergeTableByKey(Macro.Warrior.Commons, {
+  RavagerPlayer                    = Macro("RavagerPlayer", "/cast [@player] " .. Spell.Warrior.Protection.Ravager:Name()),
 })
