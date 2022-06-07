@@ -10,6 +10,7 @@ local Cache      = HeroCache
 local Unit       = HL.Unit
 local Player     = Unit.Player
 local Target     = Unit.Target
+local Mouseover  = Unit.MouseOver
 local Spell      = HL.Spell
 local Item       = HL.Item
 local Utils      = HL.Utils
@@ -86,32 +87,6 @@ local CovenantID = Player:CovenantID()
 HL:RegisterForEvent(function()
   CovenantID = Player:CovenantID()
 end, "COVENANT_CHOSEN")
-
-local function Precombat()
-  -- flask
-  -- food
-  -- augmentation
-  -- snapshot_stats
-  -- Manually added: battle_shout,if=buff.battle_shout.remains<60
-  if S.BattleShout:IsCastable() and (Player:BuffRemains(S.BattleShoutBuff, true) < 60) then
-    if Cast(S.BattleShout) then return "battle_shout precombat 2"; end
-  end
-  -- recklessness,if=!runeforge.signet_of_tormented_kings.equipped
-  if S.Recklessness:IsCastable() and CDsON() and (not SignetofTormentedKingsEquipped) then
-    if Cast(S.Recklessness) then return "recklessness precombat 4"; end
-  end
-  -- conquerors_banner
-  if S.ConquerorsBanner:IsCastable() then
-    if Cast(S.ConquerorsBanner) then return "conquerors_banner precombat 6"; end
-  end
-  -- Manually Added: Charge if not in melee. Bloodthirst if in melee
-  if S.Charge:IsCastable() then
-    if Cast(S.Charge, not Target:IsSpellInRange(S.Charge)) then return "charge precombat 8"; end
-  end
-  if S.Bloodthirst:IsCastable() then
-    if Cast(S.Bloodthirst, not TargetInMeleeRange) then return "bloodthirst precombat 10"; end
-  end
-end
 
 local function AOE()
   -- cancel_buff,name=bladestorm,if=spell_targets.whirlwind>1&gcd.remains=0&soulbind.first_strike&buff.first_strike.remains&buff.enrage.remains<gcd
@@ -249,151 +224,167 @@ end
 
 local function Movement()
   -- heroic_leap
-  --if S.HeroicLeap:IsCastable() and not Target:IsInMeleeRange(8) then
-  --  if Cast(S.HeroicLeap) then return "heroic_leap movement 2"; end
-  --end
+  if Settings.Commons.Enabled.HeroicLeap and S.HeroicLeap:IsCastable() and not Target:IsInMeleeRange(8) and Mouseover and Mouseover:GUID() == Target:GUID() then
+    if Cast(M.HeroicLeapCursor) then return "heroic_leap movement 2"; end
+  end
 end
 
---- ======= ACTION LISTS =======
-local function APL()
+local function OutOfCombat()
+  -- flask
+  -- food
+  -- augmentation
+  -- snapshot_stats
+  -- Manually added: battle_shout,if=buff.battle_shout.remains<60
+  if S.BattleShout:IsCastable() and (Player:BuffRemains(S.BattleShoutBuff, true) < 5) then
+    if Cast(S.BattleShout) then return "battle_shout precombat 2"; end
+  end
+end
+
+local function Combat()
   if AoEON() then
     Enemies8y = Player:GetEnemiesInMeleeRange(8)
     EnemiesCount8 = #Enemies8y
   else
     EnemiesCount8 = 1
   end
-
+  
   -- Enrage check
   EnrageUp = Player:BuffUp(S.EnrageBuff)
 
   -- Range check
   TargetInMeleeRange = Target:IsInMeleeRange(5)
 
-  if Everyone.TargetIsValid() then
+  -- Interrupts
+  local ShouldReturn = Everyone.Interrupt(5, S.Pummel, StunInterrupts); if ShouldReturn then return ShouldReturn; end
+  -- auto_attack
+  -- charge
+  if Settings.Commons.Enabled.Charge and S.Charge:IsCastable() then
+    if Cast(S.Charge, not Target:IsSpellInRange(S.Charge)) then return "charge main 2"; end
+  end
+  -- Manually added: VR/IV
+  if Player:HealthPercentage() < Settings.Commons.HP.VictoryRushHP then
+    if S.VictoryRush:IsReady() then
+      if Cast(S.VictoryRush, not TargetInMeleeRange) then return "victory_rush heal"; end
+    end
+    if S.ImpendingVictory:IsReady() then
+      if Cast(S.ImpendingVictory, not TargetInMeleeRange) then return "impending_victory heal"; end
+    end
+  end
+  -- healthstone
+  if Player:HealthPercentage() <= Settings.Commons.HP.Healthstone and I.Healthstone:IsReady() then
+    if Cast(M.Healthstone) then return "healthstone defensive 3"; end
+  end
+  -- phial_of_serenity
+  if Player:HealthPercentage() <= Settings.Commons.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
+    if Cast(M.PhialofSerenity) then return "phial_of_serenity defensive 4"; end
+  end
+  -- variable,name=execute_phase,value=talent.massacre&target.health.pct<35|target.health.pct<20|target.health.pct>80&covenant.venthyr
+  VarExecutePhase = (S.Massacre:IsAvailable() and Target:HealthPercentage() < 35 or Target:HealthPercentage() < 20 or Target:HealthPercentage() > 80 and CovenantID == 2)
+  -- variable,name=unique_legendaries,value=runeforge.signet_of_tormented_kings|runeforge.sinful_surge|runeforge.elysian_might
+  VarUniqueLegendaries = (SignetofTormentedKingsEquipped or SinfulSurgeEquipped or ElysianMightEquipped)
+  -- run_action_list,name=movement,if=movement.distance>5
+  if (not TargetInMeleeRange) then
+    local ShouldReturn = Movement(); if ShouldReturn then return ShouldReturn; end
+  end
+  -- heroic_leap,if=(raid_event.movement.distance>25&raid_event.movement.in>45)
+  if S.HeroicLeap:IsCastable() and (not Target:IsInRange(25)) and Mouseover and Mouseover:GUID() == Target:GUID() then
+    if Cast(M.HeroicLeapCursor) then return "heroic_leap main 4"; end
+  end
+  -- potion
+  if Settings.Commons.Enabled.Potions and I.PotionofSpectralStrength:IsReady() and (Player:BloodlustUp() or Target:TimeToDie() <= 30) then
+    if Cast(M.PotionofSpectralStrength) then return "potion main 6"; end
+  end
+  -- conquerors_banner,if=rage>70
+  if S.ConquerorsBanner:IsCastable() and CDsON() and (Player:Rage() > 70) then
+    if Cast(S.ConquerorsBanner) then return "conquerors_banner main 8"; end
+  end
+  -- spear_of_bastion,if=buff.enrage.up&rage<70
+  if CDsON() and S.SpearofBastion:IsCastable() and (EnrageUp and Player:Rage() < 70) then
+    if Cast(M.SpearofBastionPlayer, not Target:IsInRange(25)) then return "spear_of_bastion main 9"; end
+  end
+  -- rampage,if=cooldown.recklessness.remains<3&talent.reckless_abandon.enabled
+  if S.Rampage:IsReady() and (S.Recklessness:CooldownRemains() < 3 and S.RecklessAbandon:IsAvailable()) then
+    if Cast(S.Rampage, not TargetInMeleeRange) then return "rampage main 10"; end
+  end
+  if CDsON() then
+    -- recklessness,if=runeforge.sinful_surge&gcd.remains=0&(variable.execute_phase|(target.time_to_pct_35>40&talent.anger_management|target.time_to_pct_35>70&!talent.anger_management))&(spell_targets.whirlwind=1|buff.meat_cleaver.up)
+    if S.Recklessness:IsCastable() and (SinfulSurgeEquipped and (VarExecutePhase or (Target:TimeToX(35) > 40 and S.AngerManagement:IsAvailable() or Target:TimeToX(35) > 70 and not S.AngerManagement:IsAvailable())) and (EnemiesCount8 == 1 or Player:BuffUp(S.MeatCleaverBuff))) then
+      if Cast(S.Recklessness) then return "recklessness main 11"; end
+    end
+    -- recklessness,if=runeforge.elysian_might&gcd.remains=0&(cooldown.spear_of_bastion.remains<5|cooldown.spear_of_bastion.remains>20)&((buff.bloodlust.up|talent.anger_management.enabled|raid_event.adds.in>10)|target.time_to_die>100|variable.execute_phase|target.time_to_die<15&raid_event.adds.in>10)&(spell_targets.whirlwind=1|buff.meat_cleaver.up)
+    if S.Recklessness:IsCastable() and (ElysianMightEquipped and (S.SpearofBastion:CooldownRemains() < 5 or S.SpearofBastion:CooldownRemains() > 20) and ((Player:BloodlustUp() or S.AngerManagement:IsAvailable() or EnemiesCount8 == 1) or Target:TimeToDie() > 100 or VarExecutePhase or Target:TimeToDie() < 15) and (EnemiesCount8 == 1 or Player:BuffUp(S.MeatCleaverBuff))) then
+      if Cast(S.Recklessness) then return "recklessness main 12"; end
+    end
+    -- recklessness,if=!variable.unique_legendaries&gcd.remains=0&((buff.bloodlust.up|talent.anger_management.enabled|raid_event.adds.in>10)|target.time_to_die>100|variable.execute_phase|target.time_to_die<15&raid_event.adds.in>10)&(spell_targets.whirlwind=1|buff.meat_cleaver.up)&(!covenant.necrolord|cooldown.conquerors_banner.remains>20)
+    if S.Recklessness:IsCastable() and (not VarUniqueLegendaries and ((Player:BloodlustUp() or S.AngerManagement:IsAvailable() or EnemiesCount8 == 1) or Target:TimeToDie() > 100 or VarExecutePhase or Target:TimeToDie() < 15) and (EnemiesCount8 == 1 or Player:BuffUp(S.MeatCleaverBuff)) and (CovenantID ~= 4 or S.ConquerorsBanner:CooldownRemains() > 20)) then
+      if Cast(S.Recklessness) then return "recklessness main 13"; end
+    end
+    -- recklessness,use_off_gcd=1,if=runeforge.signet_of_tormented_kings.equipped&gcd.remains&prev_gcd.1.rampage&((buff.bloodlust.up|talent.anger_management.enabled|raid_event.adds.in>10)|target.time_to_die>100|variable.execute_phase|target.time_to_die<15&raid_event.adds.in>10)&(spell_targets.whirlwind=1|buff.meat_cleaver.up)
+    if S.Recklessness:IsCastable() and (SignetofTormentedKingsEquipped and Player:PrevGCDP(1, S.Rampage) and ((Player:BloodlustUp() or S.AngerManagement:IsAvailable()) or Target:TimeToDie() > 100 or VarExecutePhase) and (EnemiesCount8 == 1 or Player:BuffUp(S.MeatCleaverBuff))) then
+      if Cast(S.Recklessness) then return "recklessness main 14"; end
+    end
+  end
+  -- whirlwind,if=spell_targets.whirlwind>1&!buff.meat_cleaver.up|raid_event.adds.in<gcd&!buff.meat_cleaver.up
+  if S.Whirlwind:IsCastable() and (EnemiesCount8 > 1 and Player:BuffDown(S.MeatCleaverBuff)) then
+    if Cast(S.Whirlwind, not Target:IsInMeleeRange(8)) then return "whirlwind main 16"; end
+  end
+  -- trinkets
+  if Settings.Commons.Enabled.Trinkets then
+    local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
+    if TrinketToUse then
+      if Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 13) then
+        if Cast(M.Trinket1) then return "use_trinket " .. TrinketToUse:Name() .. " damage 1"; end
+      elseif Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 14) then
+        if Cast(M.Trinket2) then return "use_trinket " .. TrinketToUse:Name() .. " damage 2"; end
+      end
+    end
+  end
+  if CDsON() then
+    -- arcane_torrent,if=rage<40&!buff.recklessness.up
+    if S.ArcaneTorrent:IsCastable() and (Player:Rage() < 40 and Player:BuffDown(S.RecklessnessBuff)) then
+      if Cast(S.ArcaneTorrent, not Target:IsInRange(8)) then return "arcane_torrent"; end
+    end
+    -- lights_judgment,if=buff.recklessness.down&debuff.siegebreaker.down
+    if S.LightsJudgment:IsCastable() and (Player:BuffDown(S.RecklessnessBuff) and Target:DebuffDown(S.SiegebreakerDebuff)) then
+      if Cast(S.LightsJudgment, not Target:IsSpellInRange(S.LightsJudgment)) then return "lights_judgment"; end
+    end
+    -- bag_of_tricks,if=buff.recklessness.down&debuff.siegebreaker.down&buff.enrage.up
+    if S.BagofTricks:IsCastable() and (Player:BuffDown(S.RecklessnessBuff) and Target:DebuffDown(S.SiegebreakerDebuff) and EnrageUp) then
+      if Cast(S.BagofTricks, not Target:IsSpellInRange(S.BagofTricks)) then return "bag_of_tricks"; end
+    end
+    -- berserking,if=buff.recklessness.up
+    if S.Berserking:IsCastable() and (Player:BuffUp(S.RecklessnessBuff)) then
+      if Cast(S.Berserking) then return "berserking"; end
+    end
+    -- blood_fury
+    if S.BloodFury:IsCastable() then
+      if Cast(S.BloodFury) then return "blood_fury"; end
+    end
+    -- fireblood
+    if S.Fireblood:IsCastable() then
+      if Cast(S.Fireblood) then return "fireblood"; end
+    end
+    -- ancestral_call
+    if S.AncestralCall:IsCastable() then
+      if Cast(S.AncestralCall) then return "ancestral_call"; end
+    end
+  end
+  -- call_action_list,name=aoe
+  local ShouldReturn = AOE(); if ShouldReturn then return ShouldReturn; end
+  -- call_action_list,name=single_target
+  local ShouldReturn = SingleTarget(); if ShouldReturn then return ShouldReturn; end
+end
+
+--- ======= ACTION LISTS =======
+local function APL()
+  if not Player:AffectingCombat() then
     -- call Precombat
-    if not Player:AffectingCombat() then
-      local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
+    local ShouldReturn = OutOfCombat(); if ShouldReturn then return ShouldReturn; end
+  else
+    if Everyone.TargetIsValid() then
+      -- In Combat
+      local ShouldReturn = Combat(); if ShouldReturn then return ShouldReturn; end
     end
-    -- In Combat
-    -- Interrupts
-    local ShouldReturn = Everyone.Interrupt(5, S.Pummel, StunInterrupts); if ShouldReturn then return ShouldReturn; end
-    -- auto_attack
-    -- charge
-    if S.Charge:IsCastable() then
-      if Cast(S.Charge, not Target:IsSpellInRange(S.Charge)) then return "charge main 2"; end
-    end
-    -- Manually added: VR/IV
-    if Player:HealthPercentage() < Settings.Commons.HP.VictoryRushHP then
-      if S.VictoryRush:IsReady() then
-        if Cast(S.VictoryRush, not TargetInMeleeRange) then return "victory_rush heal"; end
-      end
-      if S.ImpendingVictory:IsReady() then
-        if Cast(S.ImpendingVictory, not TargetInMeleeRange) then return "impending_victory heal"; end
-      end
-    end
-    -- healthstone
-    if Player:HealthPercentage() <= Settings.Commons.HP.Healthstone and I.Healthstone:IsReady() then
-      if Cast(M.Healthstone) then return "healthstone defensive 3"; end
-    end
-    -- phial_of_serenity
-    if Player:HealthPercentage() <= Settings.Commons.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
-      if Cast(M.PhialofSerenity) then return "phial_of_serenity defensive 4"; end
-    end
-    -- variable,name=execute_phase,value=talent.massacre&target.health.pct<35|target.health.pct<20|target.health.pct>80&covenant.venthyr
-    VarExecutePhase = (S.Massacre:IsAvailable() and Target:HealthPercentage() < 35 or Target:HealthPercentage() < 20 or Target:HealthPercentage() > 80 and CovenantID == 2)
-    -- variable,name=unique_legendaries,value=runeforge.signet_of_tormented_kings|runeforge.sinful_surge|runeforge.elysian_might
-    VarUniqueLegendaries = (SignetofTormentedKingsEquipped or SinfulSurgeEquipped or ElysianMightEquipped)
-    -- run_action_list,name=movement,if=movement.distance>5
-    if (not TargetInMeleeRange) then
-      local ShouldReturn = Movement(); if ShouldReturn then return ShouldReturn; end
-    end
-    -- heroic_leap,if=(raid_event.movement.distance>25&raid_event.movement.in>45)
-    --if S.HeroicLeap:IsCastable() and (not Target:IsInRange(25)) then
-    --  if Cast(S.HeroicLeap) then return "heroic_leap main 4"; end
-    --end
-    -- potion
-    --if I.PotionofSpectralStrength:IsReady() and Settings.Commons.Enabled.Potions then
-    --  if Cast(I.PotionofSpectralStrength, nil, Settings.Commons.DisplayStyle.Potions) then return "potion main 6"; end
-    --end
-    -- conquerors_banner,if=rage>70
-    if S.ConquerorsBanner:IsCastable() and CDsON() and (Player:Rage() > 70) then
-      if Cast(S.ConquerorsBanner) then return "conquerors_banner main 8"; end
-    end
-    -- spear_of_bastion,if=buff.enrage.up&rage<70
-    if CDsON() and S.SpearofBastion:IsCastable() and (EnrageUp and Player:Rage() < 70) then
-      if Cast(M.SpearofBastionPlayer, not Target:IsInRange(25)) then return "spear_of_bastion main 9"; end
-    end
-    -- rampage,if=cooldown.recklessness.remains<3&talent.reckless_abandon.enabled
-    if S.Rampage:IsReady() and (S.Recklessness:CooldownRemains() < 3 and S.RecklessAbandon:IsAvailable()) then
-      if Cast(S.Rampage, not TargetInMeleeRange) then return "rampage main 10"; end
-    end
-    if CDsON() then
-      -- recklessness,if=runeforge.sinful_surge&gcd.remains=0&(variable.execute_phase|(target.time_to_pct_35>40&talent.anger_management|target.time_to_pct_35>70&!talent.anger_management))&(spell_targets.whirlwind=1|buff.meat_cleaver.up)
-      if S.Recklessness:IsCastable() and (SinfulSurgeEquipped and (VarExecutePhase or (Target:TimeToX(35) > 40 and S.AngerManagement:IsAvailable() or Target:TimeToX(35) > 70 and not S.AngerManagement:IsAvailable())) and (EnemiesCount8 == 1 or Player:BuffUp(S.MeatCleaverBuff))) then
-        if Cast(S.Recklessness) then return "recklessness main 11"; end
-      end
-      -- recklessness,if=runeforge.elysian_might&gcd.remains=0&(cooldown.spear_of_bastion.remains<5|cooldown.spear_of_bastion.remains>20)&((buff.bloodlust.up|talent.anger_management.enabled|raid_event.adds.in>10)|target.time_to_die>100|variable.execute_phase|target.time_to_die<15&raid_event.adds.in>10)&(spell_targets.whirlwind=1|buff.meat_cleaver.up)
-      if S.Recklessness:IsCastable() and (ElysianMightEquipped and (S.SpearofBastion:CooldownRemains() < 5 or S.SpearofBastion:CooldownRemains() > 20) and ((Player:BloodlustUp() or S.AngerManagement:IsAvailable() or EnemiesCount8 == 1) or Target:TimeToDie() > 100 or VarExecutePhase or Target:TimeToDie() < 15) and (EnemiesCount8 == 1 or Player:BuffUp(S.MeatCleaverBuff))) then
-        if Cast(S.Recklessness) then return "recklessness main 12"; end
-      end
-      -- recklessness,if=!variable.unique_legendaries&gcd.remains=0&((buff.bloodlust.up|talent.anger_management.enabled|raid_event.adds.in>10)|target.time_to_die>100|variable.execute_phase|target.time_to_die<15&raid_event.adds.in>10)&(spell_targets.whirlwind=1|buff.meat_cleaver.up)&(!covenant.necrolord|cooldown.conquerors_banner.remains>20)
-      if S.Recklessness:IsCastable() and (not VarUniqueLegendaries and ((Player:BloodlustUp() or S.AngerManagement:IsAvailable() or EnemiesCount8 == 1) or Target:TimeToDie() > 100 or VarExecutePhase or Target:TimeToDie() < 15) and (EnemiesCount8 == 1 or Player:BuffUp(S.MeatCleaverBuff)) and (CovenantID ~= 4 or S.ConquerorsBanner:CooldownRemains() > 20)) then
-        if Cast(S.Recklessness) then return "recklessness main 13"; end
-      end
-      -- recklessness,use_off_gcd=1,if=runeforge.signet_of_tormented_kings.equipped&gcd.remains&prev_gcd.1.rampage&((buff.bloodlust.up|talent.anger_management.enabled|raid_event.adds.in>10)|target.time_to_die>100|variable.execute_phase|target.time_to_die<15&raid_event.adds.in>10)&(spell_targets.whirlwind=1|buff.meat_cleaver.up)
-      if S.Recklessness:IsCastable() and (SignetofTormentedKingsEquipped and Player:PrevGCDP(1, S.Rampage) and ((Player:BloodlustUp() or S.AngerManagement:IsAvailable()) or Target:TimeToDie() > 100 or VarExecutePhase) and (EnemiesCount8 == 1 or Player:BuffUp(S.MeatCleaverBuff))) then
-        if Cast(S.Recklessness) then return "recklessness main 14"; end
-      end
-    end
-    -- whirlwind,if=spell_targets.whirlwind>1&!buff.meat_cleaver.up|raid_event.adds.in<gcd&!buff.meat_cleaver.up
-    if S.Whirlwind:IsCastable() and (EnemiesCount8 > 1 and Player:BuffDown(S.MeatCleaverBuff)) then
-      if Cast(S.Whirlwind, not Target:IsInMeleeRange(8)) then return "whirlwind main 16"; end
-    end
-    -- trinkets
-    if Settings.Commons.Enabled.Trinkets then
-      local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
-      if TrinketToUse then
-        if Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 13) then
-          if Cast(M.Trinket1) then return "use_trinket " .. TrinketToUse:Name() .. " damage 1"; end
-        elseif Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 14) then
-          if Cast(M.Trinket2) then return "use_trinket " .. TrinketToUse:Name() .. " damage 2"; end
-        end
-      end
-    end
-    if CDsON() then
-      -- arcane_torrent,if=rage<40&!buff.recklessness.up
-      if S.ArcaneTorrent:IsCastable() and (Player:Rage() < 40 and Player:BuffDown(S.RecklessnessBuff)) then
-        if Cast(S.ArcaneTorrent, not Target:IsInRange(8)) then return "arcane_torrent"; end
-      end
-      -- lights_judgment,if=buff.recklessness.down&debuff.siegebreaker.down
-      if S.LightsJudgment:IsCastable() and (Player:BuffDown(S.RecklessnessBuff) and Target:DebuffDown(S.SiegebreakerDebuff)) then
-        if Cast(S.LightsJudgment, not Target:IsSpellInRange(S.LightsJudgment)) then return "lights_judgment"; end
-      end
-      -- bag_of_tricks,if=buff.recklessness.down&debuff.siegebreaker.down&buff.enrage.up
-      if S.BagofTricks:IsCastable() and (Player:BuffDown(S.RecklessnessBuff) and Target:DebuffDown(S.SiegebreakerDebuff) and EnrageUp) then
-        if Cast(S.BagofTricks, not Target:IsSpellInRange(S.BagofTricks)) then return "bag_of_tricks"; end
-      end
-      -- berserking,if=buff.recklessness.up
-      if S.Berserking:IsCastable() and (Player:BuffUp(S.RecklessnessBuff)) then
-        if Cast(S.Berserking) then return "berserking"; end
-      end
-      -- blood_fury
-      if S.BloodFury:IsCastable() then
-        if Cast(S.BloodFury) then return "blood_fury"; end
-      end
-      -- fireblood
-      if S.Fireblood:IsCastable() then
-        if Cast(S.Fireblood) then return "fireblood"; end
-      end
-      -- ancestral_call
-      if S.AncestralCall:IsCastable() then
-        if Cast(S.AncestralCall) then return "ancestral_call"; end
-      end
-    end
-    -- call_action_list,name=aoe
-    local ShouldReturn = AOE(); if ShouldReturn then return ShouldReturn; end
-    -- call_action_list,name=single_target
-    local ShouldReturn = SingleTarget(); if ShouldReturn then return ShouldReturn; end
   end
 end
 
@@ -430,6 +421,7 @@ local function AutoBind()
   WR.Bind(M.PotionofSpectralStrength)
   WR.Bind(M.PhialofSerenity)
   -- Bind Macros
+  WR.Bind(M.HeroicLeapCursor)
   WR.Bind(M.SpearofBastionPlayer)
 end
 

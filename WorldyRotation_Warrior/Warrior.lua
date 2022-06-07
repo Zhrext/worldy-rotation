@@ -192,6 +192,8 @@ Item.Warrior.Protection = MergeTableByKey(Item.Warrior.Commons, {
 -- Macros
 if not Macro.Warrior then Macro.Warrior = {} end
 Macro.Warrior.Commons = {
+  -- Basic Spells
+  HeroicLeapCursor                 = Macro("HeroicLeapCursor", "/cast [@cursor] " .. Spell.Warrior.Commons.HeroicLeap:Name()),
   -- Covenant
   SpearofBastionPlayer             = Macro("SpearofBastionPlayer", "/cast [@player] " .. Spell.Warrior.Commons.SpearofBastion:Name()),
   -- Items

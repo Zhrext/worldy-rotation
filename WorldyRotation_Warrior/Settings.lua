@@ -20,6 +20,8 @@ WR.GUISettings.APL.Warrior = {
     Enabled = {
       Potions = true,
       Trinkets = true,
+      Charge = true,
+      HeroicLeap = true,
     },
     HP = {
       VictoryRushHP = 80,
