@@ -313,7 +313,7 @@ local function APL()
         if Cast(S.AncientAftershock, not TargetInMeleeRange) then return "ancient_aftershock main 14"; end
       end
       -- spear_of_bastion
-      if S.SpearofBastion:IsCastable() then
+      if Settings.Commons.Enabled.Covenant and S.SpearofBastion:IsCastable() then
         if Cast(M.SpearofBastionPlayer, not Target:IsSpellInRange(S.SpearofBastion)) then return "spear_of_bastion main 16"; end
       end
     end

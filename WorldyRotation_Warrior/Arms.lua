@@ -137,7 +137,7 @@ local function Hac()
     if Cast(S.AncientAftershock, not TargetInMeleeRange) then return "ancient_aftershock hac 14"; end
   end
   -- spear_of_bastion
-  if S.SpearofBastion:IsCastable() then
+  if Settings.Commons.Enabled.Covenant and S.SpearofBastion:IsCastable() then
     if Cast(M.SpearofBastionPlayer, not Target:IsSpellInRange(S.SpearofBastion)) then return "spear_of_bastion hac 16"; end
   end
   -- bladestorm
@@ -230,7 +230,7 @@ local function Execute()
       if Cast(S.AncientAftershock, not TargetInMeleeRange) then return "ancient_aftershock execute 20"; end
     end
     -- spear_of_bastion
-    if S.SpearofBastion:IsCastable() then
+    if Settings.Commons.Enabled.Covenant and S.SpearofBastion:IsCastable() then
       if Cast(M.SpearofBastionPlayer, not Target:IsSpellInRange(S.SpearofBastion)) then return "spear_of_bastion execute 22"; end
     end
   end
@@ -307,7 +307,7 @@ local function SingleTarget()
       if Cast(S.AncientAftershock, not TargetInMeleeRange) then return "ancient_aftershock single_target 14"; end
     end
     -- spear_of_bastion
-    if S.SpearofBastion:IsCastable() then
+    if Settings.Commons.Enabled.Covenant and S.SpearofBastion:IsCastable() then
       if Cast(M.SpearofBastionPlayer, not Target:IsSpellInRange(S.SpearofBastion)) then return "spear_of_bastion single_target 16"; end
     end
   end

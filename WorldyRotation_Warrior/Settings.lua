@@ -22,6 +22,7 @@ WR.GUISettings.APL.Warrior = {
       Trinkets = true,
       Charge = true,
       HeroicLeap = true,
+      Covenant = true,
     },
     HP = {
       VictoryRushHP = 80,
@@ -32,15 +33,10 @@ WR.GUISettings.APL.Warrior = {
   Arms = {
   },
   Fury = {
-    Enabled = {
-      HideCastQueue = false,
-      Covenant = true,
-    },
   },
   Protection = {
     Enabled = {
-      DisableHeroicCharge = false,
-      DisableIntervene = false,
+      Intervene = true,
     },
     RageCapValue = 80,
   },
