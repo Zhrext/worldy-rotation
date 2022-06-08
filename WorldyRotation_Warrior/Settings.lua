@@ -34,6 +34,7 @@ WR.GUISettings.APL.Warrior = {
   Fury = {
     Enabled = {
       HideCastQueue = false,
+      Covenant = true,
     },
   },
   Protection = {

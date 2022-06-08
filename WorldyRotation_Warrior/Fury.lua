@@ -95,7 +95,7 @@ local function AOE()
     if Cast(S.AncientAftershock, not Target:IsInMeleeRange(12)) then return "ancient_aftershock aoe 2"; end
   end
   -- spear_of_bastion,if=buff.enrage.up&rage<40&spell_targets.whirlwind>1
-  if CDsON() and S.SpearofBastion:IsCastable() and (EnrageUp and Player:Rage() < 40 and EnemiesCount8 > 1) then
+  if Settings.Fury.Enabled.Covenant and CDsON() and S.SpearofBastion:IsCastable() and (EnrageUp and Player:Rage() < 40 and EnemiesCount8 > 1) then
     if Cast(M.SpearofBastionPlayer, not Target:IsInRange(25)) then return "spear_of_bastion aoe 4"; end
   end
   -- bladestorm,if=buff.enrage.up&spell_targets.whirlwind>2
@@ -115,7 +115,7 @@ local function AOE()
     if Cast(S.Rampage, not TargetInMeleeRange) then return "rampage aoe 12"; end
   end
   -- spear_of_bastion,if=buff.enrage.up&cooldown.recklessness.remains>5&spell_targets.whirlwind>1
-  if CDsON() and S.SpearofBastion:IsCastable() and (EnrageUp and S.Recklessness:CooldownRemains() > 5 and EnemiesCount8 > 1) then
+  if Settings.Fury.Enabled.Covenant and CDsON() and S.SpearofBastion:IsCastable() and (EnrageUp and S.Recklessness:CooldownRemains() > 5 and EnemiesCount8 > 1) then
     if Cast(M.SpearofBastionPlayer, not Target:IsInRange(25)) then return "spear_of_bastion aoe 14"; end
   end
   -- bladestorm,if=buff.enrage.remains>gcd*2.5&spell_targets.whirlwind>1
@@ -164,7 +164,7 @@ local function SingleTarget()
   end
   if CDsON() then
     -- spear_of_bastion,if=runeforge.elysian_might&buff.enrage.up&cooldown.recklessness.remains>5&(buff.recklessness.up|target.time_to_die<20|debuff.siegebreaker.up|!talent.siegebreaker&target.time_to_die>68)&raid_event.adds.in>55
-    if S.SpearofBastion:IsCastable() and (ElysianMightEquipped and EnrageUp and S.Recklessness:CooldownRemains() > 5 and (Player:BuffUp(S.RecklessnessBuff) or Target:TimeToDie() < 20 or Target:DebuffUp(S.SiegebreakerDebuff) or not S.Siegebreaker:IsAvailable() and Target:TimeToDie() > 68)) then
+    if Settings.Fury.Enabled.Covenant and S.SpearofBastion:IsCastable() and (ElysianMightEquipped and EnrageUp and S.Recklessness:CooldownRemains() > 5 and (Player:BuffUp(S.RecklessnessBuff) or Target:TimeToDie() < 20 or Target:DebuffUp(S.SiegebreakerDebuff) or not S.Siegebreaker:IsAvailable() and Target:TimeToDie() > 68)) then
       if Cast(M.SpearofBastionPlayer, not Target:IsInRange(25)) then return "spear_of_bastion single_target 22"; end
     end
     -- bladestorm,if=buff.enrage.up&(!buff.recklessness.remains|rage<50)&(spell_targets.whirlwind=1&raid_event.adds.in>45|spell_targets.whirlwind=2)
@@ -172,7 +172,7 @@ local function SingleTarget()
       if Cast(S.Bladestorm, not Target:IsInRange(8)) then return "bladestorm single_target 24"; end
     end
     -- spear_of_bastion,if=buff.enrage.up&cooldown.recklessness.remains>5&(buff.recklessness.up|target.time_to_die<20|debuff.siegebreaker.up|!talent.siegebreaker&target.time_to_die>68)&raid_event.adds.in>55
-    if S.SpearofBastion:IsCastable() and (EnrageUp and S.Recklessness:CooldownRemains() > 5 and (Player:BuffUp(S.RecklessnessBuff) or Target:TimeToDie() < 20 or Target:DebuffUp(S.SiegebreakerDebuff) or not S.Siegebreaker:IsAvailable() and Target:TimeToDie() > 68)) then
+    if Settings.Fury.Enabled.Covenant and S.SpearofBastion:IsCastable() and (EnrageUp and S.Recklessness:CooldownRemains() > 5 and (Player:BuffUp(S.RecklessnessBuff) or Target:TimeToDie() < 20 or Target:DebuffUp(S.SiegebreakerDebuff) or not S.Siegebreaker:IsAvailable() and Target:TimeToDie() > 68)) then
       if Cast(M.SpearofBastionPlayer, not Target:IsInRange(25)) then return "spear_of_bastion single_target 26"; end
     end
   end
@@ -287,7 +287,7 @@ local function Combat()
     local ShouldReturn = Movement(); if ShouldReturn then return ShouldReturn; end
   end
   -- heroic_leap,if=(raid_event.movement.distance>25&raid_event.movement.in>45)
-  if S.HeroicLeap:IsCastable() and (not Target:IsInRange(25)) and Mouseover and Mouseover:GUID() == Target:GUID() then
+  if Settings.Commons.Enabled.HeroicLeap and S.HeroicLeap:IsCastable() and (not Target:IsInRange(25)) and Mouseover and Mouseover:GUID() == Target:GUID() then
     if Cast(M.HeroicLeapCursor) then return "heroic_leap main 4"; end
   end
   -- potion
@@ -299,7 +299,7 @@ local function Combat()
     if Cast(S.ConquerorsBanner) then return "conquerors_banner main 8"; end
   end
   -- spear_of_bastion,if=buff.enrage.up&rage<70
-  if CDsON() and S.SpearofBastion:IsCastable() and (EnrageUp and Player:Rage() < 70) then
+  if Settings.Fury.Enabled.Covenant and CDsON() and S.SpearofBastion:IsCastable() and (EnrageUp and Player:Rage() < 70) then
     if Cast(M.SpearofBastionPlayer, not Target:IsInRange(25)) then return "spear_of_bastion main 9"; end
   end
   -- rampage,if=cooldown.recklessness.remains<3&talent.reckless_abandon.enabled
@@ -312,7 +312,7 @@ local function Combat()
       if Cast(S.Recklessness) then return "recklessness main 11"; end
     end
     -- recklessness,if=runeforge.elysian_might&gcd.remains=0&(cooldown.spear_of_bastion.remains<5|cooldown.spear_of_bastion.remains>20)&((buff.bloodlust.up|talent.anger_management.enabled|raid_event.adds.in>10)|target.time_to_die>100|variable.execute_phase|target.time_to_die<15&raid_event.adds.in>10)&(spell_targets.whirlwind=1|buff.meat_cleaver.up)
-    if S.Recklessness:IsCastable() and (ElysianMightEquipped and (S.SpearofBastion:CooldownRemains() < 5 or S.SpearofBastion:CooldownRemains() > 20) and ((Player:BloodlustUp() or S.AngerManagement:IsAvailable() or EnemiesCount8 == 1) or Target:TimeToDie() > 100 or VarExecutePhase or Target:TimeToDie() < 15) and (EnemiesCount8 == 1 or Player:BuffUp(S.MeatCleaverBuff))) then
+    if S.Recklessness:IsCastable() and (ElysianMightEquipped and (Settings.Fury.Enabled.Covenant and S.SpearofBastion:CooldownRemains() < 5 or S.SpearofBastion:CooldownRemains() > 20) and ((Player:BloodlustUp() or S.AngerManagement:IsAvailable() or EnemiesCount8 == 1) or Target:TimeToDie() > 100 or VarExecutePhase or Target:TimeToDie() < 15) and (EnemiesCount8 == 1 or Player:BuffUp(S.MeatCleaverBuff))) then
       if Cast(S.Recklessness) then return "recklessness main 12"; end
     end
     -- recklessness,if=!variable.unique_legendaries&gcd.remains=0&((buff.bloodlust.up|talent.anger_management.enabled|raid_event.adds.in>10)|target.time_to_die>100|variable.execute_phase|target.time_to_die<15&raid_event.adds.in>10)&(spell_targets.whirlwind=1|buff.meat_cleaver.up)&(!covenant.necrolord|cooldown.conquerors_banner.remains>20)
