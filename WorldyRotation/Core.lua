@@ -194,11 +194,17 @@
       WorldyRotationCharDB.Toggles[3] = not WorldyRotationCharDB.Toggles[3];
       WR.Print("AoE is now "..(WorldyRotationCharDB.Toggles[3] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
       WR.ToggleFrame:UpdateButtonText(3);
+    elseif Argument == "lock" then
+      WR.ToggleFrame:ToggleLock();
+    elseif Argument == "break" then
+      WR.Break();
     elseif Argument == "help" then
       WR.Print("|cffffff00--[Toggles]--|r");
       WR.Print("  On/Off: |cff8888ff/wr toggle|r");
       WR.Print("  CDs: |cff8888ff/wr cds|r");
       WR.Print("  AoE: |cff8888ff/wr aoe|r");
+      WR.Print("  Un-/Lock: |cff8888ff/wr lock|r");
+      WR.Print("  Break: |cff8888ff/wr break|r");
     else
       WR.Print("Invalid arguments.");
       WR.Print("Type |cff8888ff/wr help|r for more infos.");

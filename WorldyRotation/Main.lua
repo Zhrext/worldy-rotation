@@ -432,7 +432,7 @@
       local SpecID = Cache.Persistent.Player.Spec[1];
       if SpecID then
         -- Check if we are ready to cast something to save FPS.
-        if WR.ON() and WR.Ready() then
+        if WR.ON() and WR.Ready() and not WR.Pause() then
           HL.CacheHasBeenReset = false;
           Cache.Reset();
           -- Rotational Debug Output
@@ -459,6 +459,14 @@
   -- Is the player ready ?
   function WR.Ready ()
     return not Player:IsDeadOrGhost() and not Player:IsMounted() and not Player:IsInVehicle() and not C_PetBattles.IsInBattle() and Player:CastEnd() - HL.Latency() <= 0 and Player:GCDRemains() - HL.Latency() <= 0;
+  end
+
+  function WR.Pause()
+    return IsShiftKeyDown();
+  end
+
+  function WR.Break()
+    WR.ChangePulseTimer(Player:GCD() + 0.05);
   end
 
   -- Used to force a short/long pulse wait, it also resets the icons.
