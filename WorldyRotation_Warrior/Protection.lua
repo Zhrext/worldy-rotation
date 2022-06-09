@@ -11,6 +11,7 @@ local Player     = Unit.Player
 local Target     = Unit.Target
 local Spell      = HL.Spell
 local Item       = HL.Item
+local Utils      = HL.Utils
 -- WorldyRotation
 local WR         = WorldyRotation
 local Cast       = WR.Cast
@@ -155,13 +156,21 @@ local function Defensive()
       if Cast(S.ImpendingVictory) then return "impending_victory defensive" end
     end
   end
+  -- healthstone
+  if Player:HealthPercentage() <= Settings.Commons.HP.Healthstone and I.Healthstone:IsReady() then
+    if Cast(M.Healthstone) then return "healthstone defensive 3"; end
+  end
+  -- phial_of_serenity
+  if Player:HealthPercentage() <= Settings.Commons.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
+    if Cast(M.PhialofSerenity) then return "phial_of_serenity defensive 4"; end
+  end
 end
 
 local function Aoe()
   -- ravager
   if S.Ravager:IsCastable() then
     SuggestRageDump(10)
-    if Cast(M.RavagerPlayer, not Target:IsSpellInRange(S.Ravager)) then return "ravager aoe 2"; end
+    if Cast(M.RavagerPlayer, not TargetInMeleeRange) then return "ravager aoe 2"; end
   end
   -- dragon_roar
   if S.DragonRoar:IsCastable() then
@@ -194,7 +203,7 @@ local function Generic()
   -- ravager
   if S.Ravager:IsCastable() then
     SuggestRageDump(10)
-    if Cast(M.RavagerPlayer, not Target:IsSpellInRange(S.Ravager)) then return "ravager generic 2"; end
+    if Cast(M.RavagerPlayer, not TargetInMeleeRange) then return "ravager generic 2"; end
   end
   -- dragon_roar
   if S.DragonRoar:IsCastable() then
@@ -267,12 +276,16 @@ local function APL()
     --  if Cast(S.Intervene) then return "intervene main 4"; end
     --end
     -- use_items,if=cooldown.avatar.remains<=gcd|buff.avatar.up
-    --if (Settings.Commons.Enabled.Trinkets and (S.Avatar:CooldownRemains() <= Player:GCD() or Player:BuffUp(S.AvatarBuff))) then
-    --  local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
-    --  if TrinketToUse then
-    --    if Cast(TrinketToUse, nil, Settings.Commons.DisplayStyle.Trinkets) then return "Generic use_items for " .. TrinketToUse:Name(); end
-    --  end
-    --end
+    if Settings.Commons.Enabled.Trinkets and (S.Avatar:CooldownRemains() <= Player:GCD() or Player:BuffUp(S.AvatarBuff)) then
+      local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
+      if TrinketToUse then
+        if Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 13) then
+          if Cast(M.Trinket1) then return "use_trinket " .. TrinketToUse:Name() .. " damage 1"; end
+        elseif Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 14) then
+          if Cast(M.Trinket2) then return "use_trinket " .. TrinketToUse:Name() .. " damage 2"; end
+        end
+      end
+    end
     if (CDsON() and Player:BuffUp(S.AvatarBuff)) then
       -- blood_fury,if=buff.avatar.up
       if S.BloodFury:IsCastable() then
@@ -314,7 +327,7 @@ local function APL()
       end
       -- spear_of_bastion
       if Settings.Commons.Enabled.Covenant and S.SpearofBastion:IsCastable() then
-        if Cast(M.SpearofBastionPlayer, not Target:IsSpellInRange(S.SpearofBastion)) then return "spear_of_bastion main 16"; end
+        if Cast(M.SpearofBastionPlayer, not TargetInMeleeRange) then return "spear_of_bastion main 16"; end
       end
     end
     -- revenge,if=buff.revenge.up&(target.health.pct>20|spell_targets.thunder_clap>3)&cooldown.shield_slam.remains
