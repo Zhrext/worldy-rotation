@@ -329,13 +329,13 @@ local function Combat()
     if Cast(S.Whirlwind, not Target:IsInMeleeRange(8)) then return "whirlwind main 16"; end
   end
   -- trinkets
-  if Settings.Commons.Enabled.Trinkets then
+  if Settings.Commons.Enabled.Trinkets and CDsON() then
     local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
     if TrinketToUse then
       if Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 13) then
-        if Cast(M.Trinket1) then return "use_trinket " .. TrinketToUse:Name() .. " damage 1"; end
+        if Cast(M.Trinket1, not TargetInMeleeRange) then return "use_trinket " .. TrinketToUse:Name() .. " damage 1"; end
       elseif Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 14) then
-        if Cast(M.Trinket2) then return "use_trinket " .. TrinketToUse:Name() .. " damage 2"; end
+        if Cast(M.Trinket2, not TargetInMeleeRange) then return "use_trinket " .. TrinketToUse:Name() .. " damage 2"; end
       end
     end
   end
@@ -404,6 +404,7 @@ local function AutoBind()
   WR.Bind(S.Bloodthirst)
   WR.Bind(S.Charge)
   WR.Bind(S.CrushingBlow)
+  WR.Bind(S.DragonRoar)
   WR.Bind(S.Execute)
   WR.Bind(S.HeroicLeap)
   WR.Bind(S.IntimidatingShout)
@@ -411,6 +412,7 @@ local function AutoBind()
   WR.Bind(S.RagingBlow)
   WR.Bind(S.Rampage)
   WR.Bind(S.Recklessness)
+  WR.Bind(S.Siegebreaker)
   WR.Bind(S.StormBolt)
   WR.Bind(S.VictoryRush)
   WR.Bind(S.Whirlwind)
