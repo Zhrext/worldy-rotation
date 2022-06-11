@@ -76,7 +76,7 @@ do
   }
   
   local VendettaGUID = {}
-  local VendettaSpell = Spell.Rogue.Assassination.Vendetta
+  --local VendettaSpell = Spell.Rogue.Assassination.Vendetta
 
   local Tier284pcEquipped = Player:HasTier(28, 4)
   HL:RegisterForEvent(function()
