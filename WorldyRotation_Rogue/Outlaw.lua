@@ -181,7 +181,6 @@ local function RtB_Buffs ()
   end
   return Cache.APLVar.RtB_Buffs
 end
--- RtB rerolling strategy, return true if we should reroll
 local function RtB_Reroll ()
   if not Cache.APLVar.RtB_Reroll then
     -- 1+ Buff
@@ -209,11 +208,14 @@ local function RtB_Reroll ()
     else
       -- # Reroll single buffs early other than True Bearing and Broadside
       -- actions+=/variable,name=rtb_reroll,value=rtb_buffs<2&(!buff.true_bearing.up&!buff.broadside.up)
-      Cache.APLVar.RtB_Reroll = (RtB_Buffs() < 2 and (not Player:BuffUp(S.TrueBearing) and not Player:BuffUp(S.Broadside))) and true or false
+      --Todo fix for Shadowdust
+      --Cache.APLVar.RtB_Reroll = (RtB_Buffs() < 2 and (not Player:BuffUp(S.TrueBearing) and not Player:BuffUp(S.Broadside))) and true or false
+      --This is only updated for Blunderbuss where we want to keep single BS and SnC
+      Cache.APLVar.RtB_Reroll = (RtB_Buffs() < 2 and not (Player:BuffUp(S.Broadside) or Player:BuffUp(S.SkullandCrossbones))) or (RtB_Buffs() == 2 and Player:BuffUp(S.BuriedTreasure) and Player:BuffUp(S.GrandMelee)) and true or false
     end
 
     -- Defensive Override : Grand Melee if HP < 60
-    if Everyone.IsSoloMode() then
+    if Everyone.IsSoloMode() and not Target:IsDummy() then
       if Player:BuffUp(S.GrandMelee) then
         if Player:IsTanking(Target) or Player:HealthPercentage() < mathmin(Settings.Outlaw.HP.RolltheBonesLeechKeepHP, Settings.Outlaw.HP.RolltheBonesLeechRerollHP) then
           Cache.APLVar.RtB_Reroll = false
@@ -258,11 +260,12 @@ local function Vanish_DPS_Condition ()
 end
 
 local function CDs ()
-  -- actions.cds+=/blade_flurry,if=spell_targets>=2&!buff.blade_flurry.up
   if S.BladeFlurry:IsReady() and AoEON() and EnemiesBFCount >= 2 and not Player:BuffUp(S.BladeFlurry) then
     if WR.Cast(S.BladeFlurry) then return "Cast Blade Flurry" end
   end
+  
   if Target:IsSpellInRange(S.SinisterStrike) then
+
     -- # Using Ambush is a 2% increase, so Vanish can be sometimes be used as a utility spell unless using Master Assassin or Deathly Shadows
     if S.Vanish:IsCastable() and Vanish_DPS_Condition() and not Player:StealthUp(true, true) then
       if not MarkoftheMasterAssassinEquipped then
@@ -291,22 +294,12 @@ local function CDs ()
     if CDsON() and S.AdrenalineRush:IsCastable() and not Player:BuffUp(S.AdrenalineRush) then
       if WR.Cast(S.AdrenalineRush) then return "Cast Adrenaline Rush" end
     end
-    -- actions.cds+=/fleshcraft,if=(soulbind.pustule_eruption|soulbind.volatile_solvent)&!stealthed.all&(!buff.blade_flurry.up|spell_targets.blade_flurry<2)&(!buff.adrenaline_rush.up|energy.time_to_max>2)
-    if S.Fleshcraft:IsCastable() and (S.PustuleEruption:SoulbindEnabled() or S.VolatileSolvent:SoulbindEnabled())
-      and (not Player:BuffUp(S.BladeFlurry) or EnemiesBFCount < 2) and (not Player:BuffUp(S.AdrenalineRush) or EnergyTimeToMaxStable() > 2) then
-      WR.Cast(S.Fleshcraft)
-    end
-    -- actions.cds+=/flagellation,if=!stealthed.all&(variable.finish_condition|target.time_to_die<13)
-    if CDsON() and S.Flagellation:IsReady() and not Player:StealthUp(true, true) and (Finish_Condition() or HL.BossFilteredFightRemains("<", 13)) then
+    --Todo:Should add time to die here as well
+    if S.Flagellation:IsReady() and not Player:StealthUp(true, true) and (Finish_Condition() or HL.BossFilteredFightRemains("<", 13)) then
       if WR.Cast(S.Flagellation) then return "Cast Flagellation" end
     end
-    -- actions.cds+=/dreadblades,if=!stealthed.all&combo_points<=2&(!covenant.venthyr|debuff.flagellation.up)
-    if S.Dreadblades:IsReady() and Target:IsSpellInRange(S.Dreadblades) and not Player:StealthUp(true, true) and ComboPoints <= 2 
-      and (not IsVenthyr or S.Flagellation:AnyDebuffUp()) then
-      if WR.Cast(S.Dreadblades) then return "Cast Dreadblades" end
-    end
     -- actions.cds+=/roll_the_bones,if=master_assassin_remains=0&buff.dreadblades.down&(buff.roll_the_bones.remains<=3|variable.rtb_reroll)
-    if S.RolltheBones:IsReady() and Rogue.MasterAssassinsMarkRemains() <= 0 and not Player:BuffUp(S.Dreadblades) and (Rogue.RtBRemains() <= 3 or RtB_Reroll()) then
+    if S.RolltheBones:IsReady() and (Rogue.RtBRemains() <= 2 or RtB_Reroll()) then
       if WR.Cast(S.RolltheBones) then return "Cast Roll the Bones" end
     end
   end
@@ -328,6 +321,7 @@ local function CDs ()
       if WR.Cast(S.BladeRush) then return "Cast Blade Rush" end
     end
   end
+  --Racials
   if Target:IsSpellInRange(S.SinisterStrike) then
     if CDsON() then
       -- actions.cds+=/shadowmeld,if=!stealthed.all&variable.ambush_condition
@@ -377,15 +371,9 @@ local function Stealth ()
 end
 
 local function Finish ()
-  -- # BtE on cooldown to keep the Crit debuff up, unless the target is about to die
-  -- actions.finish+=/between_the_eyes,if=target.time_to_die>3
-  -- Note: Increased threshold to 4s to account for player reaction time
-  if S.BetweentheEyes:IsCastable() and Target:IsSpellInRange(S.BetweentheEyes)
-    and (Target:FilteredTimeToDie(">", 4) or Target:TimeToDieIsNotValid()) and Rogue.CanDoTUnit(Target, BetweenTheEyesDMGThreshold) then
+  if S.BetweentheEyes:IsCastable() and Target:IsSpellInRange(S.BetweentheEyes)and (Target:FilteredTimeToDie(">", 3) or Target:TimeToDieIsNotValid()) and (Target:DebuffRemains(S.BetweentheEyes) < 4 or Target:DebuffRemains(S.BetweentheEyes) == 0) and Rogue.CanDoTUnit(Target, BetweenTheEyesDMGThreshold) then
     if WR.Cast(S.BetweentheEyes) then return "Cast Between the Eyes" end
   end
-  -- actions.finish=slice_and_dice,if=buff.slice_and_dice.remains<fight_remains&refreshable
-  -- Note: Added Player:BuffRemains(S.SliceandDice) == 0 to maintain the buff while TTD is invalid (it's mainly for Solo, not an issue in raids)
   if S.SliceandDice:IsCastable() and (HL.FilteredFightRemains(EnemiesBF, ">", Player:BuffRemains(S.SliceandDice), true) or Player:BuffRemains(S.SliceandDice) == 0)
     and Player:BuffRemains(S.SliceandDice) < (1 + ComboPoints) * 1.8 then
     if WR.Cast(S.SliceandDice) then return "Cast Slice and Dice" end
@@ -397,60 +385,17 @@ local function Finish ()
 end
 
 local function Build ()
-  -- actions.build=sepsis
-  if CDsON() and S.Sepsis:IsReady() and Target:IsSpellInRange(S.Sepsis) and Rogue.MasterAssassinsMarkRemains() <= 0 then
-    if WR.Cast(S.Sepsis) then return "Cast Sepsis" end
-  end
-  -- actions.build+=/ghostly_strike
-  if S.GhostlyStrike:IsReady() and Target:IsSpellInRange(S.GhostlyStrike) then
-    if WR.Cast(S.GhostlyStrike) then return "Cast Ghostly Strike" end
-  end
-  -- actions.build=shiv,if=runeforge.tiny_toxic_blade.equipped
-  if S.Shiv:IsReady() and TinyToxicBladeEquipped then
-    if WR.Cast(S.Shiv) then return "Cast Shiv (TTB)" end
-  end
-  -- actions.build+=/echoing_reprimand,if=!soulbind.effusive_anima_accelerator|variable.blade_flurry_sync
-  if CDsON() and S.EchoingReprimand:IsReady() and (not S.EffusiveAnimaAccelerator:SoulbindEnabled() or Blade_Flurry_Sync()) then
-    if WR.Cast(S.EchoingReprimand) then return "Cast Echoing Reprimand" end
-  end
-  -- actions.build+=/serrated_bone_spike,cycle_targets=1,if=buff.slice_and_dice.up&!dot.serrated_bone_spike_dot.ticking|fight_remains<=5|cooldown.serrated_bone_spike.charges_fractional>=2.75
-  if S.SerratedBoneSpike:IsReady() then
-    if (Player:BuffUp(S.SliceandDice) and not Target:DebuffUp(S.SerratedBoneSpikeDebuff)) or (Settings.Outlaw.Enabled.DumpSpikes and HL.BossFilteredFightRemains("<", 5)) then
-      if WR.Cast(S.SerratedBoneSpike) then return "Cast Serrated Bone Spike" end
-    end
-    if AoEON() then
-      -- Prefer melee cycle units
-      local BestUnit, BestUnitTTD = nil, 4
-      local TargetGUID = Target:GUID()
-      for _, CycleUnit in pairs(Enemies30y) do
-        if CycleUnit:GUID() ~= TargetGUID and Everyone.UnitIsCycleValid(CycleUnit, BestUnitTTD, -CycleUnit:DebuffRemains(S.SerratedBoneSpike))
-        and not CycleUnit:DebuffUp(S.SerratedBoneSpikeDebuff) then
-          BestUnit, BestUnitTTD = CycleUnit, CycleUnit:TimeToDie()
-        end
-      end
-      if BestUnit then
-        --HR.CastLeftNameplate(BestUnit, S.SerratedBoneSpike)
-      end
-    end
-    if S.SerratedBoneSpike:ChargesFractional() > 2.75 then
-      if WR.Cast(S.SerratedBoneSpike) then return "Cast Serrated Bone Spike Filler" end
-    end
-  end
   if S.PistolShot:IsCastable() and Target:IsSpellInRange(S.PistolShot) and Player:BuffUp(S.Opportunity) then
-    -- actions.build+=/pistol_shot,if=buff.opportunity.up&(energy.deficit>(energy.regen+10)|combo_points.deficit<=1+buff.broadside.up|talent.quick_draw.enabled)
-    if Player:EnergyDeficitPredicted() > (Player:EnergyRegen() + 10) or ComboPointsDeficit <= 1 + num(Player:BuffUp(S.Broadside)) or S.QuickDraw:IsAvailable() then
-      if WR.Cast(S.PistolShot) then return "Cast Pistol Shot" end
-    end
-    -- actions.build+=/pistol_shot,if=buff.opportunity.up&(buff.greenskins_wickers.up|buff.concealed_blunderbuss.up|buff.tornado_trigger.up)
     if Player:BuffUp(S.GreenskinsWickers) or Player:BuffUp(S.ConcealedBlunderbuss) or Player:BuffUp(S.TornadoTriggerBuff) then
       if WR.Cast(S.PistolShot) then return "Cast Pistol Shot (Buffed)" end
     end
+    if Player:EnergyDeficitPredicted() > (Player:EnergyRegen()*1.5) then
+      if WR.Cast(S.PistolShot) then return "Cast Pistol Shot" end
+    end
   end
-  -- actions.build+=/sinister_strike
   if S.SinisterStrike:IsCastable() and Target:IsSpellInRange(S.SinisterStrike) then
     if WR.Cast(S.SinisterStrike) then return "Cast Sinister Strike" end
   end
-  -- TODO actions.build+=/gouge,if=talent.dirty_tricks.enabled&combo_points.deficit>=1+buff.broadside.up
 end
 
 --- ======= MAIN =======
@@ -525,7 +470,6 @@ local function APL ()
     end
     return
   end
-
   -- In Combat
   -- MfD Sniping (Higher Priority than APL)
   -- actions.cds+=/marked_for_death,target_if=min:target.time_to_die,if=target.time_to_die<combo_points.deficit|((raid_event.adds.in>40|buff.true_bearing.remains>15-buff.adrenaline_rush.up*5)&!stealthed.rogue&combo_points.deficit>=cp_max_spend-1)
@@ -606,6 +550,7 @@ local function AutoBind()
   WR.Bind(S.ArcaneTorrent)
   WR.Bind(S.MarkedforDeath)
   WR.Bind(S.SliceandDice)
+  WR.Bind(S.BloodFury)
 end
 
 local function Init ()
