@@ -96,11 +96,11 @@ local function Hac()
   if CDsON() then
     -- conquerors_banner
     if S.ConquerorsBanner:IsCastable() then
-      if Cast(S.ConquerorsBanner) then return "conquerors_banner hac 4"; end
+      if Cast(S.ConquerorsBanner, not TargetInMeleeRange) then return "conquerors_banner hac 4"; end
     end
     -- avatar,if=cooldown.colossus_smash.remains<1
     if S.Avatar:IsCastable() and (S.ColossusSmash:CooldownRemains() < 1) then
-      if Cast(S.Avatar) then return "avatar hac 6"; end
+      if Cast(S.Avatar, not TargetInMeleeRange) then return "avatar hac 6"; end
     end
   end
   -- warbreaker
@@ -119,17 +119,19 @@ local function Hac()
   if S.AncientAftershock:IsCastable() then
     if Cast(S.AncientAftershock, not TargetInMeleeRange) then return "ancient_aftershock hac 14"; end
   end
-  -- spear_of_bastion
-  if S.SpearofBastion:IsCastable() then
-    if Cast(M.SpearofBastionPlayer, not TargetInMeleeRange) then return "spear_of_bastion hac 16"; end
-  end
-  -- bladestorm
-  if S.Bladestorm:IsCastable() and CDsON() then
-    if Cast(S.Bladestorm, not Target:IsInRange(8)) then return "bladestorm hac 18"; end
-  end
-  -- ravager
-  if S.Ravager:IsCastable() and CDsON() then
-    if Cast(M.RavagerPlayer, not TargetInMeleeRange) then return "ravager hac 20"; end
+  if CDsON() then
+    -- spear_of_bastion
+    if S.SpearofBastion:IsCastable() then
+      if Cast(M.SpearofBastionPlayer, not TargetInMeleeRange) then return "spear_of_bastion hac 16"; end
+    end
+    -- bladestorm
+    if S.Bladestorm:IsCastable() then
+      if Cast(S.Bladestorm, not Target:IsInRange(8)) then return "bladestorm hac 18"; end
+    end
+    -- ravager
+    if S.Ravager:IsCastable() then
+      if Cast(M.RavagerPlayer, not TargetInMeleeRange) then return "ravager hac 20"; end
+    end
   end
   -- rend,if=remains<=duration*0.3&buff.sweeping_strikes.up
   if S.Rend:IsReady() and (Target:DebuffRefreshable(S.RendDebuff) and Player:BuffUp(S.SweepingStrikesBuff)) then
@@ -181,7 +183,7 @@ local function Execute()
   -- cancel_buff,name=bladestorm,if=spell_targets.whirlwind=1&gcd.remains=0&(rage>75|rage>50&buff.recklessness.up)
   -- avatar,if=gcd.remains=0|target.time_to_die<20
   if S.Avatar:IsCastable() and CDsON() then
-    if Cast(S.Avatar) then return "avatar execute 6"; end
+    if Cast(S.Avatar, not TargetInMeleeRange) then return "avatar execute 6"; end
   end
   -- condemn,if=buff.ashen_juggernaut.up&buff.ashen_juggernaut.remains<gcd&conduit.ashen_juggernaut.rank>1
   if S.Condemn:IsCastable() and (Player:BuffUp(S.AshenJuggernautBuff) and Player:BuffRemains(S.AshenJuggernautBuff) < Player:GCD() and S.AshenJuggernaut:ConduitRank() > 1) then
@@ -270,7 +272,7 @@ local function SingleTarget()
   end
   -- avatar,if=gcd.remains=0
   if CDsON() and S.Avatar:IsCastable() then
-    if Cast(S.Avatar) then return "avatar single_target 6"; end
+    if Cast(S.Avatar, not TargetInMeleeRange) then return "avatar single_target 6"; end
   end
   -- ravager
   if S.Ravager:IsCastable() then
@@ -290,8 +292,8 @@ local function SingleTarget()
       if Cast(S.AncientAftershock, not TargetInMeleeRange) then return "ancient_aftershock single_target 14"; end
     end
     -- spear_of_bastion
-    if Settings.Commons.Enabled.Covenant and S.SpearofBastion:IsCastable() then
-      if Cast(M.SpearofBastionPlayer, not Target:IsSpellInRange(S.SpearofBastion)) then return "spear_of_bastion single_target 16"; end
+    if S.SpearofBastion:IsCastable() then
+      if Cast(M.SpearofBastionPlayer, not TargetInMeleeRange) then return "spear_of_bastion single_target 16"; end
     end
   end
   -- overpower,if=charges=2
@@ -349,108 +351,116 @@ local function SingleTarget()
   
 end
 
---- ======= ACTION LISTS =======
-local function APL()
+local function OutOfCombat()
+  
+end
+
+local function Combat()
   if AoEON() then
     Enemies8y = Player:GetEnemiesInMeleeRange(8) -- Multiple Abilities
     EnemiesCount8y = #Enemies8y
   else
     EnemiesCount8y = 1
   end
-
   -- Range check
   TargetInMeleeRange = Target:IsInMeleeRange(5)
+  -- Interrupts
+  local ShouldReturn = Everyone.Interrupt(5, S.Pummel, StunInterrupts); if ShouldReturn then return ShouldReturn; end
+  -- charge
+  if Settings.Commons.Enabled.Charge and S.Charge:IsCastable() and (not TargetInMeleeRange) then
+    if Cast(S.Charge, not Target:IsSpellInRange(S.Charge)) then return "charge main 2"; end
+  end
+  -- Manually added: VR/IV
+  if Player:HealthPercentage() < Settings.Commons.HP.VictoryRushHP then
+    if S.VictoryRush:IsReady() then
+      if Cast(S.VictoryRush, not TargetInMeleeRange) then return "victory_rush heal"; end
+    end
+    if S.ImpendingVictory:IsReady() then
+      if Cast(S.ImpendingVictory, not TargetInMeleeRange) then return "impending_victory heal"; end
+    end
+  end
+  -- healthstone
+  if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
+    if Cast(M.Healthstone) then return "healthstone defensive 3"; end
+  end
+  -- phial_of_serenity
+  if Player:HealthPercentage() <= Settings.General.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
+    if Cast(M.PhialofSerenity) then return "phial_of_serenity defensive 4"; end
+  end
+  -- auto_attack
+  -- potion,if=gcd.remains=0&debuff.colossus_smash.remains>8|target.time_to_die<25
+  if Settings.General.Enabled.Potions and I.PotionofSpectralStrength:IsReady() and (Player:BloodlustUp() and Target:DebuffRemains(S.ColossusSmashDebuff) > 8 or Target:TimeToDie() <= 30) then
+    if Cast(M.PotionofSpectralStrength) then return "potion main 6"; end
+  end
+  if CDsON() and Settings.General.Enabled.Racials then
+    -- arcane_torrent,if=cooldown.mortal_strike.remains>1.5&rage<50
+    if S.ArcaneTorrent:IsCastable() and (S.MortalStrike:CooldownRemains() > 1.5 and Player:Rage() < 50) then
+      if Cast(S.ArcaneTorrent, not Target:IsInRange(8)) then return "arcane_torrent main 6"; end
+    end
+    -- lights_judgment,if=debuff.colossus_smash.down&cooldown.mortal_strike.remains
+    if S.LightsJudgment:IsCastable() and (Target:DebuffDown(S.ColossusSmashDebuff) and not S.MortalStrike:CooldownUp()) then
+      if Cast(S.LightsJudgment, not Target:IsSpellInRange(S.LightsJudgment)) then return "lights_judgment main 8"; end
+    end
+    -- bag_of_tricks,if=debuff.colossus_smash.down&cooldown.mortal_strike.remains
+    if S.BagofTricks:IsCastable() and (Target:DebuffDown(S.ColossusSmashDebuff) and not S.MortalStrike:CooldownUp()) then
+      if Cast(S.BagofTricks, not Target:IsSpellInRange(S.BagofTricks)) then return "bag_of_tricks main 10"; end
+    end
+    -- berserking,if=debuff.colossus_smash.remains>6
+    if S.Berserking:IsCastable() and (Target:DebuffRemains(S.ColossusSmashDebuff) > 6) then
+      if Cast(S.Berserking) then return "berserking main 12"; end
+    end
+    -- blood_fury,if=debuff.colossus_smash.up
+    if S.BloodFury:IsCastable() and (Target:DebuffUp(S.ColossusSmashDebuff)) then
+      if Cast(S.BloodFury) then return "blood_fury main 14"; end
+    end
+    -- fireblood,if=debuff.colossus_smash.up
+    if S.Fireblood:IsCastable() and (Target:DebuffUp(S.ColossusSmashDebuff)) then
+      if Cast(S.Fireblood) then return "fireblood main 16"; end
+    end
+    -- ancestral_call,if=debuff.colossus_smash.up
+    if S.AncestralCall:IsCastable() and (Target:DebuffUp(S.ColossusSmashDebuff)) then
+      if Cast(S.AncestralCall) then return "ancestral_call main 18"; end
+    end
+  end
+  -- trinkets
+  if Settings.General.Enabled.Trinkets and CDsON() then
+    local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
+    if TrinketToUse then
+      if Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 13) then
+        if Cast(M.Trinket1, not TargetInMeleeRange) then return "use_trinket " .. TrinketToUse:Name() .. " damage 1"; end
+      elseif Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 14) then
+        if Cast(M.Trinket2, not TargetInMeleeRange) then return "use_trinket " .. TrinketToUse:Name() .. " damage 2"; end
+      end
+    end
+  end
+  -- sweeping_strikes,if=spell_targets.whirlwind>1&(cooldown.bladestorm.remains>15|talent.ravager.enabled)
+  if S.SweepingStrikes:IsCastable() and (EnemiesCount8y > 1 and (S.Bladestorm:CooldownRemains() > 15 or S.Ravager:IsAvailable())) then
+    if Cast(S.SweepingStrikes, not Target:IsInRange(8)) then return "sweeping_strikes main 20"; end
+  end
+  -- call_action_list,name=execute,target_if=max:target.health.pct,if=target.health.pct>80&covenant.venthyr
+  -- call_action_list,name=execute,target_if=min:target.health.pct,if=(talent.massacre.enabled&target.health.pct<35)|target.health.pct<20
+  -- Note: Combined both lines
+  if ((S.Massacre:IsAvailable() and Target:HealthPercentage() < 35) or Target:HealthPercentage() < 20 or (Target:HealthPercentage() > 80 and CovenantID == 2)) then
+    local ShouldReturn = Execute(); if ShouldReturn then return ShouldReturn; end
+  end
+  -- run_action_list,name=hac,if=raid_event.adds.exists|spell_targets.whirlwind>1
+  if (EnemiesCount8y > 1) then
+    local ShouldReturn = Hac(); if ShouldReturn then return ShouldReturn; end
+  end
+  -- run_action_list,name=single_target
+  local ShouldReturn = SingleTarget(); if ShouldReturn then return ShouldReturn; end
+  -- Pool if nothing else to suggest
+  if Cast(S.Pool) then return "Wait/Pool Resources"; end
+end
+
+--- ======= ACTION LISTS =======
+local function APL()
+
   -- call Precombat
   if not Player:AffectingCombat() then
-    local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
+    local ShouldReturn = OutOfCombat(); if ShouldReturn then return ShouldReturn; end
   elseif Everyone.TargetIsValid() then
-    -- Interrupts
-    local ShouldReturn = Everyone.Interrupt(5, S.Pummel, StunInterrupts); if ShouldReturn then return ShouldReturn; end
-    -- charge
-    if Settings.Commons.Enabled.Charge and S.Charge:IsCastable() and (not TargetInMeleeRange) then
-      if Cast(S.Charge, not Target:IsSpellInRange(S.Charge)) then return "charge main 2"; end
-    end
-    -- Manually added: VR/IV
-    if Player:HealthPercentage() < Settings.Commons.HP.VictoryRushHP then
-      if S.VictoryRush:IsReady() then
-        if Cast(S.VictoryRush, not TargetInMeleeRange) then return "victory_rush heal"; end
-      end
-      if S.ImpendingVictory:IsReady() then
-        if Cast(S.ImpendingVictory, not TargetInMeleeRange) then return "impending_victory heal"; end
-      end
-    end
-    -- healthstone
-    if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
-      if Cast(M.Healthstone) then return "healthstone defensive 3"; end
-    end
-    -- phial_of_serenity
-    if Player:HealthPercentage() <= Settings.General.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
-      if Cast(M.PhialofSerenity) then return "phial_of_serenity defensive 4"; end
-    end
-    -- auto_attack
-    -- potion,if=gcd.remains=0&debuff.colossus_smash.remains>8|target.time_to_die<25
-    if Settings.General.Enabled.Potions and I.PotionofSpectralStrength:IsReady() and (Player:BloodlustUp() and Target:DebuffRemains(S.ColossusSmashDebuff) > 8 or Target:TimeToDie() <= 30) then
-      if Cast(M.PotionofSpectralStrength) then return "potion main 6"; end
-    end
-    if CDsON() and Settings.General.Enabled.Racials then
-      -- arcane_torrent,if=cooldown.mortal_strike.remains>1.5&rage<50
-      if S.ArcaneTorrent:IsCastable() and (S.MortalStrike:CooldownRemains() > 1.5 and Player:Rage() < 50) then
-        if Cast(S.ArcaneTorrent, not Target:IsInRange(8)) then return "arcane_torrent main 6"; end
-      end
-      -- lights_judgment,if=debuff.colossus_smash.down&cooldown.mortal_strike.remains
-      if S.LightsJudgment:IsCastable() and (Target:DebuffDown(S.ColossusSmashDebuff) and not S.MortalStrike:CooldownUp()) then
-        if Cast(S.LightsJudgment, not Target:IsSpellInRange(S.LightsJudgment)) then return "lights_judgment main 8"; end
-      end
-      -- bag_of_tricks,if=debuff.colossus_smash.down&cooldown.mortal_strike.remains
-      if S.BagofTricks:IsCastable() and (Target:DebuffDown(S.ColossusSmashDebuff) and not S.MortalStrike:CooldownUp()) then
-        if Cast(S.BagofTricks, not Target:IsSpellInRange(S.BagofTricks)) then return "bag_of_tricks main 10"; end
-      end
-      -- berserking,if=debuff.colossus_smash.remains>6
-      if S.Berserking:IsCastable() and (Target:DebuffRemains(S.ColossusSmashDebuff) > 6) then
-        if Cast(S.Berserking) then return "berserking main 12"; end
-      end
-      -- blood_fury,if=debuff.colossus_smash.up
-      if S.BloodFury:IsCastable() and (Target:DebuffUp(S.ColossusSmashDebuff)) then
-        if Cast(S.BloodFury) then return "blood_fury main 14"; end
-      end
-      -- fireblood,if=debuff.colossus_smash.up
-      if S.Fireblood:IsCastable() and (Target:DebuffUp(S.ColossusSmashDebuff)) then
-        if Cast(S.Fireblood) then return "fireblood main 16"; end
-      end
-      -- ancestral_call,if=debuff.colossus_smash.up
-      if S.AncestralCall:IsCastable() and (Target:DebuffUp(S.ColossusSmashDebuff)) then
-        if Cast(S.AncestralCall) then return "ancestral_call main 18"; end
-      end
-    end
-    -- trinkets
-    if Settings.General.Enabled.Trinkets and CDsON() then
-      local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
-      if TrinketToUse then
-        if Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 13) then
-          if Cast(M.Trinket1, not TargetInMeleeRange) then return "use_trinket " .. TrinketToUse:Name() .. " damage 1"; end
-        elseif Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 14) then
-          if Cast(M.Trinket2, not TargetInMeleeRange) then return "use_trinket " .. TrinketToUse:Name() .. " damage 2"; end
-        end
-      end
-    end
-    -- sweeping_strikes,if=spell_targets.whirlwind>1&(cooldown.bladestorm.remains>15|talent.ravager.enabled)
-    if S.SweepingStrikes:IsCastable() and (EnemiesCount8y > 1 and (S.Bladestorm:CooldownRemains() > 15 or S.Ravager:IsAvailable())) then
-      if Cast(S.SweepingStrikes, not Target:IsInRange(8)) then return "sweeping_strikes main 20"; end
-    end
-    -- call_action_list,name=execute,target_if=max:target.health.pct,if=target.health.pct>80&covenant.venthyr
-    -- call_action_list,name=execute,target_if=min:target.health.pct,if=(talent.massacre.enabled&target.health.pct<35)|target.health.pct<20
-    -- Note: Combined both lines
-    if ((S.Massacre:IsAvailable() and Target:HealthPercentage() < 35) or Target:HealthPercentage() < 20 or (Target:HealthPercentage() > 80 and CovenantID == 2)) then
-      local ShouldReturn = Execute(); if ShouldReturn then return ShouldReturn; end
-    end
-    -- run_action_list,name=hac,if=raid_event.adds.exists|spell_targets.whirlwind>1
-    if (EnemiesCount8y > 1) then
-      local ShouldReturn = Hac(); if ShouldReturn then return ShouldReturn; end
-    end
-    -- run_action_list,name=single_target
-    local ShouldReturn = SingleTarget(); if ShouldReturn then return ShouldReturn; end
-    -- Pool if nothing else to suggest
-    if Cast(S.Pool) then return "Wait/Pool Resources"; end
+    local ShouldReturn = Combat(); if ShouldReturn then return ShouldReturn; end
   end
 end
 
