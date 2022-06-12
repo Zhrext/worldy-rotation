@@ -436,7 +436,7 @@
           HL.CacheHasBeenReset = false;
           Cache.Reset();
           -- Rotational Debug Output
-          if WR.GUISettings.General.RotationDebugOutput then
+          if WR.GUISettings.General.Enabled.RotationDebugOutput then
             CurrResult = WR.APLs[SpecID]();
             if CurrResult and CurrResult ~= PrevResult then
               WR.Print(CurrResult);
@@ -462,7 +462,7 @@
   end
 
   function WR.Pause()
-    return IsShiftKeyDown();
+    return WR.GUISettings.General.Enabled.ShiftKeyPause and IsShiftKeyDown();
   end
 
   function WR.Break()

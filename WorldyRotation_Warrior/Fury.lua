@@ -33,14 +33,14 @@ local M = Macro.Warrior.Fury
 
 -- Create table to exclude above trinkets from On Use function
 local OnUseExcludes = {
-  I.FlameofBattle:ID(),
-  I.InscrutableQuantumDevice:ID(),
-  I.InstructorsDivineBell:ID(),
-  I.MacabreSheetMusic:ID(),
-  I.OverwhelmingPowerCrystal:ID(),
-  I.WakenersFrond:ID(),
-  I.SinfulGladiatorsBadge:ID(),
-  I.UnchainedGladiatorsBadge:ID(),
+  --I.FlameofBattle:ID(),
+  --I.InscrutableQuantumDevice:ID(),
+  --I.InstructorsDivineBell:ID(),
+  --I.MacabreSheetMusic:ID(),
+  --I.OverwhelmingPowerCrystal:ID(),
+  --I.WakenersFrond:ID(),
+  --I.SinfulGladiatorsBadge:ID(),
+  --I.UnchainedGladiatorsBadge:ID(),
 }
 
 -- Variables
@@ -95,7 +95,7 @@ local function AOE()
     if Cast(S.AncientAftershock, not Target:IsInMeleeRange(12)) then return "ancient_aftershock aoe 2"; end
   end
   -- spear_of_bastion,if=buff.enrage.up&rage<40&spell_targets.whirlwind>1
-  if Settings.Commons.Enabled.Covenant and CDsON() and S.SpearofBastion:IsCastable() and (EnrageUp and Player:Rage() < 40 and EnemiesCount8 > 1) then
+  if CDsON() and S.SpearofBastion:IsCastable() and (EnrageUp and Player:Rage() < 40 and EnemiesCount8 > 1) then
     if Cast(M.SpearofBastionPlayer, not Target:IsInRange(25)) then return "spear_of_bastion aoe 4"; end
   end
   -- bladestorm,if=buff.enrage.up&spell_targets.whirlwind>2
@@ -164,7 +164,7 @@ local function SingleTarget()
   end
   if CDsON() then
     -- spear_of_bastion,if=runeforge.elysian_might&buff.enrage.up&cooldown.recklessness.remains>5&(buff.recklessness.up|target.time_to_die<20|debuff.siegebreaker.up|!talent.siegebreaker&target.time_to_die>68)&raid_event.adds.in>55
-    if Settings.Commons.Enabled.Covenant and S.SpearofBastion:IsCastable() and (ElysianMightEquipped and EnrageUp and S.Recklessness:CooldownRemains() > 5 and (Player:BuffUp(S.RecklessnessBuff) or Target:TimeToDie() < 20 or Target:DebuffUp(S.SiegebreakerDebuff) or not S.Siegebreaker:IsAvailable() and Target:TimeToDie() > 68)) then
+    if S.SpearofBastion:IsCastable() and (ElysianMightEquipped and EnrageUp and S.Recklessness:CooldownRemains() > 5 and (Player:BuffUp(S.RecklessnessBuff) or Target:TimeToDie() < 20 or Target:DebuffUp(S.SiegebreakerDebuff) or not S.Siegebreaker:IsAvailable() and Target:TimeToDie() > 68)) then
       if Cast(M.SpearofBastionPlayer, not Target:IsInRange(25)) then return "spear_of_bastion single_target 22"; end
     end
     -- bladestorm,if=buff.enrage.up&(!buff.recklessness.remains|rage<50)&(spell_targets.whirlwind=1&raid_event.adds.in>45|spell_targets.whirlwind=2)
@@ -271,11 +271,11 @@ local function Combat()
     end
   end
   -- healthstone
-  if Player:HealthPercentage() <= Settings.Commons.HP.Healthstone and I.Healthstone:IsReady() then
+  if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
     if Cast(M.Healthstone) then return "healthstone defensive 3"; end
   end
   -- phial_of_serenity
-  if Player:HealthPercentage() <= Settings.Commons.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
+  if Player:HealthPercentage() <= Settings.General.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
     if Cast(M.PhialofSerenity) then return "phial_of_serenity defensive 4"; end
   end
   -- variable,name=execute_phase,value=talent.massacre&target.health.pct<35|target.health.pct<20|target.health.pct>80&covenant.venthyr
@@ -291,7 +291,7 @@ local function Combat()
     if Cast(M.HeroicLeapCursor) then return "heroic_leap main 4"; end
   end
   -- potion
-  if Settings.Commons.Enabled.Potions and I.PotionofSpectralStrength:IsReady() and (Player:BloodlustUp() or Target:TimeToDie() <= 30) then
+  if Settings.General.Enabled.Potions and I.PotionofSpectralStrength:IsReady() and (Player:BloodlustUp() or Target:TimeToDie() <= 30) then
     if Cast(M.PotionofSpectralStrength) then return "potion main 6"; end
   end
   -- conquerors_banner,if=rage>70
@@ -299,7 +299,7 @@ local function Combat()
     if Cast(S.ConquerorsBanner) then return "conquerors_banner main 8"; end
   end
   -- spear_of_bastion,if=buff.enrage.up&rage<70
-  if Settings.Commons.Enabled.Covenant and CDsON() and S.SpearofBastion:IsCastable() and (EnrageUp and Player:Rage() < 70) then
+  if CDsON() and S.SpearofBastion:IsCastable() and (EnrageUp and Player:Rage() < 70) then
     if Cast(M.SpearofBastionPlayer, not Target:IsInRange(25)) then return "spear_of_bastion main 9"; end
   end
   -- rampage,if=cooldown.recklessness.remains<3&talent.reckless_abandon.enabled
@@ -329,7 +329,7 @@ local function Combat()
     if Cast(S.Whirlwind, not Target:IsInMeleeRange(8)) then return "whirlwind main 16"; end
   end
   -- trinkets
-  if Settings.Commons.Enabled.Trinkets and CDsON() then
+  if CDsON() and Settings.General.Enabled.Trinkets and Player:BuffUp(S.RecklessnessBuff) then
     local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
     if TrinketToUse then
       if Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 13) then
@@ -339,7 +339,7 @@ local function Combat()
       end
     end
   end
-  if CDsON() then
+  if CDsON() and Settings.General.Enabled.Racials then
     -- arcane_torrent,if=rage<40&!buff.recklessness.up
     if S.ArcaneTorrent:IsCastable() and (Player:Rage() < 40 and Player:BuffDown(S.RecklessnessBuff)) then
       if Cast(S.ArcaneTorrent, not Target:IsInRange(8)) then return "arcane_torrent"; end

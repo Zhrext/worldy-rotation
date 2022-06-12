@@ -9,6 +9,7 @@
   local CreatePanel = GUI.CreatePanel;
   local CreateChildPanel = GUI.CreateChildPanel;
   local CreatePanelOption = GUI.CreatePanelOption;
+  local CreateARPanelOptions = WR.GUI.CreateARPanelOptions
 
 
 --- ============================ CONTENT ============================
@@ -17,24 +18,41 @@
     General = {
       -- Main Frame Strata
       MainFrameStrata = "BACKGROUND",
-      -- Interrupt
-      InterruptEnabled = false,
-      InterruptWithStun = false, -- EXPERIMENTAL
-      --
-      NotEnoughManaEnabled = false,
-      RotationDebugOutput = false,
+      Enabled = {
+        -- Pause
+        ShiftKeyPause = false,
+        -- Interrupt
+        Interrupt = false,
+        InterruptWithStun = false, -- EXPERIMENTAL
+        InterruptOnlyWhitelist = false,
+        -- Dispel
+        DispelBuffs = false,
+        DispelDebuffs = false,
+        -- Misc
+        Racials = false,
+        Potions = false,
+        Trinkets = false,
+        -- Debug
+        RotationDebugOutput = false,
+      },
+      Threshold = {
+        -- Interrupt
+        Interrupt = 60,
+      },
+      HP = {
+        Healthstone = 40,
+        PhialOfSerenity = 40,
+      },
     },
     APL = {}
   };
 
   function WR.GUI.CorePanelSettingsInit ()
     -- GUI
-    local ARPanel = CreatePanel(WR.GUI, "WorldyRotation", "PanelFrame", WR.GUISettings, WorldyRotationDB.GUISettings);
+    local WRPanel = CreatePanel(WR.GUI, "WorldyRotation", "PanelFrame", WR.GUISettings, WorldyRotationDB.GUISettings);
     -- Child Panel
-    local CP_General = CreateChildPanel(ARPanel, "General");
+    local CP_General = CreateChildPanel(WRPanel, "General");
     -- Controls
     CreatePanelOption("Dropdown", CP_General, "General.MainFrameStrata", {"HIGH", "MEDIUM", "LOW", "BACKGROUND"}, "Main Frame Strata", "Choose the frame strata to use for icons.", {ReloadRequired = true});
-    CreatePanelOption("CheckButton", CP_General, "General.InterruptEnabled", "Interrupt", "Enable if you want to interrupt.");
-    CreatePanelOption("CheckButton", CP_General, "General.InterruptWithStun", "Interrupt With Stun", "EXPERIMENTAL: Enable if you want to interrupt with stuns.");
-    CreatePanelOption("CheckButton", CP_General, "General.RotationDebugOutput", "Debug Output", "DEBUG: Enable if you want output rotation selection as text for debugging purposes.");
+    CreateARPanelOptions(CP_General, "General")
   end

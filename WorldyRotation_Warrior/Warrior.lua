@@ -208,6 +208,7 @@ Macro.Warrior.Fury = MergeTableByKey(Macro.Warrior.Commons, {
 })
 
 Macro.Warrior.Arms = MergeTableByKey(Macro.Warrior.Commons, {
+  RavagerPlayer                    = Macro("RavagerPlayer", "/cast [@player] " .. Spell.Warrior.Protection.Ravager:Name()),
 })
 
 Macro.Warrior.Protection = MergeTableByKey(Macro.Warrior.Commons, {

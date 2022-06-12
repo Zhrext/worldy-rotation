@@ -18,16 +18,11 @@ local CreateARPanelOptions = WR.GUI.CreateARPanelOptions
 WR.GUISettings.APL.Warrior = {
   Commons = {
     Enabled = {
-      Potions = true,
-      Trinkets = true,
       Charge = true,
       HeroicLeap = true,
-      Covenant = true,
     },
     HP = {
       VictoryRushHP = 80,
-      Healthstone = 40,
-      PhialOfSerenity = 40,
     },
   },
   Arms = {

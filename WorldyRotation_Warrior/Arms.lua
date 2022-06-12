@@ -12,6 +12,7 @@ local Player     = Unit.Player
 local Target     = Unit.Target
 local Spell      = HL.Spell
 local Item       = HL.Item
+local Utils      = HL.Utils
 -- WorldyRotation
 local WR         = WorldyRotation
 local Cast       = WR.Cast
@@ -82,26 +83,8 @@ local function Precombat()
   -- augmentation
   -- snapshot_stats
   -- Manually added: battle_shout,if=buff.battle_shout.remains<60
-  if S.BattleShout:IsCastable() and (Player:BuffRemains(S.BattleShoutBuff, true) < 60) then
+  if S.BattleShout:IsCastable() and (Player:BuffRemains(S.BattleShoutBuff, true) < 5) then
     if Cast(S.BattleShout) then return "battle_shout precombat 2"; end
-  end
-  -- Manually added opener abilties
-  if S.Charge:IsCastable() and not TargetInMeleeRange then
-    if Cast(S.Charge) then return "charge precombat 4"; end
-  end
-  if TargetInMeleeRange then
-    if S.Skullsplitter:IsCastable() then
-      if Cast(S.Skullsplitter) then return "skullsplitter precombat 6"; end
-    end
-    if S.ColossusSmash:IsCastable() then
-      if Cast(S.ColossusSmash) then return "colossus_smash precombat 8"; end
-    end
-    if S.Warbreaker:IsCastable() then
-      if Cast(S.Warbreaker) then return "warbreaker precombat 10"; end
-    end
-    if S.Overpower:IsCastable() then
-      if Cast(S.Overpower) then return "overpower precombat 12"; end
-    end
   end
 end
 
@@ -137,8 +120,8 @@ local function Hac()
     if Cast(S.AncientAftershock, not TargetInMeleeRange) then return "ancient_aftershock hac 14"; end
   end
   -- spear_of_bastion
-  if Settings.Commons.Enabled.Covenant and S.SpearofBastion:IsCastable() then
-    if Cast(M.SpearofBastionPlayer, not Target:IsSpellInRange(S.SpearofBastion)) then return "spear_of_bastion hac 16"; end
+  if S.SpearofBastion:IsCastable() then
+    if Cast(M.SpearofBastionPlayer, not TargetInMeleeRange) then return "spear_of_bastion hac 16"; end
   end
   -- bladestorm
   if S.Bladestorm:IsCastable() and CDsON() then
@@ -146,7 +129,7 @@ local function Hac()
   end
   -- ravager
   if S.Ravager:IsCastable() and CDsON() then
-    if Cast(S.Ravager, not Target:IsSpellInRange(S.Ravager)) then return "ravager hac 20"; end
+    if Cast(M.RavagerPlayer, not TargetInMeleeRange) then return "ravager hac 20"; end
   end
   -- rend,if=remains<=duration*0.3&buff.sweeping_strikes.up
   if S.Rend:IsReady() and (Target:DebuffRefreshable(S.RendDebuff) and Player:BuffUp(S.SweepingStrikesBuff)) then
@@ -210,7 +193,7 @@ local function Execute()
   end
   -- ravager
   if CDsON() and S.Ravager:IsCastable() then
-    if Cast(S.Ravager, not Target:IsSpellInRange(S.Ravager)) then return "ravager execute 12"; end
+    if Cast(M.RavagerPlayer, not TargetInMeleeRange) then return "ravager execute 12"; end
   end
   -- rend,if=remains<=gcd&(!talent.warbreaker.enabled&cooldown.colossus_smash.remains<4|talent.warbreaker.enabled&cooldown.warbreaker.remains<4)&target.time_to_die>12
   if S.Rend:IsReady() and (Target:DebuffRemains(S.RendDebuff) <= Player:GCD() and (not S.Warbreaker:IsAvailable() and S.ColossusSmash:CooldownRemains() < 4 or S.Warbreaker:IsAvailable() and S.Warbreaker:CooldownRemains() < 4) and Target:TimeToDie() > 12) then
@@ -230,8 +213,8 @@ local function Execute()
       if Cast(S.AncientAftershock, not TargetInMeleeRange) then return "ancient_aftershock execute 20"; end
     end
     -- spear_of_bastion
-    if Settings.Commons.Enabled.Covenant and S.SpearofBastion:IsCastable() then
-      if Cast(M.SpearofBastionPlayer, not Target:IsSpellInRange(S.SpearofBastion)) then return "spear_of_bastion execute 22"; end
+    if S.SpearofBastion:IsCastable() then
+      if Cast(M.SpearofBastionPlayer, not TargetInMeleeRange) then return "spear_of_bastion execute 22"; end
     end
   end
   -- condemn,if=runeforge.signet_of_tormented_kings&(rage.deficit<25|debuff.colossus_smash.up&rage>40|buff.sudden_death.react|buff.deadly_calm.up)
@@ -291,7 +274,7 @@ local function SingleTarget()
   end
   -- ravager
   if S.Ravager:IsCastable() then
-    if Cast(S.Ravager, not Target:IsInRange(40)) then return "ravager single_target 8"; end
+    if Cast(M.RavagerPlayer, not TargetInMeleeRange) then return "ravager single_target 8"; end
   end
   -- warbreaker
   if S.Warbreaker:IsCastable() then
@@ -377,16 +360,14 @@ local function APL()
 
   -- Range check
   TargetInMeleeRange = Target:IsInMeleeRange(5)
-
-  if Everyone.TargetIsValid() then
-    -- call Precombat
-    if not Player:AffectingCombat() then
-      local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
-    end
+  -- call Precombat
+  if not Player:AffectingCombat() then
+    local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
+  elseif Everyone.TargetIsValid() then
     -- Interrupts
     local ShouldReturn = Everyone.Interrupt(5, S.Pummel, StunInterrupts); if ShouldReturn then return ShouldReturn; end
     -- charge
-    if S.Charge:IsCastable() and (not TargetInMeleeRange) then
+    if Settings.Commons.Enabled.Charge and S.Charge:IsCastable() and (not TargetInMeleeRange) then
       if Cast(S.Charge, not Target:IsSpellInRange(S.Charge)) then return "charge main 2"; end
     end
     -- Manually added: VR/IV
@@ -398,12 +379,20 @@ local function APL()
         if Cast(S.ImpendingVictory, not TargetInMeleeRange) then return "impending_victory heal"; end
       end
     end
+    -- healthstone
+    if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
+      if Cast(M.Healthstone) then return "healthstone defensive 3"; end
+    end
+    -- phial_of_serenity
+    if Player:HealthPercentage() <= Settings.General.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
+      if Cast(M.PhialofSerenity) then return "phial_of_serenity defensive 4"; end
+    end
     -- auto_attack
     -- potion,if=gcd.remains=0&debuff.colossus_smash.remains>8|target.time_to_die<25
-    --if I.PotionofSpectralStrength:IsReady() and Settings.Commons.Enabled.Potions and (Target:DebuffRemains(S.ColossusSmashDebuff) > 8 or Target:TimeToDie() < 25) then
-    --  if Cast(I.PotionofSpectralStrength, nil, Settings.Commons.DisplayStyle.Potions) then return "potion main 4"; end
-    --end
-    if CDsON() then
+    if Settings.General.Enabled.Potions and I.PotionofSpectralStrength:IsReady() and (Player:BloodlustUp() and Target:DebuffRemains(S.ColossusSmashDebuff) > 8 or Target:TimeToDie() <= 30) then
+      if Cast(M.PotionofSpectralStrength) then return "potion main 6"; end
+    end
+    if CDsON() and Settings.General.Enabled.Racials then
       -- arcane_torrent,if=cooldown.mortal_strike.remains>1.5&rage<50
       if S.ArcaneTorrent:IsCastable() and (S.MortalStrike:CooldownRemains() > 1.5 and Player:Rage() < 50) then
         if Cast(S.ArcaneTorrent, not Target:IsInRange(8)) then return "arcane_torrent main 6"; end
@@ -433,13 +422,17 @@ local function APL()
         if Cast(S.AncestralCall) then return "ancestral_call main 18"; end
       end
     end
-    --if (Settings.Commons.Enabled.Trinkets) then
-    --  -- use_items
-    --  local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
-    --  if TrinketToUse then
-    --    if Cast(TrinketToUse, nil, Settings.Commons.DisplayStyle.Trinkets) then return "Generic use_items for " .. TrinketToUse:Name(); end
-    --  end
-    --end
+    -- trinkets
+    if Settings.General.Enabled.Trinkets and CDsON() then
+      local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
+      if TrinketToUse then
+        if Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 13) then
+          if Cast(M.Trinket1, not TargetInMeleeRange) then return "use_trinket " .. TrinketToUse:Name() .. " damage 1"; end
+        elseif Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 14) then
+          if Cast(M.Trinket2, not TargetInMeleeRange) then return "use_trinket " .. TrinketToUse:Name() .. " damage 2"; end
+        end
+      end
+    end
     -- sweeping_strikes,if=spell_targets.whirlwind>1&(cooldown.bladestorm.remains>15|talent.ravager.enabled)
     if S.SweepingStrikes:IsCastable() and (EnemiesCount8y > 1 and (S.Bladestorm:CooldownRemains() > 15 or S.Ravager:IsAvailable())) then
       if Cast(S.SweepingStrikes, not Target:IsInRange(8)) then return "sweeping_strikes main 20"; end
@@ -471,6 +464,7 @@ local function AutoBind()
   WR.Bind(S.Fireblood)
   WR.Bind(S.LightsJudgment)
   -- Bind Spells
+  WR.Bind(S.Avatar)
   WR.Bind(S.BattleShout)
   WR.Bind(S.Bladestorm)
   WR.Bind(S.Charge)
@@ -481,11 +475,11 @@ local function AutoBind()
   WR.Bind(S.MortalStrike)
   WR.Bind(S.Overpower)
   WR.Bind(S.Pummel)
-  WR.Bind(S.Ravager)
   WR.Bind(S.Skullsplitter)
   WR.Bind(S.Slam)
   WR.Bind(S.SweepingStrikes)
   WR.Bind(S.VictoryRush)
+  WR.Bind(S.Warbreaker)
   WR.Bind(S.Whirlwind)
   -- Bind Items
   WR.Bind(M.Trinket1)
@@ -494,6 +488,7 @@ local function AutoBind()
   WR.Bind(M.PotionofSpectralStrength)
   WR.Bind(M.PhialofSerenity)
   -- Bind Macros
+  WR.Bind(M.RavagerPlayer)
   WR.Bind(M.SpearofBastionPlayer)
 end
 

@@ -53,6 +53,9 @@
       Enabled = function (Panel, Setting, Name)
         CreatePanelOption("CheckButton", Panel, Setting, "Use: " .. Name, "Enable if you want to use " .. Name .. ".");
       end,
+      Threshold = function(Panel, Setting, Name)
+        CreatePanelOption("Slider", Panel, Setting, {0, 100, 1}, "Threshold: " .. Name, "Set the threshold of " .. Name .. ". Set to 0 to disable.");
+      end,
       HP = function(Panel, Setting, Name)
         CreatePanelOption("Slider", Panel, Setting, {0, 100, 1}, "HP: " .. Name, "Set the HP threshold of " .. Name .. ". Set to 0 to disable.");
       end,

@@ -135,7 +135,7 @@ local function Precombat()
       if Cast(S.ThunderClap) then return "thunder_clap precombat"; end
     end
   else
-    if S.Charge:IsCastable() and not Target:IsInRange(8) then
+    if Settings.Commons.Enabled.Charge and S.Charge:IsCastable() and not Target:IsInRange(8) then
       if Cast(S.Charge, not Target:IsSpellInRange(S.Charge)) then return "charge precombat"; end
     end
   end
@@ -276,7 +276,7 @@ local function APL()
     --  if Cast(S.Intervene) then return "intervene main 4"; end
     --end
     -- use_items,if=cooldown.avatar.remains<=gcd|buff.avatar.up
-    if Settings.Commons.Enabled.Trinkets and (S.Avatar:CooldownRemains() <= Player:GCD() or Player:BuffUp(S.AvatarBuff)) then
+    if Settings.General.Enabled.Trinkets and (S.Avatar:CooldownRemains() <= Player:GCD() or Player:BuffUp(S.AvatarBuff)) then
       local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
       if TrinketToUse then
         if Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 13) then
@@ -312,10 +312,10 @@ local function APL()
     if S.Avatar:IsCastable() and (Player:BuffDown(S.OutburstBuff)) then
       if Cast(S.Avatar) then return "avatar main 8"; end
     end
-    -- potion,if=buff.avatar.up|target.time_to_die<25
-    --if I.PotionofPhantomFire:IsReady() and Settings.Commons.Enabled.Potions and (Player:BuffUp(S.AvatarBuff) or Target:TimeToDie() < 25) then
-    --  if Cast(I.PotionofPhantomFire, nil, Settings.Commons.DisplayStyle.Potions) then return "potion main 10"; end
-    --end
+    -- potion
+    if Settings.General.Enabled.Potions and I.PotionofSpectralStrength:IsReady() and (Player:BloodlustUp() or Target:TimeToDie() <= 30) then
+      if Cast(M.PotionofSpectralStrength) then return "potion main 6"; end
+    end
     if CDsON() then
       -- conquerors_banner
       if S.ConquerorsBanner:IsCastable() then
@@ -326,7 +326,7 @@ local function APL()
         if Cast(S.AncientAftershock, not TargetInMeleeRange) then return "ancient_aftershock main 14"; end
       end
       -- spear_of_bastion
-      if Settings.Commons.Enabled.Covenant and S.SpearofBastion:IsCastable() then
+      if S.SpearofBastion:IsCastable() then
         if Cast(M.SpearofBastionPlayer, not TargetInMeleeRange) then return "spear_of_bastion main 16"; end
       end
     end
@@ -357,7 +357,7 @@ local function APL()
     end
     -- call_action_list,name=generic
     local ShouldReturn = Generic(); if ShouldReturn then return ShouldReturn; end
-    if (CDsON()) then
+    if CDsON() and Settings.General.Enabled.Racials then
       -- bag_of_tricks
       if S.BagofTricks:IsCastable() then
         if Cast(S.BagofTricks, not Target:IsInRange(40)) then return "bag_of_tricks racial"; end

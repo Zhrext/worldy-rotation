@@ -75,7 +75,7 @@ local function GetFocusUnit()
   if Everyone.IsSoloMode() then
     return Player
   end
-  if Settings.Holy.General.Enabled.Dispel and S.Purify:IsReady() then
+  if Settings.General.Enabled.DispelDebuffs and S.Purify:IsReady() then
     local DispellableFriendlyUnit = Everyone.DispellableFriendlyUnit(DispellableDebuffs)
     if DispellableFriendlyUnit then
       return DispellableFriendlyUnit
@@ -139,7 +139,7 @@ local function Damage()
     if Cast(M.ShadowWordPainMouseover, not Mouseover:IsSpellInRange(S.ShadowWordPain)) then return "shadow_word_pain damage 2"; end
   end
   -- use_trinket
-  if (Settings.Holy.General.Enabled.Trinkets) then
+  if (Settings.General.Enabled.Trinkets) then
     local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
     if TrinketToUse then
       if Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 13) then
@@ -218,11 +218,11 @@ local function Defensive()
     if Cast(S.DesperatePrayer) then return "desperate_prayer defensive 2"; end
   end
   -- healthstone
-  if Player:HealthPercentage() <= Settings.Holy.Defensive.HP.Healthstone and I.Healthstone:IsReady() then
+  if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
     if Cast(M.Healthstone) then return "healthstone defensive 3"; end
   end
   -- phial_of_serenity
-  if Player:HealthPercentage() <= Settings.Holy.Defensive.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
+  if Player:HealthPercentage() <= Settings.General.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
     if Cast(M.PhialofSerenity) then return "phial_of_serenity defensive 4"; end
   end
 end
@@ -311,14 +311,14 @@ end
 
 local function Racial()
   -- arcane_torrent,if=mana.pct<=95
-  if Settings.Holy.General.Enabled.Racials and S.ArcaneTorrent:IsReady() and Player:ManaPercentage() <= 95 then
+  if Settings.General.Enabled.Racials and S.ArcaneTorrent:IsReady() and Player:ManaPercentage() <= 95 then
     if Cast(S.ArcaneTorrent) then return "arcane_torrent racials 1"; end
   end
 end
 
 local function Combat()
   -- dispel
-  if Settings.Holy.General.Enabled.Dispel then
+  if Settings.General.Enabled.DispelBuffs or Settings.General.Enabled.DispelDebuffs then
     local ShouldReturn = Dispel(); if ShouldReturn then return ShouldReturn; end
   end
   -- defensive
@@ -339,7 +339,7 @@ end
 
 local function OutOfCombat()
   -- dispel
-  if Settings.Holy.General.Enabled.Dispel then
+  if Settings.General.Enabled.DispelBuffs or Settings.General.Enabled.DispelDebuffs then
     local ShouldReturn = Dispel(); if ShouldReturn then return ShouldReturn; end
   end
   -- healing
@@ -367,7 +367,7 @@ local function APL()
     local ShouldReturn = Movement(); if ShouldReturn then return ShouldReturn; end
   end
   -- FocusUnit
-  if Player:AffectingCombat() or Settings.Holy.General.Enabled.Dispel then
+  if Player:AffectingCombat() or Settings.General.Enabled.DispelDebuffs then
     local ShouldReturn = FocusUnit(); if ShouldReturn then return ShouldReturn; end
   end
   Enemies12yMelee = Player:GetEnemiesInMeleeRange(12)
