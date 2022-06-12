@@ -50,7 +50,27 @@ function Commons.CanDoTUnit(Unit, HealthThreshold)
   return Unit:Health() >= HealthThreshold or Unit:IsDummy();
 end
 
+local WhitelistInterrupts = { 332329, 332671, 331927, 340026, 332666, 332706, 332612, 332084, 321764, 320008, 332608, 328729, 323064, 332605,
+                        325523, 325700, 325701, 323552, 323538, 326021, 322486, 322938, 324914, 324776, 326046, 340544, 337235, 337251,
+                        337253, 322450, 322527, 321828, 335143, 334748, 320462, 324293, 320170, 338353, 323190, 327130, 322493, 328400,
+                        318949, 330403, 336451, 328429, 319070, 328180, 321999, 328094, 328016, 328338, 324609, 335305, 319654, 322433,
+                        321038, 334653, 335305, 336277, 326952, 326836, 327413, 317936, 317963, 328295, 328137, 328331, 341902, 341969,
+                        342139, 330562, 330810, 330868, 341771, 330532, 330875, 319669, 324589, 342675, 330586, 358967, 337220, 337235,
+                        337253, 337255, 337251, 337249, 355225, 352347, 356843, 357284, 357260, 351119, 355934, 356031, 356407, 353835,
+                        350922, 350922, 347775, 225573, 196870, 195046, 196027, 200631, 202658, 202181, 360259, 364030};
+
+-- Function to handle a list of cast that should be interrupted
+-- Function takes the cast and checks it for whitelist and return true or false.
+-- Flow should be Get Enemies casting, for each enemy check if its a whitelisted spell, then call Interrupt function
+function Commons.WhitelistInterrupts(CastToInterrupt)
+  for i = 1, #WhitelistInterrupts do
+    if WhitelistInterrupts[i] == CastToInterrupt then
+        return true
+    end
+  end
+end
 -- Interrupt
+-- Todo: Need to take a unit to interrupt if we want to do MO and Focus
 function Commons.Interrupt(Range, Spell, StunSpells)
   if Settings.InterruptEnabled and Target:IsInterruptible() and Target:IsInRange(Range) then
     if Spell:IsCastable() then
@@ -63,6 +83,21 @@ function Commons.Interrupt(Range, Spell, StunSpells)
           end
         end
       end
+    end
+  end
+end
+
+local WhitelistStuns = {  326450, 328177, 321935, 336451, 328651, 328400, 322169, 333540, 330586, 357260,
+                          332181, 325701, 325700, 324609, 338022, 334747, 320822, 321807, 322569, 331743,
+                          324987, 325021, 320512, 328429, 355934, 356031, 356407, 355640, 347775, 353835,
+                          350922, 350922, 355132, 357284, 196064, 201139, 200105, 200291, 212784, 225562,
+                          183526, 193803, 202658, 200105, 218532, 196799, 365008};
+
+-- Function to handle a list of cast that should be stunned
+function Commons.WhitelistStuns(CastToStun)
+  for i = 1, #WhitelistStuns do
+    if WhitelistStuns[i] == CastToStun then
+        return true
     end
   end
 end
