@@ -81,9 +81,7 @@ local ShouldReturn; -- Used to get the return string
 local BladeFlurryRange = 6
 local BetweenTheEyesDMGThreshold
 local EffectiveComboPoints, ComboPoints, ComboPointsDeficit
-local Interrupts = {
-  { S.Blind, "Cast Blind (Interrupt)", function () return true end },
-}
+
 
 -- Legendaries
 local CovenantId = Player:CovenantID()
@@ -222,7 +220,7 @@ end
 -- # Always attempt to use BtE at 5+ CP, regardless of CP gen waste
 local function Finish_Condition ()
    -- actions+=/variable,name=finish_condition,op=reset,if=cooldown.between_the_eyes.ready&effective_combo_points<5
-  if S.BetweentheEyes:CooldownUp() and EffectiveComboPoints < 6 then
+  if S.BetweentheEyes:CooldownUp() and EffectiveComboPoints < Rogue.CPMaxSpend() then
     return false
   end
   -- actions+=/variable,name=finish_condition,value=combo_points>=cp_max_spend-buff.broadside.up-(buff.opportunity.up*talent.quick_draw.enabled)|effective_combo_points>=cp_max_spend
@@ -248,8 +246,8 @@ local function Vanish_DPS_Condition ()
 end
 
 local function CDs ()
-  if S.BladeFlurry:IsReady() and AoEON() and EnemiesBFCount >= 2 and (not Player:BuffUp(S.BladeFlurry) or Player:BuffRemains(S.BladeFlurry) < 1 or Player:Energy() > 90) then
-    if WR.Cast(S.BladeFlurry) then return "Cast Blade Flurry" end
+  if S.BladeFlurry:IsReady() and AoEON() and EnemiesBFCount >= 2 and (not Player:BuffUp(S.BladeFlurry) then -- or Player:BuffRemains(S.BladeFlurry) < 1 or Player:Energy() > 90) then
+    if WR.Cast(S.BladeFlurry, nil, nil, true) then return "Cast Blade Flurry" end
   end
   
   if Target:IsSpellInRange(S.SinisterStrike) then
@@ -475,7 +473,9 @@ local function APL ()
 
   if Everyone.TargetIsValid() then
     -- Interrupts
-    ShouldReturn = Everyone.Interrupt(5, S.Kick, Interrupts)
+    ShouldReturn = Everyone.Interrupt(S.Kick, 5, true)
+    if ShouldReturn then return ShouldReturn end
+    ShouldReturn = Everyone.InterruptWithStun(S.Blind, 5)
     if ShouldReturn then return ShouldReturn end
 
     -- actions+=/call_action_list,name=stealth,if=stealthed.all
