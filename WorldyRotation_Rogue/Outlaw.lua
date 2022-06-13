@@ -220,7 +220,7 @@ end
 -- # Always attempt to use BtE at 5+ CP, regardless of CP gen waste
 local function Finish_Condition ()
    -- actions+=/variable,name=finish_condition,op=reset,if=cooldown.between_the_eyes.ready&effective_combo_points<5
-  if S.BetweentheEyes:CooldownUp() and EffectiveComboPoints < Rogue.CPMaxSpend() then
+  if S.BetweentheEyes:CooldownUp() and EffectiveComboPoints < 5 and (Player:BuffUp(S.RuthlessPrecision) or (Target:DebuffRemains(S.BetweentheEyes) < 4 or Target:DebuffRemains(S.BetweentheEyes) == 0)) then --Rogue.CPMaxSpend(
     return false
   end
   -- actions+=/variable,name=finish_condition,value=combo_points>=cp_max_spend-buff.broadside.up-(buff.opportunity.up*talent.quick_draw.enabled)|effective_combo_points>=cp_max_spend
@@ -246,8 +246,8 @@ local function Vanish_DPS_Condition ()
 end
 
 local function CDs ()
-  if S.BladeFlurry:IsReady() and AoEON() and EnemiesBFCount >= 2 and (not Player:BuffUp(S.BladeFlurry) then -- or Player:BuffRemains(S.BladeFlurry) < 1 or Player:Energy() > 90) then
-    if WR.Cast(S.BladeFlurry, nil, nil, true) then return "Cast Blade Flurry" end
+  if S.BladeFlurry:IsReady() and AoEON() and EnemiesBFCount >= 2 and (not Player:BuffUp(S.BladeFlurry) or Player:BuffRemains(S.BladeFlurry) < 1 or (Player:BuffRemains(S.BladeFlurry) < 3 and Player:EnergyMax())) then
+    if WR.Cast(S.BladeFlurry) then return "Cast Blade Flurry" end
   end
   
   if Target:IsSpellInRange(S.SinisterStrike) then
@@ -278,7 +278,7 @@ local function CDs ()
     end
     -- actions.cds+=/adrenaline_rush,if=!buff.adrenaline_rush.up
     if CDsON() and S.AdrenalineRush:IsCastable() and not Player:BuffUp(S.AdrenalineRush) then
-      if WR.Cast(S.AdrenalineRush) then return "Cast Adrenaline Rush" end
+      if WR.Cast(S.AdrenalineRush, nil, nil, true) then return "Cast Adrenaline Rush" end
     end
     --Todo:Should add time to die here as well
     if S.Flagellation:IsReady() and not Player:StealthUp(true, true) and (Finish_Condition() or HL.BossFilteredFightRemains("<", 13)) then
@@ -320,7 +320,7 @@ local function CDs ()
       -- Racials
       -- actions.cds+=/blood_fury
       if S.BloodFury:IsCastable() then
-        if WR.Cast(S.BloodFury) then return "Cast Blood Fury" end
+        if WR.Cast(S.BloodFury, nil, nil, true) then return "Cast Blood Fury" end
       end
       -- actions.cds+=/berserking
       if S.Berserking:IsCastable() then
@@ -376,7 +376,7 @@ local function Build ()
     if Player:BuffUp(S.GreenskinsWickers) or Player:BuffUp(S.ConcealedBlunderbuss) or Player:BuffUp(S.TornadoTriggerBuff) then
       if WR.Cast(S.PistolShot) then return "Cast Pistol Shot (Buffed)" end
     end
-    if (Player:EnergyDeficitPredicted() > (Player:EnergyRegen()*1.5)) then
+    if Player:EnergyDeficitPredicted() > (Player:EnergyRegen()*1.5) or ComboPointsDeficit <= 1 + num(Player:BuffUp(S.Broadside)) then
       if WR.Cast(S.PistolShot) then return "Cast Pistol Shot" end
     end
   end
@@ -473,16 +473,16 @@ local function APL ()
 
   if Everyone.TargetIsValid() then
     -- Interrupts
-    ShouldReturn = Everyone.Interrupt(S.Kick, 5, true)
-    if ShouldReturn then return ShouldReturn end
-    ShouldReturn = Everyone.InterruptWithStun(S.Blind, 5)
-    if ShouldReturn then return ShouldReturn end
+    --ShouldReturn = Everyone.Interrupt(S.Kick, 5, true)
+    --if ShouldReturn then return ShouldReturn end
+    --ShouldReturn = Everyone.InterruptWithStun(S.Blind, 5)
+    --if ShouldReturn then return ShouldReturn end
 
     -- actions+=/call_action_list,name=stealth,if=stealthed.all
-    if Player:StealthUp(true, true) then
-      ShouldReturn = Stealth()
-      if ShouldReturn then return "Stealth: " .. ShouldReturn end
-    end
+    --if Player:StealthUp(true, true) then
+    --  ShouldReturn = Stealth()
+    --  if ShouldReturn then return "Stealth: " .. ShouldReturn end
+    --end
     -- actions+=/call_action_list,name=cds
     ShouldReturn = CDs()
     if ShouldReturn then return "CDs: " .. ShouldReturn end
@@ -514,8 +514,7 @@ local function APL ()
       if WR.Cast(S.BagofTricks) then return "Cast Bag of Tricks" end
     end
     -- OutofRange Pistol Shot
-    if S.PistolShot:IsCastable() and Target:IsSpellInRange(S.PistolShot) and not Target:IsInRange(BladeFlurryRange) and not Player:StealthUp(true, true)
-      and Player:EnergyDeficitPredicted() < 25 and (ComboPointsDeficit >= 1 or EnergyTimeToMaxStable() <= 1.2) then
+    if S.PistolShot:IsCastable() and Target:IsSpellInRange(S.PistolShot) and not Target:IsInRange(BladeFlurryRange) and not Player:StealthUp(true, true) and Player:EnergyDeficitPredicted() < 25 and (ComboPointsDeficit >= 1 or EnergyTimeToMaxStable() <= 1.2) then
       if WR.Cast(S.PistolShot) then return "Cast Pistol Shot (OOR)" end
     end
   end
@@ -540,6 +539,8 @@ local function AutoBind()
   WR.Bind(S.MarkedforDeath)
   WR.Bind(S.SliceandDice)
   WR.Bind(S.BloodFury)
+  --WR.Bind(S.NumbingPoison)
+  --WR.Bind(S.InstantPoison)
 end
 
 local function Init ()
