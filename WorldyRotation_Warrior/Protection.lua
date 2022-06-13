@@ -49,11 +49,6 @@ local Settings = {
   Protection = WR.GUISettings.APL.Warrior.Protection
 }
 
--- Stuns
-local StunInterrupts = {
-  {S.IntimidatingShout, "Cast Intimidating Shout (Interrupt)", function () return true; end},
-}
-
 -- Legendaries
 local ReprisalEquipped = Player:HasLegendaryEquipped(193)
 local GloryEquipped = Player:HasLegendaryEquipped(214)
@@ -263,7 +258,8 @@ local function APL()
       local ShouldReturn = Defensive(); if ShouldReturn then return ShouldReturn; end
     end
     -- Interrupt
-    local ShouldReturn = Everyone.Interrupt(5, S.Pummel, StunInterrupts); if ShouldReturn then return ShouldReturn; end
+    local ShouldReturn = Everyone.Interrupt(S.Pummel, 5, true); if ShouldReturn then return ShouldReturn; end
+    local ShouldReturn = Everyone.InterruptWithStun(S.IntimidatingShout, 5); if ShouldReturn then return ShouldReturn; end
     -- auto_attack
     -- charge,if=time=0
     -- Note: Handled in Precombat

@@ -60,11 +60,6 @@ local Settings = {
   Fury = WR.GUISettings.APL.Warrior.Fury
 }
 
--- Interrupts List
-local StunInterrupts = {
-  {S.StormBolt, "Cast Storm Bolt (Interrupt)", function () return true; end},
-}
-
 -- Legendaries
 local SignetofTormentedKingsEquipped = Player:HasLegendaryEquipped(181)
 local WilloftheBerserkerEquipped = Player:HasLegendaryEquipped(189)
@@ -255,7 +250,8 @@ local function Combat()
   TargetInMeleeRange = Target:IsInMeleeRange(5)
 
   -- Interrupts
-  local ShouldReturn = Everyone.Interrupt(5, S.Pummel, StunInterrupts); if ShouldReturn then return ShouldReturn; end
+  local ShouldReturn = Everyone.Interrupt(S.Pummel, 5, true); if ShouldReturn then return ShouldReturn; end
+  local ShouldReturn = Everyone.InterruptWithStun(S.StormBolt, 5); if ShouldReturn then return ShouldReturn; end
   -- auto_attack
   -- charge
   if Settings.Commons.Enabled.Charge and S.Charge:IsCastable() then
@@ -309,19 +305,19 @@ local function Combat()
   if CDsON() then
     -- recklessness,if=runeforge.sinful_surge&gcd.remains=0&(variable.execute_phase|(target.time_to_pct_35>40&talent.anger_management|target.time_to_pct_35>70&!talent.anger_management))&(spell_targets.whirlwind=1|buff.meat_cleaver.up)
     if S.Recklessness:IsCastable() and (SinfulSurgeEquipped and (VarExecutePhase or (Target:TimeToX(35) > 40 and S.AngerManagement:IsAvailable() or Target:TimeToX(35) > 70 and not S.AngerManagement:IsAvailable())) and (EnemiesCount8 == 1 or Player:BuffUp(S.MeatCleaverBuff))) then
-      if Cast(S.Recklessness) then return "recklessness main 11"; end
+      if Cast(S.Recklessness, not TargetInMeleeRange, nil, true) then return "recklessness main 11"; end
     end
     -- recklessness,if=runeforge.elysian_might&gcd.remains=0&(cooldown.spear_of_bastion.remains<5|cooldown.spear_of_bastion.remains>20)&((buff.bloodlust.up|talent.anger_management.enabled|raid_event.adds.in>10)|target.time_to_die>100|variable.execute_phase|target.time_to_die<15&raid_event.adds.in>10)&(spell_targets.whirlwind=1|buff.meat_cleaver.up)
     if S.Recklessness:IsCastable() and (ElysianMightEquipped and (Settings.Commons.Enabled.Covenant and S.SpearofBastion:CooldownRemains() < 5 or S.SpearofBastion:CooldownRemains() > 20) and ((Player:BloodlustUp() or S.AngerManagement:IsAvailable() or EnemiesCount8 == 1) or Target:TimeToDie() > 100 or VarExecutePhase or Target:TimeToDie() < 15) and (EnemiesCount8 == 1 or Player:BuffUp(S.MeatCleaverBuff))) then
-      if Cast(S.Recklessness) then return "recklessness main 12"; end
+      if Cast(S.Recklessness, not TargetInMeleeRange, nil, true) then return "recklessness main 12"; end
     end
     -- recklessness,if=!variable.unique_legendaries&gcd.remains=0&((buff.bloodlust.up|talent.anger_management.enabled|raid_event.adds.in>10)|target.time_to_die>100|variable.execute_phase|target.time_to_die<15&raid_event.adds.in>10)&(spell_targets.whirlwind=1|buff.meat_cleaver.up)&(!covenant.necrolord|cooldown.conquerors_banner.remains>20)
     if S.Recklessness:IsCastable() and (not VarUniqueLegendaries and ((Player:BloodlustUp() or S.AngerManagement:IsAvailable() or EnemiesCount8 == 1) or Target:TimeToDie() > 100 or VarExecutePhase or Target:TimeToDie() < 15) and (EnemiesCount8 == 1 or Player:BuffUp(S.MeatCleaverBuff)) and (CovenantID ~= 4 or S.ConquerorsBanner:CooldownRemains() > 20)) then
-      if Cast(S.Recklessness) then return "recklessness main 13"; end
+      if Cast(S.Recklessness, not TargetInMeleeRange, nil, true) then return "recklessness main 13"; end
     end
     -- recklessness,use_off_gcd=1,if=runeforge.signet_of_tormented_kings.equipped&gcd.remains&prev_gcd.1.rampage&((buff.bloodlust.up|talent.anger_management.enabled|raid_event.adds.in>10)|target.time_to_die>100|variable.execute_phase|target.time_to_die<15&raid_event.adds.in>10)&(spell_targets.whirlwind=1|buff.meat_cleaver.up)
     if S.Recklessness:IsCastable() and (SignetofTormentedKingsEquipped and Player:PrevGCDP(1, S.Rampage) and ((Player:BloodlustUp() or S.AngerManagement:IsAvailable()) or Target:TimeToDie() > 100 or VarExecutePhase) and (EnemiesCount8 == 1 or Player:BuffUp(S.MeatCleaverBuff))) then
-      if Cast(S.Recklessness) then return "recklessness main 14"; end
+      if Cast(S.Recklessness, not TargetInMeleeRange, nil, true) then return "recklessness main 14"; end
     end
   end
   -- whirlwind,if=spell_targets.whirlwind>1&!buff.meat_cleaver.up|raid_event.adds.in<gcd&!buff.meat_cleaver.up
@@ -333,9 +329,9 @@ local function Combat()
     local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
     if TrinketToUse then
       if Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 13) then
-        if Cast(M.Trinket1, not TargetInMeleeRange) then return "use_trinket " .. TrinketToUse:Name() .. " damage 1"; end
+        if Cast(M.Trinket1, not TargetInMeleeRange, nil, true) then return "use_trinket " .. TrinketToUse:Name() .. " damage 1"; end
       elseif Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 14) then
-        if Cast(M.Trinket2, not TargetInMeleeRange) then return "use_trinket " .. TrinketToUse:Name() .. " damage 2"; end
+        if Cast(M.Trinket2, not TargetInMeleeRange, nil, true) then return "use_trinket " .. TrinketToUse:Name() .. " damage 2"; end
       end
     end
   end

@@ -458,7 +458,7 @@
 
   -- Is the player ready ?
   function WR.Ready ()
-    return not Player:IsDeadOrGhost() and not Player:IsMounted() and not Player:IsInVehicle() and not C_PetBattles.IsInBattle() and Player:CastEnd() - HL.Latency() <= 0 and Player:GCDRemains() - HL.Latency() <= 0;
+    return not Player:IsDeadOrGhost() and not Player:IsMounted() and not Player:IsInVehicle() and not C_PetBattles.IsInBattle();
   end
 
   function WR.Pause()

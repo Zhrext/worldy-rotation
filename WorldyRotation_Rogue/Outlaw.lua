@@ -81,9 +81,6 @@ local ShouldReturn; -- Used to get the return string
 local BladeFlurryRange = 6
 local BetweenTheEyesDMGThreshold
 local EffectiveComboPoints, ComboPoints, ComboPointsDeficit
-local Interrupts = {
-  { S.Blind, "Cast Blind (Interrupt)", function () return true end },
-}
 
 -- Legendaries
 local CovenantId = Player:CovenantID()
@@ -256,7 +253,7 @@ end
 
 local function CDs ()
   if S.BladeFlurry:IsReady() and AoEON() and EnemiesBFCount >= 2 and not Player:BuffUp(S.BladeFlurry) then
-    if WR.Cast(S.BladeFlurry) then return "Cast Blade Flurry" end
+    if WR.Cast(S.BladeFlurry, nil, nil, true) then return "Cast Blade Flurry" end
   end
   
   if Target:IsSpellInRange(S.SinisterStrike) then
@@ -492,7 +489,8 @@ local function APL ()
 
   if Everyone.TargetIsValid() then
     -- Interrupts
-    ShouldReturn = Everyone.Interrupt(5, S.Kick, Interrupts)
+    ShouldReturn = Everyone.Interrupt(S.Kick, 5, true)
+    ShouldReturn = Everyone.InterruptWithStun(S.Blind, 5)
     if ShouldReturn then return ShouldReturn end
 
     -- actions+=/call_action_list,name=stealth,if=stealthed.all

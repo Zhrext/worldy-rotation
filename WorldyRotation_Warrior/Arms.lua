@@ -49,11 +49,6 @@ local Settings = {
   Arms = WR.GUISettings.APL.Warrior.Arms
 }
 
--- Interrupts List
-local StunInterrupts = {
-  {S.StormBolt, "Cast Storm Bolt (Interrupt)", function () return true; end},
-}
-
 -- Legendaries
 local BattlelordEquipped = Player:HasLegendaryEquipped(183)
 local SinfulSurgeEquipped = Player:HasLegendaryEquipped(215)
@@ -77,17 +72,6 @@ HL:RegisterForEvent(function()
   CovenantID = Player:CovenantID()
 end, "COVENANT_CHOSEN")
 
-local function Precombat()
-  -- flask
-  -- food
-  -- augmentation
-  -- snapshot_stats
-  -- Manually added: battle_shout,if=buff.battle_shout.remains<60
-  if S.BattleShout:IsCastable() and (Player:BuffRemains(S.BattleShoutBuff, true) < 5) then
-    if Cast(S.BattleShout) then return "battle_shout precombat 2"; end
-  end
-end
-
 local function Hac()
   -- skullsplitter,if=rage<60&buff.deadly_calm.down
   if S.Skullsplitter:IsCastable() and (Player:Rage() < 60 and Player:BuffDown(S.DeadlyCalmBuff)) then
@@ -100,7 +84,7 @@ local function Hac()
     end
     -- avatar,if=cooldown.colossus_smash.remains<1
     if S.Avatar:IsCastable() and (S.ColossusSmash:CooldownRemains() < 1) then
-      if Cast(S.Avatar, not TargetInMeleeRange) then return "avatar hac 6"; end
+      if Cast(S.Avatar, not TargetInMeleeRange, nil, true) then return "avatar hac 6"; end
     end
   end
   -- warbreaker
@@ -183,7 +167,7 @@ local function Execute()
   -- cancel_buff,name=bladestorm,if=spell_targets.whirlwind=1&gcd.remains=0&(rage>75|rage>50&buff.recklessness.up)
   -- avatar,if=gcd.remains=0|target.time_to_die<20
   if S.Avatar:IsCastable() and CDsON() then
-    if Cast(S.Avatar, not TargetInMeleeRange) then return "avatar execute 6"; end
+    if Cast(S.Avatar, not TargetInMeleeRange, nil, true) then return "avatar execute 6"; end
   end
   -- condemn,if=buff.ashen_juggernaut.up&buff.ashen_juggernaut.remains<gcd&conduit.ashen_juggernaut.rank>1
   if S.Condemn:IsCastable() and (Player:BuffUp(S.AshenJuggernautBuff) and Player:BuffRemains(S.AshenJuggernautBuff) < Player:GCD() and S.AshenJuggernaut:ConduitRank() > 1) then
@@ -272,7 +256,7 @@ local function SingleTarget()
   end
   -- avatar,if=gcd.remains=0
   if CDsON() and S.Avatar:IsCastable() then
-    if Cast(S.Avatar, not TargetInMeleeRange) then return "avatar single_target 6"; end
+    if Cast(S.Avatar, not TargetInMeleeRange, nil, true) then return "avatar single_target 6"; end
   end
   -- ravager
   if S.Ravager:IsCastable() then
@@ -352,7 +336,14 @@ local function SingleTarget()
 end
 
 local function OutOfCombat()
-  
+  -- flask
+  -- food
+  -- augmentation
+  -- snapshot_stats
+  -- Manually added: battle_shout,if=buff.battle_shout.remains<60
+  if S.BattleShout:IsCastable() and Player:BuffRemains(S.BattleShoutBuff, true) < 5 then
+    if Cast(S.BattleShout) then return "battle_shout precombat 2"; end
+  end
 end
 
 local function Combat()
@@ -365,7 +356,8 @@ local function Combat()
   -- Range check
   TargetInMeleeRange = Target:IsInMeleeRange(5)
   -- Interrupts
-  local ShouldReturn = Everyone.Interrupt(5, S.Pummel, StunInterrupts); if ShouldReturn then return ShouldReturn; end
+  local ShouldReturn = Everyone.Interrupt(S.Pummel, 5, true); if ShouldReturn then return ShouldReturn; end
+  local ShouldReturn = Everyone.InterruptWithStun(S.StormBolt, 5); if ShouldReturn then return ShouldReturn; end
   -- charge
   if Settings.Commons.Enabled.Charge and S.Charge:IsCastable() and (not TargetInMeleeRange) then
     if Cast(S.Charge, not Target:IsSpellInRange(S.Charge)) then return "charge main 2"; end
@@ -427,9 +419,9 @@ local function Combat()
     local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
     if TrinketToUse then
       if Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 13) then
-        if Cast(M.Trinket1, not TargetInMeleeRange) then return "use_trinket " .. TrinketToUse:Name() .. " damage 1"; end
+        if Cast(M.Trinket1, not TargetInMeleeRange, nil, true) then return "use_trinket " .. TrinketToUse:Name() .. " damage 1"; end
       elseif Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 14) then
-        if Cast(M.Trinket2, not TargetInMeleeRange) then return "use_trinket " .. TrinketToUse:Name() .. " damage 2"; end
+        if Cast(M.Trinket2, not TargetInMeleeRange, nil, true) then return "use_trinket " .. TrinketToUse:Name() .. " damage 2"; end
       end
     end
   end
@@ -455,7 +447,6 @@ end
 
 --- ======= ACTION LISTS =======
 local function APL()
-
   -- call Precombat
   if not Player:AffectingCombat() then
     local ShouldReturn = OutOfCombat(); if ShouldReturn then return ShouldReturn; end
