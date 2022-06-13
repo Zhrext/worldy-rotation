@@ -229,17 +229,12 @@ local function RtB_Reroll ()
   return Cache.APLVar.RtB_Reroll
 end
 
--- # Finish at max possible CP without overflowing bonus combo points, unless for BtE which always should be 5+ CP
--- # Always attempt to use BtE at 5+ CP, regardless of CP gen waste
 local function Finish_Condition ()
-  -- actions+=/variable,name=finish_condition,value=combo_points>=cp_max_spend-buff.broadside.up-(buff.opportunity.up*talent.quick_draw.enabled)|effective_combo_points>=cp_max_spend
-  -- actions+=/variable,name=finish_condition,op=reset,if=cooldown.between_the_eyes.ready&effective_combo_points<5
   if S.BetweentheEyes:CooldownUp() and EffectiveComboPoints < 5 then
     return false
   end
-
-  return ComboPoints >= (Rogue.CPMaxSpend() - num(Player:BuffUp(S.Broadside)) - (num(Player:BuffUp(S.Opportunity)) * num(S.QuickDraw:IsAvailable())))
-    or EffectiveComboPoints >= Rogue.CPMaxSpend()
+  --actions+=/variable,name=finish_condition,value=combo_points>=cp_max_spend-buff.broadside.up-(buff.opportunity.up*talent.quick_draw.enabled|buff.concealed_blunderbuss.up)
+  return ComboPoints >= (Rogue.CPMaxSpend() - num(Player:BuffUp(S.Broadside)) - num(Player:BuffUp(S.ConcealedBlunderbuss))) or EffectiveComboPoints >= Rogue.CPMaxSpend()
 end
 
 -- # Ensure we get full Ambush CP gains and aren't rerolling Count the Odds buffs away
@@ -299,7 +294,7 @@ local function CDs ()
       if WR.Cast(S.Flagellation) then return "Cast Flagellation" end
     end
     -- actions.cds+=/roll_the_bones,if=master_assassin_remains=0&buff.dreadblades.down&(buff.roll_the_bones.remains<=3|variable.rtb_reroll)
-    if S.RolltheBones:IsReady() and (Rogue.RtBRemains() <= 2 or RtB_Reroll()) then
+    if S.RolltheBones:IsReady() and (Rogue.RtBRemains() <= 3 or RtB_Reroll()) then
       if WR.Cast(S.RolltheBones) then return "Cast Roll the Bones" end
     end
   end
@@ -353,6 +348,8 @@ local function CDs ()
       -- TODO
     end
   end
+
+  --Todo: Trinkets
 end
 
 local function Stealth ()
@@ -371,9 +368,14 @@ local function Stealth ()
 end
 
 local function Finish ()
-  if S.BetweentheEyes:IsCastable() and Target:IsSpellInRange(S.BetweentheEyes)and (Target:FilteredTimeToDie(">", 3) or Target:TimeToDieIsNotValid()) and (Target:DebuffRemains(S.BetweentheEyes) < 4 or Target:DebuffRemains(S.BetweentheEyes) == 0) and Rogue.CanDoTUnit(Target, BetweenTheEyesDMGThreshold) then
-    if WR.Cast(S.BetweentheEyes) then return "Cast Between the Eyes" end
+  
+  if S.BetweentheEyes:IsCastable() and Target:IsSpellInRange(S.BetweentheEyes) then --and (Target:FilteredTimeToDie(">", 3) or Target:TimeToDieIsNotValid())
+    --if ((Target:DebuffRemains(S.BetweentheEyes) < 4 or not Target:DebuffUp(S.BetweentheEyes)) and Rogue.CanDoTUnit(Target, BetweenTheEyesDMGThreshold)) or Player:BuffUp(S.RuthlessPrecision) then
+    if (Target:DebuffRemains(S.BetweentheEyes) < 4 or not Target:DebuffUp(S.BetweentheEyes)) or Player:BuffUp(S.RuthlessPrecision) then
+      if WR.Cast(S.BetweentheEyes) then return "Cast Between the Eyes" end
+    end
   end
+
   if S.SliceandDice:IsCastable() and (HL.FilteredFightRemains(EnemiesBF, ">", Player:BuffRemains(S.SliceandDice), true) or Player:BuffRemains(S.SliceandDice) == 0)
     and Player:BuffRemains(S.SliceandDice) < (1 + ComboPoints) * 1.8 then
     if WR.Cast(S.SliceandDice) then return "Cast Slice and Dice" end
@@ -384,11 +386,15 @@ local function Finish ()
   end
 end
 
+--actions.build+=/pistol_shot,if=buff.opportunity.up&(buff.greenskins_wickers.up|buff.concealed_blunderbuss.up|buff.tornado_trigger.up)
+--actions.build+=/pistol_shot,if=buff.opportunity.up&(energy.deficit>energy.regen*1.5|!talent.weaponmaster&combo_points.deficit<=1+buff.broadside.up|talent.quick_draw.enabled)
 local function Build ()
   if S.PistolShot:IsCastable() and Target:IsSpellInRange(S.PistolShot) and Player:BuffUp(S.Opportunity) then
     if Player:BuffUp(S.GreenskinsWickers) or Player:BuffUp(S.ConcealedBlunderbuss) or Player:BuffUp(S.TornadoTriggerBuff) then
       if WR.Cast(S.PistolShot) then return "Cast Pistol Shot (Buffed)" end
     end
+   -- Use Pistol Shot with Opportunity if Combat Potency won't overcap energy, when it will exactly cap CP, or when using Quick Draw
+   --actions.build+=/pistol_shot,if=buff.opportunity.up&(energy.deficit>energy.regen*1.5|!talent.weaponmaster&combo_points.deficit<=1+buff.broadside.up|talent.quick_draw.enabled)
     if Player:EnergyDeficitPredicted() > (Player:EnergyRegen()*1.5) then
       if WR.Cast(S.PistolShot) then return "Cast Pistol Shot" end
     end
