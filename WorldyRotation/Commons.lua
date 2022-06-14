@@ -66,18 +66,32 @@ do
                              324987, 325021, 320512, 328429, 355934, 356031, 356407, 355640, 347775, 353835,
                              350922, 350922, 355132, 357284, 196064, 201139, 200105, 200291, 212784, 225562,
                              183526, 193803, 202658, 200105, 218532, 196799, 365008 };
-  function Commons.Interrupt(Spell, Range, OffGCD)
-    if Settings.Enabled.Interrupt and Target:IsInterruptible() and (Target:CastPercentage() >= Settings.Threshold.Interrupt or Target:IsChanneling()) and (not Settings.Enabled.InterruptOnlyWhitelist or Utils.ValueIsInArray(InterruptWhitelistIDs, Target:CastSpellID()) or Utils.ValueIsInArray(InterruptWhitelistIDs, Target:ChannelSpellID())) then
+  function Commons.Interrupt(Spell, Range, OffGCD, Unit, Macro)
+    if not Unit then
+      Unit = Target;
+    end
+    if Settings.Enabled.Interrupt and Unit:IsInterruptible() and (Unit:CastPercentage() >= Settings.Threshold.Interrupt or Unit:IsChanneling()) and (not Settings.Enabled.InterruptOnlyWhitelist or Utils.ValueIsInArray(InterruptWhitelistIDs, Unit:CastSpellID()) or Utils.ValueIsInArray(InterruptWhitelistIDs, Unit:ChannelSpellID())) then
       if Spell:IsCastable() then
-        if WR.Cast(Spell, not Target:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt)"; end
+        if Macro then
+          if WR.Cast(Macro, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt)"; end
+        else
+          if WR.Cast(Spell, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt)"; end
+        end
       end
     end
   end
-  function Commons.InterruptWithStun(Spell, Range, OffGCD)
-    if Settings.Enabled.InterruptWithStun and Target:CastPercentage() >= Settings.Threshold.Interrupt then
-      if (Settings.Enabled.InterruptOnlyWhitelist and (Utils.ValueIsInArray(StunWhitelistIDs, Target:CastSpellID()) or Utils.ValueIsInArray(StunWhitelistIDs, Target:ChannelSpellID()))) or (not Settings.Enabled.InterruptOnlyWhitelist and Target:CanBeStunned()) then
+  function Commons.InterruptWithStun(Spell, Range, OffGCD, Unit, Macro)
+    if not Unit then
+      Unit = Target;
+    end
+    if Settings.Enabled.InterruptWithStun and (Unit:CastPercentage() >= Settings.Threshold.Interrupt or Unit:IsChanneling()) then
+      if (Settings.Enabled.InterruptOnlyWhitelist and (Utils.ValueIsInArray(StunWhitelistIDs, Unit:CastSpellID()) or Utils.ValueIsInArray(StunWhitelistIDs, Unit:ChannelSpellID()))) or (not Settings.Enabled.InterruptOnlyWhitelist and Unit:CanBeStunned()) then
         if Spell:IsCastable() then
-          if WR.Cast(Spell, not Target:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt With Stun)"; end
+          if Macro then
+            if WR.Cast(Macro, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt With Stun)"; end
+          else
+            if WR.Cast(Spell, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt With Stun)"; end
+          end
         end
       end
     end
