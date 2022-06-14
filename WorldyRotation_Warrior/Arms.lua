@@ -373,16 +373,16 @@ local function Combat()
   end
   -- healthstone
   if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
-    if Cast(M.Healthstone) then return "healthstone defensive 3"; end
+    if Cast(M.Healthstone, nil, nil, true) then return "healthstone defensive 3"; end
   end
   -- phial_of_serenity
   if Player:HealthPercentage() <= Settings.General.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
-    if Cast(M.PhialofSerenity) then return "phial_of_serenity defensive 4"; end
+    if Cast(M.PhialofSerenity, nil, nil, true) then return "phial_of_serenity defensive 4"; end
   end
   -- auto_attack
   -- potion,if=gcd.remains=0&debuff.colossus_smash.remains>8|target.time_to_die<25
   if Settings.General.Enabled.Potions and I.PotionofSpectralStrength:IsReady() and (Player:BloodlustUp() and Target:DebuffRemains(S.ColossusSmashDebuff) > 8 or Target:TimeToDie() <= 30) then
-    if Cast(M.PotionofSpectralStrength) then return "potion main 6"; end
+    if Cast(M.PotionofSpectralStrength, nil, nil, true) then return "potion main 6"; end
   end
   if CDsON() and Settings.General.Enabled.Racials then
     -- arcane_torrent,if=cooldown.mortal_strike.remains>1.5&rage<50

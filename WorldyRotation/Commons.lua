@@ -67,7 +67,7 @@ do
                              350922, 350922, 355132, 357284, 196064, 201139, 200105, 200291, 212784, 225562,
                              183526, 193803, 202658, 200105, 218532, 196799, 365008 };
   function Commons.Interrupt(Spell, Range, OffGCD)
-    if Settings.Enabled.Interrupt and Target:IsInterruptible() and (Target:CastPercentage() >= Settings.Threshold.Interrupt or Target:IsChanneling()) and (not Settings.Enabled.InterruptOnlyWhitelist or Utils.ValueIsInArray(Target:CastSpellID(), InterruptWhitelistIDs) or Utils.ValueIsInArray(Target:ChannelSpellID(), InterruptWhitelistIDs)) then
+    if Settings.Enabled.Interrupt and Target:IsInterruptible() and (Target:CastPercentage() >= Settings.Threshold.Interrupt or Target:IsChanneling()) and (not Settings.Enabled.InterruptOnlyWhitelist or Utils.ValueIsInArray(InterruptWhitelistIDs, Target:CastSpellID()) or Utils.ValueIsInArray(InterruptWhitelistIDs, Target:ChannelSpellID())) then
       if Spell:IsCastable() then
         if WR.Cast(Spell, not Target:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt)"; end
       end
@@ -75,7 +75,7 @@ do
   end
   function Commons.InterruptWithStun(Spell, Range, OffGCD)
     if Settings.Enabled.InterruptWithStun and Target:CastPercentage() >= Settings.Threshold.Interrupt then
-      if (Settings.Enabled.InterruptOnlyWhitelist and Utils.ValueIsInArray(Target:CastSpellID(), StunWhitelistIDs) or Utils.ValueIsInArray(Target:ChannelSpellID(), StunWhitelistIDs)) or (not Settings.Enabled.InterruptOnlyWhitelist and Target:CanBeStunned()) then
+      if (Settings.Enabled.InterruptOnlyWhitelist and (Utils.ValueIsInArray(StunWhitelistIDs, Target:CastSpellID()) or Utils.ValueIsInArray(StunWhitelistIDs, Target:ChannelSpellID()))) or (not Settings.Enabled.InterruptOnlyWhitelist and Target:CanBeStunned()) then
         if Spell:IsCastable() then
           if WR.Cast(Spell, not Target:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt With Stun)"; end
         end
@@ -100,7 +100,7 @@ do
                         359975, 365272, 361689, 363681, 363018, 368027, 362801, 365681, 338357, 359720,
                         362405, 362771, 361312, 359868, 363893 };
   function Commons.ShouldMitigate()
-    return Utils.ValueIsInArray(Target:CastSpellID(), MitigateIDs) or Utils.ValueIsInArray(Target:ChannelSpellID(), MitigateIDs);
+    return Utils.ValueIsInArray(MitigateIDs, Target:CastSpellID()) or Utils.ValueIsInArray(MitigateIDs, Target:ChannelSpellID());
   end
 end
 

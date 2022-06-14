@@ -268,11 +268,11 @@ local function Combat()
   end
   -- healthstone
   if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
-    if Cast(M.Healthstone) then return "healthstone defensive 3"; end
+    if Cast(M.Healthstone, nil, nil, true) then return "healthstone defensive 3"; end
   end
   -- phial_of_serenity
   if Player:HealthPercentage() <= Settings.General.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
-    if Cast(M.PhialofSerenity) then return "phial_of_serenity defensive 4"; end
+    if Cast(M.PhialofSerenity, nil, nil, true) then return "phial_of_serenity defensive 4"; end
   end
   -- variable,name=execute_phase,value=talent.massacre&target.health.pct<35|target.health.pct<20|target.health.pct>80&covenant.venthyr
   VarExecutePhase = (S.Massacre:IsAvailable() and Target:HealthPercentage() < 35 or Target:HealthPercentage() < 20 or Target:HealthPercentage() > 80 and CovenantID == 2)
@@ -288,7 +288,7 @@ local function Combat()
   end
   -- potion
   if Settings.General.Enabled.Potions and I.PotionofSpectralStrength:IsReady() and (Player:BloodlustUp() or Target:TimeToDie() <= 30) then
-    if Cast(M.PotionofSpectralStrength) then return "potion main 6"; end
+    if Cast(M.PotionofSpectralStrength, nil, nil, true) then return "potion main 6"; end
   end
   -- conquerors_banner,if=rage>70
   if S.ConquerorsBanner:IsCastable() and CDsON() and (Player:Rage() > 70) then

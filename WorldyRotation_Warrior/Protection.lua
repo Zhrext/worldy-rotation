@@ -153,11 +153,11 @@ local function Defensive()
   end
   -- healthstone
   if Player:HealthPercentage() <= Settings.Commons.HP.Healthstone and I.Healthstone:IsReady() then
-    if Cast(M.Healthstone) then return "healthstone defensive 3"; end
+    if Cast(M.Healthstone, nil, nil, true) then return "healthstone defensive 3"; end
   end
   -- phial_of_serenity
   if Player:HealthPercentage() <= Settings.Commons.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
-    if Cast(M.PhialofSerenity) then return "phial_of_serenity defensive 4"; end
+    if Cast(M.PhialofSerenity, nil, nil, true) then return "phial_of_serenity defensive 4"; end
   end
 end
 
@@ -306,11 +306,11 @@ local function APL()
     end
     -- avatar,if=buff.outburst.down
     if S.Avatar:IsCastable() and (Player:BuffDown(S.OutburstBuff)) then
-      if Cast(S.Avatar) then return "avatar main 8"; end
+      if Cast(S.Avatar, nil, nil, true) then return "avatar main 8"; end
     end
     -- potion
     if Settings.General.Enabled.Potions and I.PotionofSpectralStrength:IsReady() and (Player:BloodlustUp() or Target:TimeToDie() <= 30) then
-      if Cast(M.PotionofSpectralStrength) then return "potion main 6"; end
+      if Cast(M.PotionofSpectralStrength, nil, nil, true) then return "potion main 6"; end
     end
     if CDsON() then
       -- conquerors_banner

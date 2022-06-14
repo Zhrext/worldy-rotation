@@ -100,19 +100,19 @@ local function FocusUnit()
   local NewFocusUnit = GetFocusUnit()
   if NewFocusUnit ~= nil and (Focus == nil or not Focus:Exists() or NewFocusUnit:GUID() ~= Focus:GUID() or not Focus:IsInRange(40)) then
     local FocusUnitKey = "Focus" .. Utils.UpperCaseFirst(NewFocusUnit:ID())
-    if Cast(M[FocusUnitKey]) then return "focus " .. NewFocusUnit:ID() .. " focus_unit 1"; end
+    if Cast(M[FocusUnitKey], nil, nil, true) then return "focus " .. NewFocusUnit:ID() .. " focus_unit 1"; end
   end
 end
 
 local function Cooldown()
   -- power_infusion
   if CDsON() and Settings.Holy.Cooldown.Enabled.PowerInfusionSolo and Everyone.IsSoloMode() and S.PowerInfusion:IsReady() then
-    if Cast(M.PowerInfusionPlayer) then return "power_infusion cooldown 1"; end
+    if Cast(M.PowerInfusionPlayer, nil, nil, true) then return "power_infusion cooldown 1"; end
   end
   if Focus then
     -- guardian_spirit
     if Focus:HealthPercentage() <= Settings.Holy.Cooldown.HP.GuardianSpirit and S.GuardianSpirit:IsReady() then
-      if Cast(M.GuardianSpiritFocus, not Focus:IsSpellInRange(S.GuardianSpirit)) then return "guardian_spirit cooldown 2"; end
+      if Cast(M.GuardianSpiritFocus, not Focus:IsSpellInRange(S.GuardianSpirit), nil, true) then return "guardian_spirit cooldown 2"; end
     end
     -- holy_word_salvation
     if S.HolyWordSalvation:IsAvailable() and S.HolyWordSalvation:IsReady() and AreUnitsBelowHealthPercentage(Settings.Holy.Cooldown, "HolyWordSalvation") then
@@ -151,7 +151,7 @@ local function Damage()
   end
   -- use_potion_of_spectral_intellect
   if I.PotionofSpectralIntellect:IsReady() and (Player:BloodlustUp() or Target:TimeToDie() <= 30) then
-    if Cast(M.PotionofSpectralIntellect) then return "potion damage 1"; end
+    if Cast(M.PotionofSpectralIntellect, nil, nil, true) then return "potion damage 1"; end
   end
   if CovenantID == 1 then
     -- ascended_blast
@@ -211,19 +211,19 @@ end
 local function Defensive()
   -- fade
   if Settings.Holy.Defensive.Enabled.Fade and Player:IsTankingAoE() and S.Fade:IsReady() then
-    if Cast(S.Fade) then return "fade defensive 1"; end
+    if Cast(S.Fade, nil, nil, true) then return "fade defensive 1"; end
   end
   -- desperate_prayer
   if Player:HealthPercentage() <= Settings.Holy.Defensive.HP.DesperatePrayer and S.DesperatePrayer:IsReady() then
-    if Cast(S.DesperatePrayer) then return "desperate_prayer defensive 2"; end
+    if Cast(S.DesperatePrayer, nil, nil, true) then return "desperate_prayer defensive 2"; end
   end
   -- healthstone
   if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
-    if Cast(M.Healthstone) then return "healthstone defensive 3"; end
+    if Cast(M.Healthstone, nil, nil, true) then return "healthstone defensive 3"; end
   end
   -- phial_of_serenity
   if Player:HealthPercentage() <= Settings.General.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
-    if Cast(M.PhialofSerenity) then return "phial_of_serenity defensive 4"; end
+    if Cast(M.PhialofSerenity, nil, nil, true) then return "phial_of_serenity defensive 4"; end
   end
 end
 
