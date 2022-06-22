@@ -25,6 +25,8 @@
         Interrupt = false,
         InterruptWithStun = false, -- EXPERIMENTAL
         InterruptOnlyWhitelist = false,
+        -- CrowdControl
+        CrowdControl = false,
         -- Dispel
         DispelBuffs = false,
         DispelDebuffs = false,

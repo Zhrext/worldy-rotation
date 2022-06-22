@@ -98,6 +98,25 @@ do
   end
 end
 
+-- CC
+do
+  local CrowdControlUnitIDs = { 171887 };
+  function Commons.CrowdControl(Spell, Range, OffGCD, Unit, Macro)
+    if not Unit then
+      Unit = Target;
+    end
+    if Settings.Enabled.CrowdControl and Utils.ValueIsInArray(CrowdControlUnitIDs, Unit:NPCID()) and Unit:IsMoving() then
+      if Spell:IsCastable() then
+        if Macro then
+          if WR.Cast(Macro, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Crowd Control)"; end
+        else
+          if WR.Cast(Spell, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Crowd Control)"; end
+        end
+      end
+    end
+  end
+end
+
 -- Mitigate
 do
   local MitigateIDs = { 320655, 324394, 338456, 320696, 334488, 338636, 320771, 322557, 340289, 340208,
