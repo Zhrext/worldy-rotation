@@ -458,7 +458,7 @@
 
   -- Is the player ready ?
   function WR.Ready ()
-    return not Player:IsDeadOrGhost() and not Player:IsMounted() and not Player:IsInVehicle() and not C_PetBattles.IsInBattle();
+    return not Player:IsDeadOrGhost() and not Player:IsMounted() and not Player:IsInVehicle() and not C_PetBattles.IsInBattle() and not ACTIVE_CHAT_EDIT_BOX;
   end
 
   function WR.Pause()
