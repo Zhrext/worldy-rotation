@@ -198,6 +198,10 @@ local function Damage()
   if not Target:DebuffUp(S.ShadowWordPainDebuff) and Target:TimeToDie() > 3 and S.ShadowWordPain:IsReady() then
     if Cast(S.ShadowWordPain, not Target:IsSpellInRange(S.ShadowWordPain)) then return "shadow_word_pain damage 13"; end
   end
+  -- apotheosis,if=active_enemies<5&(raid_event.adds.in>15|raid_event.adds.in>raid_event.adds.cooldown-5)
+  if CDsON() and Settings.Holy.Damage.Enabled.Apotheosis and S.Apotheosis:IsCastable() and (EnemiesCount8ySplash < 5) then
+    if Cast(S.Apotheosis, not Target:IsSpellInRange(S.Smite)) then return "apotheosis main 28"; end
+  end
   -- smite
   if S.Smite:IsReady() then
     if Cast(S.Smite, not Target:IsSpellInRange(S.Smite), true) then return "smite damage 14"; end
@@ -452,7 +456,8 @@ local function Init()
     Spell(325224), -- Anima Injection
     Spell(321968), -- Bewildering Pollen
     Spell(327882), -- Blightbeak
-    Spell(324859), -- Bramblethorn Entanglement
+    -- NOTE(Worldy): Manually.
+    --Spell(324859), -- Bramblethorn Entanglement
     Spell(317963), -- Burden of Knowledge
     Spell(322358), -- Burning Strain
     Spell(243237), -- Burst

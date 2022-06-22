@@ -62,6 +62,7 @@ WR.GUISettings.APL.Priest = {
     },
     Damage = {
       Enabled = {
+        Apotheosis = true,
         BoonOfTheAscended = true,
         DivineStar = true,
       },
