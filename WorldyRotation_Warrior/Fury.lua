@@ -129,7 +129,10 @@ local function SingleTarget()
     if Cast(S.CrushingBlow, not TargetInMeleeRange) then return "crushing_blow single_target 4"; end
   end
   -- cancel_buff,name=bladestorm,if=spell_targets.whirlwind=1&gcd.remains=0&(talent.massacre.enabled|covenant.venthyr.enabled)&variable.execute_phase&(rage>90|!cooldown.condemn.remains)
-  -- condemn,if=(buff.enrage.up|buff.recklessness.up&runeforge.sinful_surge)&variable.execute_phase
+  if Player:BuffUp(S.BladestormBuff) and EnemiesCount8 == 1 and (S.Massacre:IsAvailable() or CovenantID == 2) and VarExecutePhase and (Player:Rage() > 90 or S.Condemn:IsCastable()) then
+    if Cast(M.CancelBladestorm, not TargetInMeleeRange, nil, true) then return "cancel_bladestorm single_target 6"; end
+  end
+    -- condemn,if=(buff.enrage.up|buff.recklessness.up&runeforge.sinful_surge)&variable.execute_phase
   if S.Condemn:IsCastable() and ((EnrageUp or Player:BuffUp(S.RecklessnessBuff) and SinfulSurgeEquipped) and VarExecutePhase) then
     if Cast(S.Condemn, not TargetInMeleeRange) then return "condemn single_target 8"; end
   end
@@ -287,7 +290,7 @@ local function Combat()
     if Cast(M.HeroicLeapCursor) then return "heroic_leap main 4"; end
   end
   -- potion
-  if Settings.General.Enabled.Potions and I.PotionofSpectralStrength:IsReady() and (Player:BloodlustUp() or Target:TimeToDie() <= 30) then
+  if Settings.General.Enabled.Potions and I.PotionofSpectralStrength:IsReady() and Player:BloodlustUp() then
     if Cast(M.PotionofSpectralStrength, nil, nil, true) then return "potion main 6"; end
   end
   -- conquerors_banner,if=rage>70
@@ -299,7 +302,7 @@ local function Combat()
     if Cast(M.SpearofBastionPlayer, not Target:IsInRange(25)) then return "spear_of_bastion main 9"; end
   end
   -- rampage,if=cooldown.recklessness.remains<3&talent.reckless_abandon.enabled
-  if S.Rampage:IsReady() and (S.Recklessness:CooldownRemains() < 3 and S.RecklessAbandon:IsAvailable()) then
+  if S.Rampage:IsReady() and (CDsON() and S.Recklessness:CooldownRemains() < 3 and S.RecklessAbandon:IsAvailable()) then
     if Cast(S.Rampage, not TargetInMeleeRange) then return "rampage main 10"; end
   end
   if CDsON() then
@@ -421,6 +424,7 @@ local function AutoBind()
   -- Bind Macros
   WR.Bind(M.HeroicLeapCursor)
   WR.Bind(M.SpearofBastionPlayer)
+  WR.Bind(M.CancelBladestorm)
 end
 
 local function Init()

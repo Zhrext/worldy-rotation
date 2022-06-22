@@ -78,6 +78,7 @@ Spell.Warrior.Fury = MergeTableByKey(Spell.Warrior.Commons, {
   Whirlwind                             = Spell(190411),
   -- Talents
   Bladestorm                            = Spell(46924),
+  BladestormBuff                        = Spell(46924),
   Cruelty                               = Spell(335070),
   Frenzy                                = Spell(335077),
   FrenzyBuff                            = Spell(335077),
@@ -205,6 +206,7 @@ Macro.Warrior.Commons = {
 }
 
 Macro.Warrior.Fury = MergeTableByKey(Macro.Warrior.Commons, {
+  CancelBladestorm                 = Macro("CancelBladestorm", "/cancelaura " .. Spell.Warrior.Fury.Bladestorm:Name()),
 })
 
 Macro.Warrior.Arms = MergeTableByKey(Macro.Warrior.Commons, {
