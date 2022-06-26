@@ -21,6 +21,8 @@ local CDsON      = WR.CDsON
 local Macro      = WR.Macro
 -- lua
 local mathmin    = math.min
+local mathfloor  = math.floor
+local GetTime    = GetTime
 
 --- ============================ CONTENT ===========================
 --- ======= APL LOCALS =======
@@ -33,7 +35,6 @@ local M = Macro.DeathKnight.Blood
 
 -- Create table to exclude above trinkets from On Use function
 local OnUseExcludes = {
-  --  I.TrinketName:ID(),
 }
 
 -- Rotation Var
@@ -44,6 +45,7 @@ local VarHeartStrikeRP
 local VarHeartStrikeRPDRW
 local VarTomestoneBoneCount
 local IsTanking
+
 local EnemiesMelee
 local EnemiesMeleeCount
 local Enemies10y
@@ -53,6 +55,7 @@ local UnitsWithoutBloodPlague
 local UnitsWithoutShackleDebuff
 local ghoul = HL.GhoulTable
 local LastSpellCast
+local LastBloodTapCast = GetTime()*1000
 
 --Opener
 local StartOfCombat
@@ -84,6 +87,7 @@ local Settings = {
 -- Stun Interrupts List
 local StunInterrupts = {
   {S.Asphyxiate, "Cast Asphyxiate (Interrupt)", function () return true; end},
+  --Add Deathgrip?
 }
 
 --Functions
@@ -136,58 +140,28 @@ local function RemoveCC()
 end
 local function AntiMagicShellHandler()
 end
-local function Mitigation()
+local function Defense()
 end
 local function Interrupts()
 end
 local function Stun()
 end
 local function Healing()
-  -- Active healing
-  if Player:HealthPercentage() < 50 then
-    if S.DeathStrike:IsReady() and Player:RunicPower() >= 45 and S.DeathStrike:TimeSinceLastCast() > 2.5 then
-      if Cast(S.DeathStrike, nil, nil, not Target:IsSpellInRange(S.DeathStrike)) then 
-        return "death_strike defensives 4"
-      end
-    end
+  -- Rune Tap Emergency
+  if S.RuneTap:IsReady() and IsTanking and Player:HealthPercentage() <= Settings.Blood.HP.RuneTapThreshold and Player:Rune() >= 3 and S.RuneTap:Charges() >= 1 and Player:BuffDown(S.RuneTapBuff) then
+    if Cast(S.RuneTap, nil, nil, true) then return "rune_tap defensives 2"; end
   end
-  if Player:HealthPercentage() < 20 then
-    if S.DeathStrike:IsReady() and Player:RunicPower() >= 45 then
-      if Cast(S.DeathStrike, nil, nil, not Target:IsSpellInRange(S.DeathStrike)) then 
-        return "death_strike defensives 10"
-      end
-    end
-  end  
-end
-local function Opener()
-  --if in range for Marrow
-  if Target:IsInMeleeRange(8) then
-    if S.RaiseDead:IsCastable() then
-      if Cast(S.RaiseDead) then
-        LastSpellCast =  S.RaiseDead:Name()
-        return "raise_dead opener 1"; 
-      end
-    end
-    if S.SacrificialPact:IsReady() and ghoul.active() and Player:BuffRemains(S.DancingRuneWeaponBuff) > 4 and ghoul.remains() < 2 then
-      if Cast(S.SacrificialPact) then 
-        LastSpellCast =  S.SacrificialPact:Name()
-        return "sacrificial_pact opener 1"; end
-    end
-    if S.DancingRuneWeapon:IsCastable() and Player:BuffDown(S.DancingRuneWeaponBuff) and S.DancingRuneWeapon:CooldownUp() then
-      if Cast(S.DancingRuneWeapon) then 
-        LastSpellCast =  S.DancingRuneWeapon:Name()
-        return "dancing_rune_weapon opener 2"; end
-    end
-    if S.DancingRuneWeapon:CooldownRemains() > 15 and S.Tombstone:IsReady() and Player:BuffStack(S.BoneShieldBuff) >= 5 then
-      if Cast(S.Tombstone) then 
-        LastSpellCast =  S.Tombstone:Name()
-        return "tombstone opener 3"; end
-    end
-    if S.Marrowrend:IsReady() and (Player:BuffRemains(S.BoneShieldBuff) <= Player:RuneTimeToX(3) or Player:BuffStack(S.BoneShieldBuff) < 2 ) then
-      if Cast(S.Marrowrend, nil, nil, not Target:IsSpellInRange(S.Marrowrend)) then 
-        LastSpellCast =  S.Marrowrend:Name()
-        return "marrowrend opener 4"; end
-    end
+  -- Vampiric Blood
+  if S.VampiricBlood:IsCastable() and IsTanking and Player:HealthPercentage() <= Settings.Blood.HP.VampiricBloodThreshold and Player:BuffDown(S.IceboundFortitudeBuff) then
+    if Cast(S.VampiricBlood, nil, nil, true) then return "vampiric_blood defensives 14"; end
+  end
+  -- Icebound Fortitude
+  if S.IceboundFortitude:IsCastable() and IsTanking and Player:HealthPercentage() <= Settings.Blood.HP.IceboundFortitudeThreshold and Player:BuffDown(S.VampiricBloodBuff) then
+    if Cast(S.IceboundFortitude, nil, nil, true) then return "icebound_fortitude defensives 16"; end
+  end
+  -- Healing
+  if S.DeathStrike:IsReady() and Player:HealthPercentage() <= 50 + (Player:RunicPower() > 90 and 20 or 0) and not Player:HealingAbsorbed() then
+    if Cast(S.DeathStrike, nil, nil, true) then return "death_strike defensives 18"; end
   end
 end
 local function Cooldowns()
@@ -195,273 +169,143 @@ end
 local function Mitigation()
 end
 
-
-local function DRWUpSingle()
-  -- blood_tap,if=(rune<=2&rune.time_to_4>gcd&charges_fractional>=1.8)|rune.time_to_3>gcd
-  if S.BloodTap:IsCastable() and S.BloodTap:TimeSinceLastCast() > 2.5 and ((Player:Rune() <= 2 and Player:RuneTimeToX(4) > Player:GCD() and S.BloodTap:ChargesFractional() >= 1.8) or Player:RuneTimeToX(3) > Player:GCD()) then
-    if Cast(S.BloodTap) then return "blood_tap main 12"; end
+local function AoE()
+  if Player:BuffDown(S.DeathAndDecayBuff) and S.DeathAndDecay:IsReady() and not Player:IsMoving() and (Player:BuffUp(S.CrimsonScourgeBuff) or Player:Rune() == 6) then
+    if Cast(M.DeathAndDecayPlayer) then return "deathandeacy drw_up_saoe 1"; end
   end
-  --Prio if we are running out of Time
-  if Player:BuffRemains(S.DancingRuneWeaponBuff) < 4 and (not S.DancingRuneWeapon:IsReady() or S.DancingRuneWeapon:CooldownRemains() > 4) then
-    if S.HeartStrike:IsReady() and Player:Rune() >= 1 and Player:BuffRemains(S.BoneShieldBuff) > 3 and Player:BuffStack(S.BoneShieldBuff) >= 2 then
-      if Cast(S.HeartStrike, nil, nil, not Target:IsSpellInRange(S.HeartStrike)) then return "heart_strike drw_up 14"; end
+  if S.BloodBoil:IsCastable() and Target:IsInMeleeRange(8) and S.BloodBoil:ChargesFractional() >= 1.1 and UnitsWithoutBloodPlague > 0 then
+    if Cast(S.BloodBoil) then return "blood_boil drw_up 6"; end
+  end
+  if Player:BuffDown(S.DeathAndDecayBuff) and not Player:IsMoving() and S.DeathAndDecay:IsReady() and Player:Rune() >= 2 then
+    if Cast(M.DeathAndDecayPlayer) then return "deathandeacy drw_up_saoe 1"; end
+  end
+  if S.ShackleTheUnworthy:IsCastable() and Player:Rune() <= 1 then
+    if Cast(S.ShackleTheUnworthy) then return "shackle_the_unworthy DRW_Single 1"; end
+  end
+  if S.BloodTap:IsCastable() and not(Target:DebuffUp(S.ShackleTheUnworthy) and UnitsWithoutShackleDebuff > 0) then
+    if (Player:Rune() < 1 and S.BloodTap:ChargesFractional() >= 1.1) then
+      if Cast(S.BloodTap, nil, nil, true) then return "BloodTap"; end
     end
   end
-  if S.DeathStrike:IsReady() and Player:RunicPower() >= 125 then
-    if Cast(S.DeathStrike, nil, nil, not Target:IsSpellInRange(S.DeathStrike)) then return "death_strike drw_up 8"; end
+  if Player:BuffUp(S.DeathAndDecayBuff) and Player:Rune() >= 1 then
+    if not (Player:BuffRemains(S.BoneShieldBuff) <= Player:RuneTimeToX(3) or Player:BuffStack(S.BoneShieldBuff) < 2 ) then
+      if Cast(S.HeartStrike) then return "heart_strike drw_up 14"; end
+    end
   end
-  if S.BloodBoil:IsCastable() and S.BloodTap:TimeSinceLastCast() > 2.5 and ((S.BloodBoil:Charges() >= 2 and Player:Rune() <= 1) or (Target:DebuffRemains(S.BloodPlagueDebuff) <= 2) and S.BloodBoil:Charges() >= 1)  then
-    if Cast(S.BloodBoil, nil, nil, not Target:IsInMeleeRange(10)) then return "blood_boil drw_single 1"; end
+  if Player:BuffUp(S.DancingRuneWeaponBuff) and Player:Rune() >= 1 then
+    if not (Player:BuffRemains(S.BoneShieldBuff) <= Player:RuneTimeToX(3) or Player:BuffStack(S.BoneShieldBuff) < 2 or Player:BuffDown(S.DeathAndDecayBuff) and S.DeathAndDecay:IsReady()) then
+      if Cast(S.HeartStrike) then return "heart_strike drw_up 14"; end
+    end
   end
-  if S.HeartStrike:IsReady() and (Player:Rune() >=6 or Player:RuneTimeToX(6) > Player:GCD()) then
-    if Cast(S.HeartStrike, nil, nil, not Target:IsSpellInRange(S.HeartStrike)) then return "heart_strike drw_up 14"; end
-  end
-  VarHeartStrikeRPDRW = 25 + (HeartStrikeCount * 2)
-  if S.DeathStrike:IsReady() and Player:Rune() < 3 and (((Player:RunicPowerDeficit() <= VarHeartStrikeRPDRW) or (Player:RunicPowerDeficit() <= VarDeathStrikeDumpAmt and CovenantID == 2))) then
-    if Cast(S.DeathStrike, nil, nil, not Target:IsSpellInRange(S.DeathStrike)) then return "death_strike drw_up 8"; end
-  end
-  if S.HeartStrike:IsReady() and Player:Rune() >=2 and Player:BuffRemains(S.BoneShieldBuff) > 2 and Player:BuffStack(S.BoneShieldBuff) > 1 then
-    if Cast(S.HeartStrike, nil, nil, not Target:IsSpellInRange(S.HeartStrike)) then return "heart_strike drw_up 14"; end
-  end
-
-  if S.DeathStrike:IsReady() and Player:RunicPower() >= 45 then
-    if Cast(S.DeathStrike, nil, nil, not Target:IsSpellInRange(S.DeathStrike)) then return "death_strike drw_up 8"; end
-  end
-  if S.DeathAndDecay:IsCastable() and Player:BuffUp(S.CrimsonScourgeBuff) then
-    if Cast(M.DeathAndDecayPlayer) then return "death_and_decay drw_up 10"; end
-  end
+  if S.BloodBoil:IsCastable() and Target:IsInMeleeRange(8) and S.BloodBoil:ChargesFractional() >= 0.8 then
+    if Cast(S.BloodBoil) then return "blood_boil drw_up 6"; end
+  end  
 end
-local function DRWUpAoE()
-  -- We are casting Bloodboil and DnD at the end of DRW when we should cast Shackle for keeping the buff going.
-  if S.ShackleTheUnworthy:IsCastable() and Player:Rune() < 3 and Player:BuffRemains(S.DancingRuneWeaponBuff) < 4 then
-    if Cast(S.ShackleTheUnworthy, not Target:IsSpellInRange(S.ShackleTheUnworthy)) then 
-      LastSpellCast =  S.ShackleTheUnworthy:Name()
-      return "shackle_the_unworthy opener 5"
-    end
-  end
-  if S.BloodBoil:IsCastable() and (((S.BloodBoil:Charges() >= 2 and Player:Rune() <= 1) or Target:DebuffRemains(S.BloodPlagueDebuff) <= 2) or (EnemiesCount10y > 5 and S.BloodBoil:ChargesFractional() >= 1.1)) then
-    if Cast(S.BloodBoil, nil, nil, not Target:IsInMeleeRange(10)) then 
-      LastSpellCast =  S.BloodBoil:Name()
-      return "blood_boil drw_up 6"
-    end
-  end
-  if S.DeathAndDecay:IsCastable() and ((EnemiesCount10y == 3 and Player:BuffUp(S.CrimsonScourgeBuff)) or EnemiesCount10y >= 4) then
-    if Cast(M.DeathAndDecayPlayer) then 
-      LastSpellCast =  S.DeathAndDecay:Name()
-      return "death_and_decay drw_up 10"
-    end
-  end
-  if S.ShackleTheUnworthy:IsCastable() and UnitsWithoutShackleDebuff >= 2 then 
-    if S.Marrowrend:IsReady() and Player:Rune() >= 2 and (Player:BuffRemains(S.BoneShieldBuff) <= 3 or Player:BuffStack(S.BoneShieldBuff) < 2 ) then
-      if Cast(S.Marrowrend, nil, nil, not Target:IsSpellInRange(S.Marrowrend)) then 
-        LastSpellCast =  S.Marrowrend:Name()
-        return "marrowrend opener 4"
-      end
-    end
-    --So lets just spam HS
-    if S.HeartStrike:IsReady() and Player:Rune() > 1 and not (Player:BuffRemains(S.BoneShieldBuff) <= Player:RuneTimeToX(3) or Player:BuffStack(S.BoneShieldBuff) < 2) then
-      if Cast(S.HeartStrike) then 
-        LastSpellCast =  S.HeartStrike:Name()
-        return "heart_strike drw_up 14"
-      end
-    end
-  end
-  if S.ShackleTheUnworthy:IsCastable() and Player:Rune() < 3 and S.ShackleTheUnworthy:CooldownUp() then 
-    if Cast(S.ShackleTheUnworthy, not Target:IsSpellInRange(S.ShackleTheUnworthy)) then 
-      LastSpellCast =  S.ShackleTheUnworthy:Name()
-      return "shackle_the_unworthy opener 5"
-    end
-  end
-  -- If target is shackledebuffed and unit close that is not Spam HS
-  if S.HeartStrike:IsReady() and Target:DebuffUp(S.ShackleTheUnworthy) and UnitsWithoutShackleDebuff >= 1 then
-    if Cast(S.HeartStrike) then 
-      LastSpellCast =  S.HeartStrike:Name()
-      return "heart_strike drw_up 14"
-    end
-  end
-  if Player:BuffRemains(S.DancingRuneWeaponBuff) < 4 then 
-    --Keep the buff flowing
-    if S.BloodTap:IsCastable() and S.BloodTap:Charges() >= 2 and Player:Rune() < 3 then
-      if Cast(S.BloodTap) then 
-        LastSpellCast =  S.BloodTap:Name()
-        return "blood_boil pre_drw 1"
-      end
-    end
-    if S.HeartStrike:IsReady() and Player:Rune() >= 1 then
-      if Cast(S.HeartStrike) then 
-        LastSpellCast =  S.HeartStrike:Name()
-        return "heart_strike drw_up 14"
-      end
-    end
-    if S.BloodTap:IsCastable() and S.BloodTap:Charges() >= 1 then
-      if Cast(S.BloodTap) then 
-        LastSpellCast =  S.BloodTap:Name()
-        return "blood_boil pre_drw 1"
-      end
-    end
-  end
-  if Player:BuffUp(S.DeathAndDecayBuff) and S.HeartStrike:IsReady() and Player:RuneTimeToX(2) < Player:GCD() and not (Player:BuffRemains(S.BoneShieldBuff) <= Player:RuneTimeToX(3) or Player:BuffStack(S.BoneShieldBuff) < 2) then
-    if Cast(S.HeartStrike) then 
-      LastSpellCast =  S.HeartStrike:Name()
-      return "heart_strike drw_up 14"; end
-  end
-  if S.HeartStrike:IsReady() and not (Player:BuffRemains(S.BoneShieldBuff) <= Player:RuneTimeToX(3) or Player:BuffStack(S.BoneShieldBuff) < 2) then
-    if Cast(S.HeartStrike) then 
-      LastSpellCast =  S.HeartStrike:Name()
-      return "heart_strike drw_up 14"; end
-  end
-  if S.DeathStrike:IsReady() and Player:RunicPower() >= 45 then
-    if Cast(S.DeathStrike, nil, nil, not Target:IsSpellInRange(S.DeathStrike)) then 
-      LastSpellCast =  S.DeathStrike:Name()
-      return "death_strike drw_up 8"; end
-  end
-  VarHeartStrikeRPDRW = (25 + HeartStrikeCount * num(S.Heartbreaker:IsAvailable()) * 2)
-  if S.HeartStrike:IsReady() and (Player:RuneTimeToX(2) < Player:GCD() or Player:RunicPowerDeficit() >= VarHeartStrikeRPDRW) then
-    if Cast(S.HeartStrike, nil, nil, not Target:IsSpellInRange(S.HeartStrike)) then 
-      LastSpellCast =  S.HeartStrike:Name()
-      return "heart_strike drw_up 14"
-    end
-  end
-  return "dont do anything"
+if S.DeathStrike:IsReady() and Player:RunicPower() >= 45 then
+  if Cast(S.DeathStrike) then return "death_strike drw_up 8"; end
 end
 
 local function StandardAoE()
+  --actions.standard+=/blood_boil,if=charges_fractional>=1.8&(buff.hemostasis.stack<=(5-spell_targets.blood_boil)|spell_targets.blood_boil>2)
+  if S.BloodBoil:IsCastable() and Target:IsInMeleeRange(10) and S.BloodBoil:TimeSinceLastCast() > 2.5 then
+    if (EnemiesCount10y >= 5 and S.BloodBoil:ChargesFractional() >= 1.1)  then
+      if Cast(S.BloodBoil) then return "blood_boil drw_up 6"; end
+    end  
+  end
+  if S.DeathAndDecay:IsReady() and not Player:IsMoving() and ((EnemiesMeleeCount == 3 and Player:BuffUp(S.CrimsonScourgeBuff)) or EnemiesMeleeCount >= 4) then
+    if Cast(M.DeathAndDecayPlayer) then return "deathandeacy drw_up_saoe 1"; end
+  end
+  VarHeartStrikeRPDRW = 25 + (HeartStrikeCount * 2)
+  if S.HeartStrike:IsReady() and (Player:RuneTimeToX(2) < Player:GCD() or Player:Rune() > 2 or Player:RunicPowerDeficit() >= VarHeartStrikeRPDRW) then
+    if not (Player:BuffRemains(S.BoneShieldBuff) <= Player:RuneTimeToX(3) or Player:BuffStack(S.BoneShieldBuff) < 2 ) then
+      if Cast(S.HeartStrike) then return "heart_strike drw_up 14"; end
+    end
+  end
+  if S.DeathAndDecay:IsReady() and not Player:IsMoving() and EnemiesMeleeCount >= 3 then
+    if Cast(M.DeathAndDecayPlayer) then return "deathandeacy drw_up_saoe 1"; end
+  end
+  --actions.standard+=/heart_strike,if=rune.time_to_4<gcd
 
-  -- NEED TO FIX TOMBSTONE and BONESHIELD, We should cast Marrow if Tombstone is up and less then 5 BS
-  --But should be done in opener so its handling all cases.
-  if S.BloodBoil:IsCastable() and (((S.BloodBoil:Charges() >= 2 and Player:Rune() <= 1) or Target:DebuffRemains(S.BloodPlagueDebuff) <= 2) or (EnemiesCount10y > 5 and S.BloodBoil:ChargesFractional() >= 1.1)) then
-    if Cast(S.BloodBoil, nil, nil, not Target:IsInMeleeRange(10)) then 
+  if S.DeathAndDecay:IsReady() and not Player:IsMoving() and Player:BuffUp(S.CrimsonScourgeBuff) then
+    if Cast(M.DeathAndDecayPlayer) then return "deathandeacy drw_up_saoe 1"; end
+  end
+  if S.BloodBoil:IsCastable() and Player:BuffRemains(S.DancingRuneWeaponBuff) > 3 and Target:IsInMeleeRange(10) and S.BloodBoil:TimeSinceLastCast() > 2.5 and S.BloodBoil:ChargesFractional() >= 1.1  then
+    if Cast(S.BloodBoil) then return "blood_boil drw_up 6"; end
+  end  
+  if S.HeartStrike:IsReady() and (Player:Rune() > 1 and (Player:RuneTimeToX(3) < Player:GCD() or Player:BuffStack(S.BoneShieldBuff) > 7)) then
+    if Cast(S.HeartStrike) then return "heart_strike standard 28"; end
+  end
+  if S.DeathStrike:IsReady() and Player:RunicPower() >= 45 then
+    if Cast(S.DeathStrike) then return "death_strike drw_up 8"; end
+  end
+  return "End of Standard AOE" 
+end
+
+local function DRWUpSingle()
+  if S.DancingRuneWeapon:CooldownRemains() > Player:BuffRemains(S.DancingRuneWeaponBuff) and Player:BuffRemains(S.DancingRuneWeaponBuff) < 3 and not (Player:BuffRemains(S.BoneShieldBuff) <= Player:RuneTimeToX(3) or Player:BuffStack(S.BoneShieldBuff) < 2 ) then
+    if (S.BloodTap:IsCastable() or S.ShackleTheUnworthy:IsCastable()) and Player:Rune() >= 1 then
+      if Cast(S.HeartStrike) then return "heart_strike drw_up 14"; end
+    end
+    if S.ShackleTheUnworthy:IsCastable() and Player:Rune() <= 2 then
+      if Cast(S.ShackleTheUnworthy) then return "shackle_the_unworthy DRW_Single 1"; end
+    end
+  end 
+  if S.BloodBoil:IsCastable() and Player:BuffRemains(S.DancingRuneWeaponBuff) > 3 and Target:IsInMeleeRange(10) and S.BloodBoil:TimeSinceLastCast() > 2.5 and ((S.BloodBoil:Charges() >= 2 and Player:Rune() <= 1) or (Target:DebuffRemains(S.BloodPlagueDebuff) <= 2 and S.BloodBoil:Charges() >= 1) or (EnemiesCount10y > 5 and S.BloodBoil:ChargesFractional() >= 1.1))  then
+    if Cast(S.BloodBoil) then 
       LastSpellCast =  S.BloodBoil:Name()
       return "blood_boil drw_up 6"
     end
-  end
-  if S.DeathAndDecay:IsCastable() and ((EnemiesCount10y == 3 and Player:BuffUp(S.CrimsonScourgeBuff)) or EnemiesCount10y >= 4) then
-    if Cast(M.DeathAndDecayPlayer) then 
-      LastSpellCast =  S.DeathAndDecay:Name()
-      return "death_and_decay drw_up 10"
-    end
-  end
-  if S.ShackleTheUnworthy:IsCastable() and UnitsWithoutShackleDebuff >= 2 then 
-    --So lets just spam HS
-    if Player:BuffUp(S.DeathAndDecayBuff) and S.HeartStrike:IsReady() and Player:Rune() > 1 and not (Player:BuffRemains(S.BoneShieldBuff) <= Player:RuneTimeToX(3) or Player:BuffStack(S.BoneShieldBuff) < 2) then
-      if Cast(S.HeartStrike) then 
-        LastSpellCast =  S.HeartStrike:Name()
-        return "heart_strike drw_up 14"; end
-    end
-  end
-  if Player:BuffUp(S.DeathAndDecayBuff) then 
-    --Keep the buff flowing
-    if S.BloodTap:IsCastable() and S.BloodTap:Charges() >= 2 and Player:Rune() < 2 and not LastSpellCast == S.BloodTap:Name() then
-      if Cast(S.BloodTap) then 
-        LastSpellCast =  S.BloodTap:Name()
-        return "blood_boil pre_drw 1"
-      end
-    end
-    if S.HeartStrike:IsReady() and Player:Rune() >= 1 then
-      if Cast(S.HeartStrike) then 
-        LastSpellCast =  S.HeartStrike:Name()
-        return "heart_strike drw_up 14"
-      end
-    end
-    if S.BloodTap:IsCastable() and S.BloodTap:Charges() >= 1 and not LastSpellCast == S.BloodTap:Name() then
-      if Cast(S.BloodTap) then 
-        LastSpellCast =  S.BloodTap:Name()
-        return "blood_boil pre_drw 1"
-      end
-    end
-  end
-  if S.ShackleTheUnworthy:IsCastable() and Player:Rune() <= 1 and S.ShackleTheUnworthy:CooldownUp() then 
-    if Cast(S.ShackleTheUnworthy, not Target:IsSpellInRange(S.ShackleTheUnworthy)) then 
-      LastSpellCast =  S.ShackleTheUnworthy:Name()
-      return "shackle_the_unworthy opener 5"
-    end
-  end
-  if Player:BuffUp(S.DeathAndDecayBuff) and S.HeartStrike:IsReady() and Player:RuneTimeToX(2) < Player:GCD() and not (Player:BuffRemains(S.BoneShieldBuff) <= Player:RuneTimeToX(3) or Player:BuffStack(S.BoneShieldBuff) < 2) then
-    if Cast(S.HeartStrike, nil, nil, not Target:IsSpellInRange(S.HeartStrike)) then 
-      LastSpellCast =  S.HeartStrike:Name()
+  end    
+  VarHeartStrikeRPDRW = 25 + (HeartStrikeCount * 2)
+  if S.HeartStrike:IsReady() and Player:RuneTimeToX(3) < Player:GCD() or Player:RunicPowerDeficit() >= VarHeartStrikeRPDRW then
+    if Cast(S.HeartStrike) then 
+      LastSpellCast =  S.HeartStrike:Name() 
       return "heart_strike drw_up 14"
     end
   end
-  if S.DeathStrike:IsReady() and Player:RunicPower() >= 45 then
-    if Cast(S.DeathStrike, nil, nil, not Target:IsSpellInRange(S.DeathStrike)) then 
-      LastSpellCast =  S.DeathStrike:Name()
+  if S.DeathStrike:IsReady() and Player:RunicPowerDeficit() <= VarHeartStrikeRPDRW then
+    if Cast(S.DeathStrike) then
+      LastSpellCast =  S.DeathStrike:Name() 
+      return "death_strike drw_up 8"
+    end
+  end
+  --actions.drw_up+=/heart_strike,if=rune.time_to_2<gcd|runic_power.deficit>=variable.heart_strike_rp_drw
+  if S.HeartStrike:IsReady() and Player:RuneTimeToX(2) < Player:GCD() or Player:RunicPowerDeficit() >= VarHeartStrikeRPDRW then
+    if Cast(S.HeartStrike) then 
+      LastSpellCast =  S.HeartStrike:Name() 
       return "heart_strike drw_up 14"
     end
   end
-  if S.HeartStrike:IsReady() and (Player:Rune() > 1 and (Player:RuneTimeToX(3) < Player:GCD() or Player:BuffStack(S.BoneShieldBuff) > 7)) then
-    if Cast(S.HeartStrike, nil, nil, not Target:IsSpellInRange(S.HeartStrike)) then 
-      LastSpellCast =  S.HeartStrike:Name()
-      return "heart_strike standard 28"
-    end
-  end
-  return "dont do anything"
+  return "end of Single"
 end
+
 local function StandardSingle()
-  if S.BloodBoil:IsCastable() and S.BloodTap:TimeSinceLastCast() > 2.5 and ((S.BloodBoil:Charges() >= 2 and Player:Rune() <= 1) or (Target:DebuffRemains(S.BloodPlagueDebuff) <= 2) and S.BloodBoil:Charges() >= 1)  then
-    if Cast(S.BloodBoil, nil, nil, not Target:IsInMeleeRange(10)) then return "blood_boil drw_single 1"; end
+  if S.DeathStrike:IsReady() and Player:RunicPowerDeficit() <= VarDeathStrikeDumpAmt  then
+    if Cast(S.DeathStrike) then return "death_strike drw_up 8"; end
   end
-  -------------------
-  -- Old Placeholder stuff
-  --------------------
-  -- heart_strike,if=covenant.night_fae&death_and_decay.ticking&(buff.deaths_due.up&buff.deaths_due.remains<6)
-  if S.HeartStrike:IsReady() and (CovenantID == 3 and Player:BuffUp(S.DeathAndDecayBuff) and (Player:BuffUp(S.DeathsDueBuff) and Player:BuffRemains(S.DeathsDueBuff) < 6)) then
-    if Cast(S.HeartStrike, not Target:IsSpellInRange(S.HeartStrike)) then return "heart_strike standard 2"; end
-  end
-  -- tombstone,if=buff.bone_shield.stack>5&rune>=2&runic_power.deficit>=30&!(covenant.venthyr&cooldown.swarming_mist.remains<3)
-  if S.Tombstone:IsCastable() and (Player:BuffStack(S.BoneShieldBuff) > 5 and Player:Rune() >= 2 and Player:RunicPowerDeficit() >= 30 and not (CovenantID == 2 and S.SwarmingMist:CooldownRemains() < 3)) then
-    if Cast(S.Tombstone) then return "tombstone standard 4"; end
-  end
-  -- marrowrend,if=(buff.bone_shield.remains<=rune.time_to_3|buff.bone_shield.remains<=(gcd+cooldown.blooddrinker.ready*talent.blooddrinker.enabled*4)|buff.bone_shield.stack<6|((!covenant.night_fae|buff.deaths_due.remains>5)&buff.bone_shield.remains<7))&runic_power.deficit>20&!(runeforge.crimson_rune_weapon&cooldown.dancing_rune_weapon.remains<buff.bone_shield.remains)
-  if S.Marrowrend:IsReady() and ((Player:BuffRemains(S.BoneShieldBuff) <= Player:RuneTimeToX(3) or Player:BuffRemains(S.BoneShieldBuff) <= (Player:GCD() + num(S.Blooddrinker:CooldownUp()) * num(S.Blooddrinker:IsAvailable()) * 4) or Player:BuffStack(S.BoneShieldBuff) < 6 or ((CovenantID ~= 3 or Player:BuffRemains(S.DeathsDueBuff) > 5) and Player:BuffRemains(S.BoneShieldBuff) < 7)) and Player:RunicPowerDeficit() > 20 and not (CrimsonRuneWeaponEquipped and S.DancingRuneWeapon:CooldownRemains() < Player:BuffRemains(S.BoneShieldBuff))) then
-    if Cast(S.Marrowrend, not Target:IsSpellInRange(S.Marrowrend)) then return "marrowrend standard 6"; end
-  end
-  -- death_strike,if=runic_power.deficit<=variable.death_strike_dump_amount&!(talent.bonestorm.enabled&cooldown.bonestorm.remains<2)&!(covenant.venthyr&cooldown.swarming_mist.remains<3)
-  if S.DeathStrike:IsReady() and (Player:RunicPowerDeficit() <= VarDeathStrikeDumpAmt and (not (S.Bonestorm:IsAvailable() and S.Bonestorm:CooldownRemains() < 2)) and not (CovenantID == 2 and S.SwarmingMist:CooldownRemains() < 3)) then
-    if Cast(S.DeathStrike, not Target:IsSpellInRange(S.DeathStrike)) then return "death_strike standard 8"; end
-  end
-  -- blood_boil,if=charges_fractional>=1.8&(buff.hemostasis.stack<=(5-spell_targets.blood_boil)|spell_targets.blood_boil>2)
-  if S.BloodBoil:IsCastable() and (S.BloodBoil:ChargesFractional() >= 1.8 and Player:BuffStack(S.HemostasisBuff) <= 4) then
-    if Cast(S.BloodBoil, not Target:IsInMeleeRange(10)) then return "blood_boil standard 10"; end
-  end
-  -- death_and_decay,if=buff.crimson_scourge.up&talent.relish_in_blood.enabled&runic_power.deficit>10
-  if S.DeathAndDecay:IsReady() and ((Player:BuffUp(S.CrimsonScourgeBuff) and S.RelishinBlood:IsAvailable()) and Player:RunicPowerDeficit() > 10) then
-    if Cast(M.DeathAndDecayPlayer, not Target:IsInRange(30)) then return "death_and_decay standard 12"; end
-  end
-  -- bonestorm,if=runic_power>=100&!(covenant.venthyr&cooldown.swarming_mist.remains<3)
-  if S.Bonestorm:IsReady() and (Player:RunicPower() >= 100 and not (CovenantID == 2 and S.SwarmingMist:CooldownRemains() < 3)) then
-    if Cast(S.Bonestorm, not Target:IsInRange(8)) then return "bonestorm standard 14"; end
-  end
-  -- variable,name=heart_strike_rp,value=(15+spell_targets.heart_strike*talent.heartbreaker.enabled*2),op=setif,condition=covenant.night_fae&death_and_decay.ticking,value_else=(15+spell_targets.heart_strike*talent.heartbreaker.enabled*2)*1.2
   if (CovenantID == 3 and Player:BuffUp(S.DeathAndDecayBuff)) then
     VarHeartStrikeRP = (15 + EnemiesMeleeCount * num(S.Heartbreaker:IsAvailable()) * 2)
   else
     VarHeartStrikeRP = (15 + EnemiesMeleeCount * num(S.Heartbreaker:IsAvailable()) * 2) * 1.2
   end
-  -- death_strike,if=(runic_power.deficit<=variable.heart_strike_rp)|target.time_to_die<10
+  --Todo: Should dump RP if we are below 4 runes and DRW cooldown remains less then 2-3 GCDs
   if S.DeathStrike:IsReady() and ((Player:RunicPowerDeficit() <= VarHeartStrikeRP) or Target:TimeToDie() < 10) then
-    if Cast(S.DeathStrike, not Target:IsSpellInRange(S.DeathStrike)) then return "death_strike standard 16"; end
+    if Cast(S.DeathStrike) then return "death_strike standard 16"; end
   end
-  -- heart_strike,if=rune.time_to_4<gcd
   if S.HeartStrike:IsReady() and (Player:RuneTimeToX(4) < Player:GCD()) then
-    if Cast(S.HeartStrike, not Target:IsSpellInRange(S.HeartStrike)) then return "heart_strike standard 20"; end
+    if Cast(S.HeartStrike) then return "heart_strike standard 20"; end
   end
-  -- death_and_decay,if=buff.crimson_scourge.up|talent.rapid_decomposition.enabled
-  if S.DeathAndDecay:IsReady() and (Player:BuffUp(S.CrimsonScourgeBuff) or S.RapidDecomposition:IsAvailable()) then
-    if Cast(M.DeathAndDecayPlayer, not Target:IsInRange(30)) then return "death_and_decay standard 22"; end
-  end
-  -- consumption
-  if S.Consumption:IsCastable() then
-    if Cast(S.Consumption, not Target:IsSpellInRange(S.Consumption)) then return "consumption standard 24"; end
+  if S.DeathAndDecay:IsReady() and not Player:IsMoving() and Player:BuffUp(S.CrimsonScourgeBuff) and EnemiesMeleeCount > 0 then
+    if Cast(M.DeathAndDecayPlayer) then return "death_and_decay standard 22"; end
   end
   -- blood_boil,if=charges_fractional>=1.1
-  if S.BloodBoil:IsCastable() and (S.BloodBoil:ChargesFractional() >= 1.1) then
-    if Cast(S.BloodBoil, not Target:IsInMeleeRange(10)) then return "blood_boil standard 26"; end
+  if S.BloodBoil:IsCastable() and Target:IsInMeleeRange(10) and (S.BloodBoil:ChargesFractional() >= 1.1) then
+    if Cast(S.BloodBoil) then return "blood_boil standard 26"; end
   end
   -- heart_strike,if=(rune>1&(rune.time_to_3<gcd|buff.bone_shield.stack>7))
   if S.HeartStrike:IsReady() and (Player:Rune() > 1 and (Player:RuneTimeToX(3) < Player:GCD() or Player:BuffStack(S.BoneShieldBuff) > 7)) then
-    if Cast(S.HeartStrike, not Target:IsSpellInRange(S.HeartStrike)) then return "heart_strike standard 28"; end
-  end
-
+    if Cast(S.HeartStrike) then return "heart_strike standard 28"; end
+  end 
 end
 
 
@@ -480,42 +324,103 @@ local function APL()
 
   -- HeartStrike is limited to 5 targets maximum
   HeartStrikeCount = mathmin(EnemiesMeleeCount, Player:BuffUp(S.DeathAndDecayBuff) and 5 or 2)
-
+  
   -- Check Units without Blood Plague
   UnitsWithoutBloodPlague = UnitsWithoutBP(Enemies10y)
-
   UnitsWithoutShackleDebuff =  UnitsWithoutShackle(Enemies10y)
 
   -- Are we actively tanking?
   IsTanking = Player:IsTankingAoE(8) or Player:IsTanking(Target)
-
+  --if nf then 
   VarDeathStrikeDumpAmt = (CovenantID == 3) and 55 or 70
   --VarDeathStrikeCost    = (Player:BuffUp(Ossuary)) and 40 or 45
 
   if Player:AffectingCombat() then
-    local ShouldReturn = RemoveCC(); if ShouldReturn then return ShouldReturn; end
-    local ShouldReturn = AntiMagicShellHandler(); if ShouldReturn then return ShouldReturn; end
-    local ShouldReturn = Mitigation(); if ShouldReturn then return ShouldReturn; end
-    local ShouldReturn = Interrupts(); if ShouldReturn then return ShouldReturn; end
-    local ShouldReturn = Stun(); if ShouldReturn then return ShouldReturn; end
-    local ShouldReturn = Healing(); if ShouldReturn then return ShouldReturn; end
-    local ShouldReturn = Opener(); if ShouldReturn then return ShouldReturn; end
-    local ShouldReturn = Cooldowns(); if ShouldReturn then return ShouldReturn; end    
-    if Player:BuffUp(S.DancingRuneWeaponBuff) and EnemiesCount10y <= 2 then
-      local ShouldReturn = DRWUpSingle(); if ShouldReturn then return ShouldReturn; end
-    end
-    if Player:BuffUp(S.DancingRuneWeaponBuff) and EnemiesCount10y >= 3 then
-        local ShouldReturn = DRWUpAoE(); if ShouldReturn then return ShouldReturn; end    
-    end
-    if EnemiesCount10y <= 2 then
-      --local ShouldReturn = StandardSingle(); if ShouldReturn then return ShouldReturn; end
-    end
-    if EnemiesCount10y >= 3 then  
-      local ShouldReturn = StandardAoE(); if ShouldReturn then return ShouldReturn; end
+    if Target:IsInMeleeRange(8) then
+      if S.BloodBoil:IsCastable() and S.BloodBoil:TimeSinceLastCast() > 2.5 and not Player:BuffUp(S.DancingRuneWeaponBuff) and not Player:BuffUp(S.DeathAndDecayBuff) then
+        if (EnemiesCount10y >= 5 and S.BloodBoil:ChargesFractional() >= 1.8)  then
+          if Cast(S.BloodBoil) then return "blood_boil drw_up 6"; end
+        end  
+      end
+      if S.RaiseDead:IsCastable() then
+        if Cast(S.RaiseDead) then
+          LastSpellCast =  S.RaiseDead:Name()
+          return "raise_dead opener 1"; 
+        end
+      end
+      if S.SacrificialPact:IsReady() and ghoul.active() and Player:BuffRemains(S.DancingRuneWeaponBuff) > 4 and ghoul.remains() < 2 then
+        if Cast(S.SacrificialPact) then 
+          LastSpellCast =  S.SacrificialPact:Name()
+          return "sacrificial_pact opener 1"; 
+        end
+      end
+      if CDsON() and S.DancingRuneWeapon:IsCastable() and Player:BuffDown(S.DancingRuneWeaponBuff) and S.DancingRuneWeapon:CooldownUp() then
+        if Cast(S.DancingRuneWeapon, nil, nil, true) then 
+          LastSpellCast =  S.DancingRuneWeapon:Name()
+          return "dancing_rune_weapon opener 2"
+        end
+      end
+      if S.DancingRuneWeapon:CooldownRemains() > 15 and S.Tombstone:IsReady() and Player:BuffStack(S.BoneShieldBuff) >= 5 then
+        if Cast(S.Tombstone) then return "tombstone DRW Up 1"; end
+      end
+      if S.Marrowrend:IsReady() and (Player:BuffRemains(S.BoneShieldBuff) <= Player:RuneTimeToX(3) or Player:BuffStack(S.BoneShieldBuff) < 2 ) then
+        if Cast(S.Marrowrend) then return "marrowrend opener 4"; end
+      end
+      
+      --actions+=/blood_tap,if=(rune<=2&rune.time_to_4>gcd&charges_fractional>=1.8)|rune.time_to_3>gcd
+      -- Todo: We should not cast BloodTap if we have Shackle off CD or if target has debuff and there are units without debuff around.
+      if S.BloodTap:IsCastable() and not S.ShackleTheUnworthy:IsCastable() and not (Target:DebuffUp(S.ShackleTheUnworthy) and UnitsWithoutShackleDebuff > 0) then
+        if (Player:Rune() < 1 and S.BloodTap:ChargesFractional() >= 1.8) or Player:RuneTimeToX(2) > Player:GCD() then
+          if Cast(S.BloodTap, nil, nil, true) then 
+            return "BloodTap"
+          end
+        end
+      end
+      --local ShouldReturn = RemoveCC(); if ShouldReturn then return ShouldReturn; end
+      --local ShouldReturn = AntiMagicShellHandler(); if ShouldReturn then return ShouldReturn; end
+      --local ShouldReturn = Mitigation(); if ShouldReturn then return ShouldReturn; end
+      --local ShouldReturn = Interrupts(); if ShouldReturn then return ShouldReturn; end
+      -- Interrupt
+      --local ShouldReturn = Everyone.Interrupt(S.MindFreeze, 5, true); if ShouldReturn then return ShouldReturn; end
+      --local ShouldReturn = Everyone.InterruptWithStun(S.Asphyxiate, 5); if ShouldReturn then return ShouldReturn; end
+      --local ShouldReturn = Stun(); if ShouldReturn then return ShouldReturn; end
+      local ShouldReturn = Healing(); if ShouldReturn then return ShouldReturn; end
+      if Player:BuffUp(S.DancingRuneWeaponBuff) then
+        if S.Marrowrend:IsReady() and (Player:BuffRemains(S.BoneShieldBuff) <= Player:RuneTimeToX(3) or Player:BuffStack(S.BoneShieldBuff) < 2 ) then
+          if Cast(S.Marrowrend) then 
+            LastSpellCast =  S.Marrowrend:Name()
+            return "marrowrend DRW Up 2"; 
+          end
+        end
+         
+        if EnemiesCount10y <= 2 then
+          --actions.covenants+=/shackle_the_unworthy,if=rune<3&runic_power<100
+          if CDsON() and S.ShackleTheUnworthy:IsCastable() and Player:RuneTimeToX(3) > Player:GCD() and Player:RunicPower() < 100 then
+            if Cast(S.ShackleTheUnworthy) then return "shackle_the_unworthy DRW_Single 1"; end
+          end
+          return DRWUpSingle()
+        end
+        if EnemiesCount10y >= 3 then
+          return AoE()
+        end    
+      end
+      --Standard DRW down
+      if S.Marrowrend:IsReady() and (Player:BuffRemains(S.BoneShieldBuff) <= Player:RuneTimeToX(3) or Player:BuffRemains(S.BoneShieldBuff) <= Player:GCD()) or Player:BuffStack(S.BoneShieldBuff) < 6 or (Player:BuffStack(S.BoneShieldBuff) < 7 and Player:RunicPowerDeficit() > 20 and not (S.DancingRuneWeapon:CooldownRemains() < Player:BuffRemains(S.BoneShieldBuff))) then
+        if Cast(S.Marrowrend) then return "marrowrend DRW Up 2"; end
+      end
+      if EnemiesCount10y <= 2 then
+        if CDsON() and S.ShackleTheUnworthy:IsCastable() and Player:RuneTimeToX(3) > Player:GCD() and Player:RunicPower() < 100 then
+          if Cast(S.ShackleTheUnworthy) then return "shackle_the_unworthy DRW_Single 1"; end
+        end
+        return StandardSingle()
+      end
+      if EnemiesCount10y >= 3 then  
+        return AoE()
+      end
     end
   end
   -- OutOfCombat
-  if not Player:AffectingCombat() then
+  if not Player:AffectingCombat() then    
     local ShouldReturn = OutOfCombat(); if ShouldReturn then return ShouldReturn; end
   end
 end
