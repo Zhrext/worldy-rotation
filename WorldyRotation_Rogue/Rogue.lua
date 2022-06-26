@@ -18,6 +18,7 @@ local MergeTableByKey = HL.Utils.MergeTableByKey
 -- WorldyRotation
 local WR = WorldyRotation
 local Everyone = WR.Commons.Everyone
+local Macro      = WR.Macro
 -- Lua
 local mathmin = math.min
 local pairs = pairs
@@ -97,6 +98,11 @@ Spell.Rogue.Commons = {
   -- Misc
   PoolEnergy              = Spell(999910),
   SinfulRevelationDebuff  = Spell(324260),
+  CripplingPoison         = Spell(3408),
+  DeadlyPoison            = Spell(2823),
+  InstantPoison           = Spell(315584),
+  NumbingPoison           = Spell(5761),
+  WoundPoison             = Spell(8679),
 }
 
 Spell.Rogue.Outlaw = MergeTableByKey(Spell.Rogue.Commons, {
@@ -158,12 +164,32 @@ Spell.Rogue.Outlaw = MergeTableByKey(Spell.Rogue.Commons, {
 -- Items
 if not Item.Rogue then Item.Rogue = {} end
 Item.Rogue.Outlaw = {
+   -- Potion
+  Healthstone                      = Item(5512),
+  PotionofPhantomFire              = Item(171349),
+  PotionofSpectralAgility          = Item(171270),
+  CosmicHealingPotion              = Item(187802),
+   -- Covenant
+   PhialofSerenity                  = Item(177278),
   -- Trinkets
   ComputationDevice     = Item(167555, {13, 14}),
   VigorTrinket          = Item(165572, {13, 14}),
   FontOfPower           = Item(169314, {13, 14}),
   RazorCoral            = Item(169311, {13, 14}),
 }
+
+-- Macros
+--if not Macro.Rogue then Macro.Rogue = {} end
+--Macro.Rogue.Commons = {
+--  -- Items
+--  Trinket1                         = Macro("Trinket1", "/use 13"),
+--  Trinket2                         = Macro("Trinket2", "/use 14"),
+--  Healthstone                      = Macro("Healthstone", "/use " .. Item.Rogue.Outlaw.Healthstone:Name()),
+--  PhialofSerenity                  = Macro("PhialofSerenity", "/use " .. Item.Rogue.Outlaw.PhialofSerenity:Name()),
+--}
+--Macro.Rogue.Outlaw = MergeTableByKey(Macro.Rogue.Commons, {
+--})
+
 
 -- Stealth
 function Commons.Stealth(Stealth)
@@ -205,7 +231,7 @@ do
   local InstantPoison       = Spell(315584)
   local NumbingPoison       = Spell(5761)
   local WoundPoison         = Spell(8679)
-
+  
   function Commons.Poisons()
     local PoisonRefreshTime = Player:AffectingCombat() and Settings.Commons.PoisonRefreshCombat * 60 or Settings.Commons.PoisonRefresh * 60
     local PoisonRemains
@@ -213,13 +239,13 @@ do
     PoisonRemains = Player:BuffRemains(WoundPoison)
     if PoisonRemains > 0 then
       if PoisonRemains < PoisonRefreshTime then
-        WR.Cast(WoundPoison)
+        --WR.Cast(WoundPoison)
       end
     else
       if DeadlyPoison:IsAvailable() then
         PoisonRemains = Player:BuffRemains(DeadlyPoison)
         if PoisonRemains < PoisonRefreshTime then
-          WR.Cast(DeadlyPoison)
+          --WR.Cast(DeadlyPoison)
         end
       else
         PoisonRemains = Player:BuffRemains(InstantPoison)
@@ -232,7 +258,7 @@ do
     PoisonRemains = Player:BuffRemains(CripplingPoison)
     if PoisonRemains > 0 then
       if PoisonRemains < PoisonRefreshTime then
-        WR.Cast(CripplingPoison)
+        --WR.Cast(CripplingPoison)
       end
     else
       PoisonRemains = Player:BuffRemains(NumbingPoison)
