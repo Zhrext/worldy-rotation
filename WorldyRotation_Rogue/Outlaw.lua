@@ -1,3 +1,43 @@
+-- Bind Focus Macros Need to add Mouseover
+--WR.Bind(M.FocusTarget)
+--WR.Bind(M.FocusPlayer)
+--for i = 1, 4 do
+--  local FocusUnitKey = stringformat("FocusParty%d", i)
+--  WR.Bind(M[FocusUnitKey])
+--end
+---------- Set MO as focus if we should CC, Interrupt or stun
+--Mouseover:IsAPlayer()
+-- Check MO for CC, Stuns and Interrupts
+--  if Mouseover and Mouseover:NPCID() == ExplosiveNPCID and S.ShadowWordPain:IsReady() then
+--    if Cast(M.ShadowWordPainMouseover, not Mouseover:IsSpellInRange(S.ShadowWordPain)) then return "shadow_word_pain damage 2"; end
+--  end
+
+
+--local ExplosiveNPCID = 120651
+--if Target:NPCID() == ExplosiveNPCID and S.ShadowWordPain:IsReady() then
+--    if Cast(S.ShadowWordPain, not Target:IsSpellInRange(S.ShadowWordPain)) then return "shadow_word_pain damage 1"; end
+--  end
+--  if Mouseover and Mouseover:NPCID() == ExplosiveNPCID and S.ShadowWordPain:IsReady() then
+--    if Cast(M.ShadowWordPainMouseover, not Mouseover:IsSpellInRange(S.ShadowWordPain)) then return "shadow_word_pain damage 2"; end
+--  end
+
+-- use_trinket
+--if (Settings.General.Enabled.Trinkets) then
+--  local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
+--  if TrinketToUse then
+--    if Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 13) then
+--      if Cast(M.Trinket1) then return "use_trinket " .. TrinketToUse:Name() .. " damage 1"; end
+--    elseif Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 14) then
+--      if Cast(M.Trinket2) then return "use_trinket " .. TrinketToUse:Name() .. " damage 2"; end
+--    end
+--  end
+--end
+
+--local TTD = ThisUnit:TimeToDie()
+
+
+
+
 --- ============================ HEADER ============================
 --- ======= LOCALIZE =======
 -- Addon
@@ -5,19 +45,25 @@ local addonName, addonTable = ...
 -- HeroDBC
 local DBC = HeroDBC.DBC
 -- HeroLib
-local HL = HeroLib
-local Cache = HeroCache
-local Unit = HL.Unit
-local Player = Unit.Player
-local Target = Unit.Target
-local Spell = HL.Spell
-local MultiSpell = HL.MultiSpell
-local Item = HL.Item
+local HL         = HeroLib
+local Cache      = HeroCache
+local Unit       = HL.Unit
+local Player     = Unit.Player
+local Target     = Unit.Target
+local Focus      = Unit.Focus
+local Mouseover  = Unit.MouseOver
+local Pet        = Unit.Pet
+local Spell      = HL.Spell
+local Item       = HL.Item
+local Utils      = HL.Utils
 -- WorldyRotation
-local WR = WorldyRotation
-local AoEON = WR.AoEON
-local CDsON = WR.CDsON
+local WR         = WorldyRotation
+local Macro      = WR.Macro
+local AoEON      = WR.AoEON
+local CDsON      = WR.CDsON
+local Cast       = WR.Cast
 -- Lua
+local stringformat = string.format
 local mathmin = math.min
 local mathabs = math.abs
 
@@ -39,6 +85,8 @@ local Settings = {
 -- Define S/I for spell and item arrays
 local S = Spell.Rogue.Outlaw
 local I = Item.Rogue.Outlaw
+--local M = Macro.Rogue.Outlaw
+
 
 -- Create table to exclude above trinkets from On Use function
 local OnUseExcludes = {
@@ -302,8 +350,11 @@ local function CDs ()
     end
     -- blade_rush,if=variable.blade_flurry_sync&(energy.time_to_max>2|spell_targets>2)
     -- actions.cds+=/blade_rush,if=variable.blade_flurry_sync&(energy.time_to_max>2&buff.dreadblades.down|energy<=30|spell_targets>2)
+    --if S.BladeRush:IsCastable() and Target:IsSpellInRange(S.BladeRush) and EnemiesBFCount > 4 then
+    --  if WR.Cast(S.BladeRush) then return "Cast Blade Rush" end
+    --end
     if S.BladeRush:IsCastable() and Target:IsSpellInRange(S.BladeRush) and (EnergyTimeToMaxStable() > 2 and not Player:BuffUp(S.Dreadblades)
-      or EnergyPredictedStable() <= 30 or EnemiesBFCount > 2) then
+      or EnergyPredictedStable() <= 30 or EnemiesBFCount > 4) then
       if WR.Cast(S.BladeRush) then return "Cast Blade Rush" end
     end
   end
@@ -358,7 +409,7 @@ end
 
 local function Finish ()
   --if S.BetweentheEyes:IsCastable() and Target:IsSpellInRange(S.BetweentheEyes) and (Target:FilteredTimeToDie(">", 3) or Target:TimeToDieIsNotValid()) and (Target:DebuffRemains(S.BetweentheEyes) < 4 or Target:DebuffRemains(S.BetweentheEyes) == 0) and Rogue.CanDoTUnit(Target, BetweenTheEyesDMGThreshold) then
-  if S.BetweentheEyes:IsCastable() and Target:IsSpellInRange(S.BetweentheEyes) and (Player:BuffUp(S.RuthlessPrecision) or (Target:DebuffRemains(S.BetweentheEyes) < 4 or Target:DebuffRemains(S.BetweentheEyes) == 0)) then
+  if S.BetweentheEyes:IsCastable() and Target:IsSpellInRange(S.BetweentheEyes) and (Player:BuffUp(S.RuthlessPrecision) or Target:DebuffRemains(S.BetweentheEyes) < 4 or not Target:DebuffUp(S.BetweentheEyes)) then
     if WR.Cast(S.BetweentheEyes) then return "Cast Between the Eyes" end
   end
   if S.SliceandDice:IsCastable() and (HL.FilteredFightRemains(EnemiesBF, ">", Player:BuffRemains(S.SliceandDice), true) or Player:BuffRemains(S.SliceandDice) == 0)
@@ -376,7 +427,8 @@ local function Build ()
     if Player:BuffUp(S.GreenskinsWickers) or Player:BuffUp(S.ConcealedBlunderbuss) or Player:BuffUp(S.TornadoTriggerBuff) then
       if WR.Cast(S.PistolShot) then return "Cast Pistol Shot (Buffed)" end
     end
-    if Player:EnergyDeficitPredicted() > (Player:EnergyRegen()*1.5) or ComboPointsDeficit <= 1 + num(Player:BuffUp(S.Broadside)) then
+    --if Player:EnergyDeficitPredicted() > (Player:EnergyRegen()*1.5) or ComboPointsDeficit <= 1 + num(Player:BuffUp(S.Broadside)) then
+    if Player:Energy() < 45 or ComboPointsDeficit <= 1 + num(Player:BuffUp(S.Broadside)) then
       if WR.Cast(S.PistolShot) then return "Cast Pistol Shot" end
     end
   end
@@ -412,7 +464,7 @@ local function APL ()
   if ShouldReturn then return ShouldReturn end
 
   -- Poisons
-  Rogue.Poisons()
+  --Rogue.Poisons()
 
   -- Out of Combat
   if not Player:AffectingCombat() then
@@ -477,12 +529,22 @@ local function APL ()
     --if ShouldReturn then return ShouldReturn end
     --ShouldReturn = Everyone.InterruptWithStun(S.Blind, 5)
     --if ShouldReturn then return ShouldReturn end
+    --if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
+    --  if Cast(M.Healthstone, nil, nil, true) then return "healthstone defensive 3"; end
+    --end
+    --if Player:HealthPercentage() <= Settings.General.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
+    --  if Cast(M.PhialofSerenity, nil, nil, true) then return "phial_of_serenity defensive 4"; end
+    --end
+    --if Settings.General.Enabled.Potions and I.PotionofSpectralAgility:IsReady() and (Player:BloodlustUp() and Player:BuffUp(S.AdrenalineRush) > 8 or Target:TimeToDie() <= 30) then
+    --  if Cast(M.PotionofSpectralStrength, nil, nil, true) then return "potion main 6"; end
+    --end  
+  
 
     -- actions+=/call_action_list,name=stealth,if=stealthed.all
-    --if Player:StealthUp(true, true) then
-    --  ShouldReturn = Stealth()
-    --  if ShouldReturn then return "Stealth: " .. ShouldReturn end
-    --end
+    if Player:StealthUp(true, true) then
+      ShouldReturn = Stealth()
+      if ShouldReturn then return "Stealth: " .. ShouldReturn end
+    end
     -- actions+=/call_action_list,name=cds
     ShouldReturn = CDs()
     if ShouldReturn then return "CDs: " .. ShouldReturn end
@@ -539,8 +601,16 @@ local function AutoBind()
   WR.Bind(S.MarkedforDeath)
   WR.Bind(S.SliceandDice)
   WR.Bind(S.BloodFury)
-  --WR.Bind(S.NumbingPoison)
-  --WR.Bind(S.InstantPoison)
+  --WR.Bind(S.DeadlyPoison)
+  WR.Bind(S.NumbingPoison)
+  WR.Bind(S.InstantPoison)
+  --WR.Bind(S.WoundPoison)
+  --WR.Bind(S.CripplingPoison)
+  WR.Bind(S.CrimsonVial)
+  WR.Bind(S.Feint)
+  --WR.Bind(M.Healthstone)
+  --WR.Bind(M.PotionofSpectralStrength)
+  --WR.Bind(M.PhialofSerenity)
 end
 
 local function Init ()
