@@ -91,7 +91,7 @@ local function AOE()
   end
   -- spear_of_bastion,if=buff.enrage.up&rage<40&spell_targets.whirlwind>1
   if CDsON() and S.SpearofBastion:IsCastable() and (EnrageUp and Player:Rage() < 40 and EnemiesCount8 > 1) then
-    if Cast(M.SpearofBastionPlayer, not Target:IsInRange(25)) then return "spear_of_bastion aoe 4"; end
+    if Cast(M.SpearofBastionPlayer, not TargetInMeleeRange) then return "spear_of_bastion aoe 4"; end
   end
   -- bladestorm,if=buff.enrage.up&spell_targets.whirlwind>2
   if CDsON() and S.Bladestorm:IsCastable() and (EnrageUp and EnemiesCount8 > 2) then
@@ -111,7 +111,7 @@ local function AOE()
   end
   -- spear_of_bastion,if=buff.enrage.up&cooldown.recklessness.remains>5&spell_targets.whirlwind>1
   if Settings.Commons.Enabled.Covenant and CDsON() and S.SpearofBastion:IsCastable() and (EnrageUp and S.Recklessness:CooldownRemains() > 5 and EnemiesCount8 > 1) then
-    if Cast(M.SpearofBastionPlayer, not Target:IsInRange(25)) then return "spear_of_bastion aoe 14"; end
+    if Cast(M.SpearofBastionPlayer, not TargetInMeleeRange) then return "spear_of_bastion aoe 14"; end
   end
   -- bladestorm,if=buff.enrage.remains>gcd*2.5&spell_targets.whirlwind>1
   if CDsON() and S.Bladestorm:IsCastable() and (Player:BuffRemains(S.EnrageBuff) > Player:GCD() * 2.5 and EnemiesCount8 > 1) then
@@ -163,7 +163,7 @@ local function SingleTarget()
   if CDsON() then
     -- spear_of_bastion,if=runeforge.elysian_might&buff.enrage.up&cooldown.recklessness.remains>5&(buff.recklessness.up|target.time_to_die<20|debuff.siegebreaker.up|!talent.siegebreaker&target.time_to_die>68)&raid_event.adds.in>55
     if S.SpearofBastion:IsCastable() and (ElysianMightEquipped and EnrageUp and S.Recklessness:CooldownRemains() > 5 and (Player:BuffUp(S.RecklessnessBuff) or Target:TimeToDie() < 20 or Target:DebuffUp(S.SiegebreakerDebuff) or not S.Siegebreaker:IsAvailable() and Target:TimeToDie() > 68)) then
-      if Cast(M.SpearofBastionPlayer, not Target:IsInRange(25)) then return "spear_of_bastion single_target 22"; end
+      if Cast(M.SpearofBastionPlayer, not TargetInMeleeRange) then return "spear_of_bastion single_target 22"; end
     end
     -- bladestorm,if=buff.enrage.up&(!buff.recklessness.remains|rage<50)&(spell_targets.whirlwind=1&raid_event.adds.in>45|spell_targets.whirlwind=2)
     if S.Bladestorm:IsCastable() and (EnrageUp and (Player:BuffDown(S.RecklessnessBuff) or Player:Rage() < 50) and (EnemiesCount8 == 1 or EnemiesCount8 == 2)) then
@@ -171,7 +171,7 @@ local function SingleTarget()
     end
     -- spear_of_bastion,if=buff.enrage.up&cooldown.recklessness.remains>5&(buff.recklessness.up|target.time_to_die<20|debuff.siegebreaker.up|!talent.siegebreaker&target.time_to_die>68)&raid_event.adds.in>55
     if Settings.Commons.Enabled.Covenant and S.SpearofBastion:IsCastable() and (EnrageUp and S.Recklessness:CooldownRemains() > 5 and (Player:BuffUp(S.RecklessnessBuff) or Target:TimeToDie() < 20 or Target:DebuffUp(S.SiegebreakerDebuff) or not S.Siegebreaker:IsAvailable() and Target:TimeToDie() > 68)) then
-      if Cast(M.SpearofBastionPlayer, not Target:IsInRange(25)) then return "spear_of_bastion single_target 26"; end
+      if Cast(M.SpearofBastionPlayer, not TargetInMeleeRange) then return "spear_of_bastion single_target 26"; end
     end
   end
   -- raging_blow,if=set_bonus.tier28_2pc|charges=2|buff.recklessness.up&variable.execute_phase&talent.massacre.enabled
@@ -299,7 +299,7 @@ local function Combat()
   end
   -- spear_of_bastion,if=buff.enrage.up&rage<70
   if CDsON() and S.SpearofBastion:IsCastable() and (EnrageUp and Player:Rage() < 70) then
-    if Cast(M.SpearofBastionPlayer, not Target:IsInRange(25)) then return "spear_of_bastion main 9"; end
+    if Cast(M.SpearofBastionPlayer, not TargetInMeleeRange) then return "spear_of_bastion main 9"; end
   end
   -- rampage,if=cooldown.recklessness.remains<3&talent.reckless_abandon.enabled
   if S.Rampage:IsReady() and (CDsON() and S.Recklessness:CooldownRemains() < 3 and S.RecklessAbandon:IsAvailable()) then
