@@ -15,6 +15,7 @@
   local tableinsert = table.insert;
   local tableremove = table.remove;
   local mathmin = math.min;
+  local pairs = pairs;
   local print = print;
   local select = select;
   local setmetatable = setmetatable
@@ -75,51 +76,48 @@
 
 --- ======= CASTS =======
   -- Main Cast
-  WR.CastOffGCDOffset = 1;
+do
+  local QuakingDebuffId = Spell(240447);
+  local PoolResource = 999910;
   function WR.Cast (Object, OutofRange, Immovable, OffGCD)
-    local Bind = nil;
     local SpellID = Object.SpellID;
     local ItemID = Object.ItemID;
     local MacroID = Object.MacroID;
-
-    local PoolResource = 999910
     local Usable = MacroID or Object:IsUsable();
-    local ShowPooling = Object.SpellID == PoolResource
-    if ShowPooling or not Usable or OutofRange or (Immovable and Player:IsMoving()) or (not OffGCD and (Player:CastEnd() - HL.Latency() > 0 or Player:GCDRemains() - HL.Latency() > 0)) then
+    local ShowPooling = Object.SpellID == PoolResource;
+    if ShowPooling or not Usable or OutofRange or (Immovable and (Player:IsMoving() or Player:DebuffUp(QuakingDebuffId, true))) or (not OffGCD and (Player:CastEnd() - HL.Latency() > 0 or Player:GCDRemains() - HL.Latency() > 0)) then
       WR.MainFrame:ChangeBind(nil);
       Object.LastDisplayTime = GetTime();
-      return false
+      return false;
     end
-    
+
+    local Bind;
     if SpellID then
       Bind = WR.SpellBinds[SpellID];
       if not Bind then
-        WR.Print(tostring(SpellID) .. " is not bound.")
+        WR.Print(tostring(SpellID) .. " is not bound.");
       end
     elseif ItemID then
       Bind = WR.ItemBinds[ItemID];
       if not Bind then
-        WR.Print(tostring(ItemID) .. " is not bound.")
+        WR.Print(tostring(ItemID) .. " is not bound.");
       end
     elseif MacroID then
       Bind = WR.MacroBinds[MacroID];
       if not Bind then
-        WR.Print(tostring(MacroID) .. " is not bound.")
+        WR.Print(tostring(MacroID) .. " is not bound.");
       end
     end
-    
+
     WR.MainFrame:ChangeBind(Bind);
     Object.LastDisplayTime = GetTime();
     return true;
   end
+end
 
 --- ======= BINDS =======
   -- Main Bind
   do
-    WR.SpellBinds = {};
-    WR.ItemBinds = {};
-    WR.MacroBinds = {};
-    local FreeBinds = {};
     local CommonKeys = {
       "1", "2", "3", "4", "5", "6", "J", "K", "L"
     };
@@ -138,16 +136,26 @@
     local ModifierKeyCombs = {
       "CTRL:SHIFT:", "ALT:SHIFT:"
     };
-    local SetupKeys = true;
+    WR.SpellBinds = {};
+    WR.ItemBinds = {};
+    WR.MacroBinds = {};
+    WR.SpellObjects = {};
+    WR.ItemObjects = {};
+    WR.MacroObjects = {};
+    WR.FreeBinds = {};
+    WR.SetupFreeBinds = true;
+    HL:RegisterForEvent(function()
+      WR.Rebind();
+    end, "PLAYER_TALENT_UPDATE")
     function WR.Bind (Object)
-      if SetupKeys then
+      if WR.SetupFreeBinds then
         WR.AddFreeBinds(CommonKeys);
         WR.AddFreeBinds(UncommonKeys);
         WR.AddFreeBinds(RareKeys);
-        SetupKeys = false;
+        WR.SetupFreeBinds = false;
       end
-      local Bind = FreeBinds[#FreeBinds];
-      tableremove(FreeBinds, #FreeBinds);
+      local Bind = WR.FreeBinds[#WR.FreeBinds];
+      tableremove(WR.FreeBinds, #WR.FreeBinds);
       WR.Unbind(Bind);
       local SpellID = Object.SpellID;
       local ItemID = Object.ItemID;
@@ -155,13 +163,16 @@
       if SpellID then
         SetBindingSpell(Bind:gsub(":", "-"), Object:Name());
         WR.SpellBinds[SpellID] = Bind;
+        WR.SpellObjects[SpellID] = Object;
       elseif ItemID then
         SetBindingItem(Bind:gsub(":", "-"), Object:Name());
         WR.ItemBinds[ItemID] = Bind;
+        WR.ItemObjects[ItemID] = Object;
       elseif MacroID then
         WR.MainFrame:AddMacroFrame(Object);
         SetBindingClick(Bind:gsub(":", "-"), MacroID);
         WR.MacroBinds[MacroID] = Bind;
+        WR.MacroObjects[MacroID] = Object;
       end
     end
     function WR.Unbind (Key)
@@ -175,13 +186,26 @@
     end
     function WR.AddFreeBinds (Keys)
       for i = 1, #Keys do
-        tableinsert(FreeBinds, Keys[i]);
+        tableinsert(WR.FreeBinds, Keys[i]);
         for j = 1, #ModifierKeys do
-          tableinsert(FreeBinds, ModifierKeys[j] .. Keys[i]);
+          tableinsert(WR.FreeBinds, ModifierKeys[j] .. Keys[i]);
         end
         for j = 1, #ModifierKeyCombs do
-          tableinsert(FreeBinds, ModifierKeyCombs[j] .. Keys[i]);
+          tableinsert(WR.FreeBinds, ModifierKeyCombs[j] .. Keys[i]);
         end
+      end
+    end
+    function WR.Rebind ()
+      WR.FreeBinds = {};
+      WR.SetupFreeBinds = true;
+      for Id, _ in pairs(WR.SpellBinds) do
+        WR.Bind(WR.SpellObjects[Id]);
+      end
+      for Id, _ in pairs(WR.ItemBinds) do
+        WR.Bind(WR.ItemObjects[Id]);
+      end
+      for Id, _ in pairs(WR.MacroBinds) do
+        WR.Bind(WR.MacroObjects[Id]);
       end
     end
   end

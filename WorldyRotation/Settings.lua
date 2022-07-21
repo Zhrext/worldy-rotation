@@ -1,7 +1,7 @@
 --- ============================ HEADER ============================
 --- ======= LOCALIZE =======
   -- Addon
-  local addonName, WR = ...;
+  local WR = ...;
   -- HeroLib
   local HL = HeroLib;
   -- File Locals
