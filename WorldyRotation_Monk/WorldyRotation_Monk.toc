@@ -1,0 +1,15 @@
+## Interface: 90207
+
+## Title: Worldy|cFFA330C9Rotation|r [|cFF00FF96Monk|r]
+## Author: Gabbz
+## Notes: Worldy Rotation - Monk Module.
+
+## DefaultState: Enabled
+## LoadOnDemand: 1
+## Dependencies: WorldyRotation
+
+Settings.lua
+Monk.lua
+Brewmaster.lua
+Events.lua
+Overrides.lua
