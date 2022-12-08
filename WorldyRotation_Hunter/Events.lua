@@ -22,18 +22,6 @@ local wipe = wipe
 local GetTime = HL.GetTime
 -- Spells
 local SpellBM = Spell.Hunter.BeastMastery
-local SpellMM = Spell.Hunter.Marksmanship
--- MM Spell Cost Table
-WR.Commons.Hunter.MMCost = {}
-local MMCost = WR.Commons.Hunter.MMCost
-for spell in pairs(SpellMM) do
-  if spell ~= "PoolFocus" then
-    if SpellMM[spell]:Cost() > 0 then
-      local SpellID = SpellMM[spell]:ID()
-      MMCost[SpellID] = SpellMM[spell]:Cost()
-    end
-  end
-end
 
 -- Animal Companion Listener
 do
@@ -80,18 +68,3 @@ end
 -- Focused Trickery Counter (Tier 28 4pc bonus)
 Hunter.FTCount = 0
 
--- Set counter to zero when Trick Shots buff is removed
-HL:RegisterForSelfCombatEvent(function(...)
-  local SpellID = select(12, ...)
-  if SpellID == SpellMM.TrickShotsBuff:ID() then
-    Hunter.FTCount = 0
-  end
-end, "SPELL_AURA_REMOVED")
-
--- Count Focus spent since last Trick Shots
-HL:RegisterForSelfCombatEvent(function(...)
-  local SpellID = select(12, ...)
-  if MMCost[SpellID] ~= nil then
-    Hunter.FTCount = Hunter.FTCount + MMCost[SpellID]
-  end
-end, "SPELL_CAST_SUCCESS")

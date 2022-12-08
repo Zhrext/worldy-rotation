@@ -80,6 +80,7 @@ function WR.MainFrame:AddMacroFrame (Object)
   self.Macros[Object.MacroID] = CreateFrame("Button", Object.MacroID, self, "SecureActionButtonTemplate");
   self.Macros[Object.MacroID]:SetAttribute("type", "macro");
   self.Macros[Object.MacroID]:SetAttribute("macrotext", Object.MacroText);
+  self.Macros[Object.MacroID]:RegisterForClicks("AnyDown");
 end
 
 -- AddonLoaded
@@ -320,9 +321,9 @@ local EnabledRotation = {
   --  [104]   = "WorldyRotation_Druid",         -- Guardian
   --  [105]   = "WorldyRotation_Druid",         -- Restoration
   ---- Hunter
-  --  [253]   = "WorldyRotation_Hunter",        -- Beast Mastery
-  --  [254]   = "WorldyRotation_Hunter",        -- Marksmanship
-  --  [255]   = "WorldyRotation_Hunter",        -- Survival
+    [253]   = "WorldyRotation_Hunter",        -- Beast Mastery
+    --[254]   = "WorldyRotation_Hunter",        -- Marksmanship
+    --[255]   = "WorldyRotation_Hunter",        -- Survival
   ---- Mage
   --  [62]    = "WorldyRotation_Mage",          -- Arcane
   --  [63]    = "WorldyRotation_Mage",          -- Fire
