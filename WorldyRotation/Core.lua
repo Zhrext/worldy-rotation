@@ -79,7 +79,7 @@
 do
   local QuakingDebuffId = Spell(240447);
   local PoolResource = 999910;
-  function WR.Cast (Object, OutofRange, Immovable, OffGCD)
+  function WR.Press(Object, OutofRange, Immovable, OffGCD)
     local SpellID = Object.SpellID;
     local ItemID = Object.ItemID;
     local MacroID = Object.MacroID;
@@ -112,6 +112,9 @@ do
     WR.MainFrame:ChangeBind(Bind);
     Object.LastDisplayTime = GetTime();
     return true;
+  end
+  function WR.Cast(Object, OffGCD, DisplayStyle, OutofRange, CustomTime)
+    return WR.Press(Object, OutofRange, nil, OffGCD);
   end
 end
 

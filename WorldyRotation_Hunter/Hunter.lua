@@ -134,9 +134,9 @@ if not Macro.Hunter then Macro.Hunter = {} end
 Macro.Hunter.Commons = {
   -- Items
   Trinket1                         = Macro("Trinket1", "/use 13"),
-  Trinket2                         = Macro("Trinket2", "/use 14")
-  --Healthstone                      = Macro("Healthstone", "/use " .. Item.Hunter.Commons.Healthstone:Name()),
-  --PotionOfSpectralAgility          = Macro("PotionOfSpectralAgility", "/use " .. Item.Hunter.Commons.PotionOfSpectralAgility:Name()),
+  Trinket2                         = Macro("Trinket2", "/use 14"),
+  Healthstone                      = Macro("Healthstone", "/use Healthstone"),
+  PotionOfSpectralAgility          = Macro("PotionOfSpectralAgility", "/use " .. Item.Hunter.Commons.PotionOfSpectralAgility:Name()),
 }
 
 Macro.Hunter.BeastMastery = MergeTableByKey(Macro.Hunter.Commons, {

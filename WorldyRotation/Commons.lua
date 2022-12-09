@@ -59,9 +59,9 @@ do
     if Settings.Enabled.Interrupt and Unit:IsInterruptible() and (Unit:CastPercentage() >= Settings.Threshold.Interrupt or Unit:IsChanneling()) and (not Settings.Enabled.InterruptOnlyWhitelist or Utils.ValueIsInArray(InterruptWhitelistIDs, Unit:CastSpellID()) or Utils.ValueIsInArray(InterruptWhitelistIDs, Unit:ChannelSpellID())) then
       if Spell:IsCastable() then
         if Macro then
-          if WR.Cast(Macro, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt)"; end
+          if WR.Press(Macro, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt)"; end
         else
-          if WR.Cast(Spell, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt)"; end
+          if WR.Press(Spell, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt)"; end
         end
       end
     end
@@ -74,11 +74,33 @@ do
       if (Settings.Enabled.InterruptOnlyWhitelist and (Utils.ValueIsInArray(StunWhitelistIDs, Unit:CastSpellID()) or Utils.ValueIsInArray(StunWhitelistIDs, Unit:ChannelSpellID()))) or (not Settings.Enabled.InterruptOnlyWhitelist and Unit:CanBeStunned()) then
         if Spell:IsCastable() then
           if Macro then
-            if WR.Cast(Macro, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt With Stun)"; end
+            if WR.Press(Macro, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt With Stun)"; end
           else
-            if WR.Cast(Spell, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt With Stun)"; end
+            if WR.Press(Spell, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt With Stun)"; end
           end
         end
+      end
+    end
+  end
+end
+
+-- Target If Helper
+function Commons.CastTargetIf(Object, Enemies, TargetIfMode, TargetIfCondition, Condition, OutofRange, OffGCD, DisplayStyle)
+  local TargetCondition = (not Condition or (Condition and Condition(Target)))
+  if not WR.AoEON() and TargetCondition then
+    return WR.Cast(Object, OffGCD, DisplayStyle, OutofRange);
+  end
+  if WR.AoEON() then
+    local BestUnit, BestConditionValue = nil, nil
+    for _, CycleUnit in pairs(Enemies) do
+      if not CycleUnit:IsFacingBlacklisted() and not CycleUnit:IsUserCycleBlacklisted() and (CycleUnit:AffectingCombat() or CycleUnit:IsDummy())
+        and (not BestConditionValue or Utils.CompareThis(TargetIfMode, TargetIfCondition(CycleUnit), BestConditionValue)) then
+        BestUnit, BestConditionValue = CycleUnit, TargetIfCondition(CycleUnit);
+      end
+    end
+    if BestUnit then
+      if TargetCondition and (BestUnit:GUID() == Target:GUID() or BestConditionValue == TargetIfCondition(Target)) then
+        return WR.Cast(Object, OffGCD, DisplayStyle, OutofRange);
       end
     end
   end
@@ -94,9 +116,9 @@ do
     if Settings.Enabled.CrowdControl and Utils.ValueIsInArray(CrowdControlUnitIDs, Unit:NPCID()) and Unit:IsMoving() then
       if Spell:IsCastable() then
         if Macro then
-          if WR.Cast(Macro, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Crowd Control)"; end
+          if WR.Press(Macro, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Crowd Control)"; end
         else
-          if WR.Cast(Spell, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Crowd Control)"; end
+          if WR.Press(Spell, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Crowd Control)"; end
         end
       end
     end
