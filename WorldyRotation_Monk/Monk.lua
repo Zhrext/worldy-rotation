@@ -17,6 +17,7 @@ local Item       = HL.Item
 local MergeTableByKey = HL.Utils.MergeTableByKey
 -- WorldyRotation
 local WR         = WorldyRotation
+local Macro      = WR.Macro
 
 --- ============================ CONTENT ============================
 
@@ -26,7 +27,7 @@ Spell.Monk.Commons = {
   -- Racials
   AncestralCall                         = Spell(274738),
   ArcaneTorrent                         = Spell(25046),
-  BagOfTricks                           = Spell(312411),
+  BagofTricks                           = Spell(312411),
   Berserking                            = Spell(26297),
   BloodFury                             = Spell(20572),
   GiftoftheNaaru                        = Spell(59547),
@@ -37,76 +38,92 @@ Spell.Monk.Commons = {
   -- Abilities
   CracklingJadeLightning                = Spell(117952),
   ExpelHarm                             = Spell(322101),
-  RisingSunKick                         = Spell(107428),
-  TigerPalm                             = Spell(100780),
-  TouchOfDeath                          = Spell(322109),
-  -- Talents
-  Celerity                              = Spell(115173),
-  ChiBurst                              = Spell(123986),
-  ChiWave                               = Spell(115098),
-  EyeOfTheTiger                         = Spell(196607),
-  GoodKarma                             = Spell(280195),
-  InnerStrengthBuff                     = Spell(261769),
-  RushingJadeWind                       = Spell(116847),
-  RushingJadeWindBuff                   = Spell(116847),
-  -- Talents
-  ChiTorpedo                            = Spell(115008),
-  DampenHarm                            = Spell(122278),
-  DampenHarmBuff                        = Spell(122278),
-  DiffuseMagic                          = Spell(122783),
-  EnergizingElixir                      = Spell(115288),
-  HealingElixir                         = Spell(122281),
   LegSweep                              = Spell(119381),
-  RingOfPeace                           = Spell(116844),
-  TigersLust                            = Spell(116841),
-  TigerTailSweep                        = Spell(264348),
-  -- Utility
-  Detox                                 = Spell(218164),
-  Disable                               = Spell(116095),
-  Paralysis                             = Spell(115078),
   Provoke                               = Spell(115546),
   Resuscitate                           = Spell(115178),
+  RisingSunKick                         = Spell(107428),
   Roll                                  = Spell(109132),
-  SpearHandStrike                       = Spell(116705),
+  TigerPalm                             = Spell(100780),
+  TouchofDeath                          = Spell(322109),
   Transcendence                         = Spell(101643),
   TranscendenceTransfer                 = Spell(119996),
   Vivify                                = Spell(116670),
-  -- Covenant Abilities (Shadowlands)
-  BonedustBrew                          = Spell(325216),
-  FaelineStomp                          = Spell(327104),
-  FaelineStompBuff                      = Spell(347480),
-  FaelineStompDebuff                    = Spell(327257),
-  FallenOrder                           = Spell(326860),
-  Fleshcraft                            = Spell(324631),
-  WeaponsOfOrder                        = Spell(310454),
-  WeaponsOfOrderChiBuff                 = Spell(311054),
-  WeaponsOfOrderDebuff                  = Spell(312106),
-  -- Soulbinds (Shadowlands)
-  CarversEye                            = Spell(350899),
-  CarversEyeBuff                        = Spell(351414),
-  FirstStrike                           = Spell(325069),
-  FirstStrikeBuff                       = Spell(325381),
-  GroveInvigoration                     = Spell(322721),
-  LeadByExample                         = Spell(342156),
-  PustuleEruption                       = Spell(351094),
-  VolatileSolvent                       = Spell(323074),
-  -- Conduits (Shadowlands)
-  FortifyingIngrediencesBuff            = Spell(336874),
-  -- Legendary Effects (Shadowlands)
-  ChiEnergyBuff                         = Spell(337571),
-  InvokersDelight                       = Spell(338321),
-  RecentlyRushingTigerPalm              = Spell(337341),
-  SkyreachExhaustion                    = Spell(337341),
-  TheEmperorsCapacitor                  = Spell(337291),
-  -- Trinket Effects
-  AcquiredAxeBuff                       = Spell(368656),
-  AcquiredWandBuff                      = Spell(368654),
-  ScarsofFraternalStrifeBuff4           = Spell(368638),
-  TemptationBuff                        = Spell(234143),
+  -- Talents
+  BonedustBrew                          = Spell(386276),
+  Celerity                              = Spell(115173),
+  ChiBurst                              = Spell(123986),
+  ChiTorpedo                            = Spell(115008),
+  ChiWave                               = Spell(115098),
+  DampenHarm                            = Spell(122278),
+  Detox                                 = Spell(218164),
+  Disable                               = Spell(116095),
+  DiffuseMagic                          = Spell(122783),
+  EyeoftheTiger                         = Spell(196607),
+  InnerStrengthBuff                     = Spell(261769),
+  Paralysis                             = Spell(115078),
+  RingofPeace                           = Spell(116844),
+  RushingJadeWind                       = Spell(116847),
+  SpearHandStrike                       = Spell(116705),
+  SummonWhiteTigerStatue                = Spell(388686),
+  TigerTailSweep                        = Spell(264348),
+  TigersLust                            = Spell(116841),
+  -- Buffs
+  BonedustBrewBuff                      = Spell(386276),
+  DampenHarmBuff                        = Spell(122278),
+  RushingJadeWindBuff                   = Spell(116847),
+  -- Debuffs
+  -- Item Effects
+  TheEmperorsCapacitorBuff              = Spell(235054),
   -- Misc
   PoolEnergy                            = Spell(999910),
   StopFoF                               = Spell(363653)
 }
+
+Spell.Monk.Windwalker = MergeTableByKey(Spell.Monk.Commons, {
+  -- Abilities
+  BlackoutKick                          = Spell(100784),
+  FlyingSerpentKick                     = Spell(101545),
+  FlyingSerpentKickLand                 = Spell(115057),
+  SpinningCraneKick                     = Spell(101546),
+  -- Talents
+  BonedustBrew                          = Spell(386276),
+  CraneVortex                           = Spell(388848),
+  FastFeet                              = Spell(388809),
+  FaelineHarmony                        = Spell(391412),
+  FaelineStomp                          = Spell(388193),
+  FistsofFury                           = Spell(113656),
+  HitCombo                              = Spell(196740),
+  InvokeXuenTheWhiteTiger               = Spell(123904),
+  MarkoftheCrane                        = Spell(220357),
+  Serenity                              = Spell(152173),
+  ShadowboxingTreads                    = Spell(392982),
+  StormEarthAndFire                     = Spell(137639),
+  StormEarthAndFireFixate               = Spell(221771),
+  StrikeoftheWindlord                   = Spell(392983),
+  TeachingsoftheMonastery               = Spell(116645),
+  Thunderfist                           = Spell(392985),
+  WhirlingDragonPunch                   = Spell(152175),
+  XuensBattlegear                       = Spell(392993),
+  -- Defensive
+  FortifyingBrew                        = Spell(243435),
+  TouchofKarma                          = Spell(122470),
+  -- Buffs
+  BlackoutKickBuff                      = Spell(116768),
+  ChiEnergyBuff                         = Spell(393057),    
+  DanceofChijiBuff                      = Spell(325202),
+  HitComboBuff                          = Spell(196741),
+  PowerStrikesBuff                      = Spell(129914),
+  SerenityBuff                          = Spell(152173),
+  StormEarthAndFireBuff                 = Spell(137639),
+  TeachingsoftheMonasteryBuff           = Spell(202090),
+  WhirlingDragonPunchBuff               = Spell(196742),
+  -- Debuffs
+  MarkoftheCraneDebuff                  = Spell(228287),
+  SkyreachExhaustionDebuff              = Spell(393050),
+  -- Tier 29 Effects
+  KicksofFlowingMomentumBuff            = Spell(394944),
+  FistsofFlowingMomentumBuff            = Spell(394949),
+})
 
 Spell.Monk.Brewmaster = MergeTableByKey(Spell.Monk.Commons, {
   -- Abilities
@@ -147,6 +164,34 @@ Spell.Monk.Brewmaster = MergeTableByKey(Spell.Monk.Commons, {
   LightStagger                          = Spell(124275),
 })
 
+Spell.Monk.Mistweaver = MergeTableByKey(Spell.Monk.Commons, {
+  -- Abilities
+  BlackoutKick                          = Spell(100784),
+  EnvelopingMist                        = Spell(124682),
+  EssenceFont                           = Spell(191837),
+  EssenceFontBuff                       = Spell(191840),
+  InvokeYulonTheJadeSerpent             = Spell(123904),
+  LifeCocoon                            = Spell(116849),
+  RenewingMist                          = Spell(115151),
+  Revival                               = Spell(115310),
+  SoothingMist                          = Spell(115175),
+  SpinningCraneKick                     = Spell(101546),
+  TeachingsOfTheMonasteryBuff           = Spell(202090),
+  ThunderFocusTea                       = Spell(116680),
+  -- Talents
+  InvokeChiJiTheRedCrane                = Spell(325197),
+  LifecyclesEnvelopingMistBuff          = Spell(197919),
+  LifecyclesVivifyBuff                  = Spell(197916),
+  ManaTea                               = Spell(197908),
+  RefreshingJadeWind                    = Spell(196725),
+  SongOfChiJi                           = Spell(198898),
+  SummonJadeSerpentStatue               = Spell(115313),
+  -- Defensive
+  FortifyingBrew                        = Spell(243435),
+  -- Utility
+  Reawaken                              = Spell(212051),
+})
+
 -- Items
 if not Item.Monk then Item.Monk = {}; end
 Item.Monk.Commons = {
@@ -159,4 +204,21 @@ Item.Monk.Brewmaster = MergeTableByKey(Item.Monk.Commons, {
 })
 
 Item.Monk.Mistweaver = MergeTableByKey(Item.Monk.Commons, {
+})
+
+-- Macro
+if not Macro.Monk then Macro.Monk = {}; end
+Macro.Monk.Commons = {
+  Healthstone                      = Macro("Healthstone", "/use Healthstone"),
+}
+
+Macro.Monk.Windwalker = MergeTableByKey(Item.Monk.Commons, {
+  SummonWhiteTigerStatueM                      = Macro("SummonWhiteTigerStatue", "/cast [@player] Summon White Tiger Statue"),
+  BonedustBrewM                                = Macro("BoneDustBrew", "/cast [@player] Bonedust Brew"),
+})
+
+Macro.Monk.Brewmaster = MergeTableByKey(Item.Monk.Commons, {
+})
+
+Macro.Monk.Mistweaver = MergeTableByKey(Item.Monk.Commons, {
 })
