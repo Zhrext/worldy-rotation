@@ -59,6 +59,7 @@ Spell.Hunter.Commons = {
   KillCommand                           = MultiSpell(34026,259489),
   KillShot                              = MultiSpell(53351,320976),
   KillerInstinct                        = Spell(273887),
+  Misdirection                          = Spell(34477),
   Muzzle                                = Spell(187707),
   PoisonInjection                       = Spell(378014),
   ScareBeast                            = Spell(1513),
@@ -117,6 +118,39 @@ Spell.Hunter.BeastMastery = MergeTableByKey(Spell.Hunter.Commons, {
   BarbedShotDebuff                      = Spell(217200),
 })
 
+Spell.Hunter.Marksmanship = MergeTableByKey(Spell.Hunter.Commons, {
+  -- Abilities
+  SteadyShot                            = Spell(56641),
+  -- Talents
+  AimedShot                             = Spell(19434),
+  BurstingShot                          = Spell(186387),
+  CarefulAim                            = Spell(260228),
+  ChimaeraShot                          = Spell(342049),
+  DoubleTap                             = Spell(260402),
+  MultiShot                             = Spell(257620),
+  RapidFire                             = Spell(257044),
+  Salvo                                 = Spell(384791),
+  SerpentstalkersTrickery               = Spell(378888),
+  SteadyFocus                           = Spell(193533),
+  Streamline                            = Spell(260367),
+  SurgingShots                          = Spell(391559),
+  TrickShots                            = Spell(257621),
+  Trueshot                              = Spell(288613),
+  Volley                                = Spell(260243),
+  -- Buffs
+  BombardmentBuff                       = Spell(386875),
+  BulletstormBuff                       = Spell(389020),
+  DoubleTapBuff                         = Spell(260402),
+  PreciseShotsBuff                      = Spell(260242),
+  SteadyFocusBuff                       = Spell(193534),
+  TrickShotsBuff                        = Spell(257622),
+  TrueshotBuff                          = Spell(288613),
+  VolleyBuff                            = Spell(260243),
+  -- Debuffs
+  -- Legendaries
+  EagletalonsTrueFocusBuff              = Spell(336851),
+})
+
 -- Items
 if not Item.Hunter then Item.Hunter = {} end
 Item.Hunter.Commons = {
@@ -135,9 +169,23 @@ Macro.Hunter.Commons = {
   -- Items
   Trinket1                         = Macro("Trinket1", "/use 13"),
   Trinket2                         = Macro("Trinket2", "/use 14"),
-  Healthstone                      = Macro("Healthstone", "/use Healthstone"),
+  Healthstone                      = Macro("Healthstone", "/use " .. Item.Hunter.Commons.Healthstone:Name()),
   PotionOfSpectralAgility          = Macro("PotionOfSpectralAgility", "/use " .. Item.Hunter.Commons.PotionOfSpectralAgility:Name()),
+  
+  -- Spells
+  ArcaneShotMouseover              = Macro("ArcaneShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.ArcaneShot:Name()),
+  CounterShotMouseover             = Macro("CounterShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.CounterShot:Name()),
+  IntimidationMouseover            = Macro("IntimidationMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.Intimidation:Name()),
+  KillShotMouseover                = Macro("KillShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.KillShot:Name()),
+  SerpentStingMouseover            = Macro("SerpentStingMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.SerpentSting:Name()),
+  MisdirectionFocus                = Macro("MisdirectionFocus", "/cast [@focus] " .. Spell.Hunter.Commons.Misdirection:Name()),
 }
 
 Macro.Hunter.BeastMastery = MergeTableByKey(Macro.Hunter.Commons, {
+  BarbedShotMouseover              = Macro("BarbedShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.BeastMastery.BarbedShot:Name()),
+  CobraShotMouseover               = Macro("CobraShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.BeastMastery.CobraShot:Name()),
+})
+
+Macro.Hunter.Marksmanship = MergeTableByKey(Macro.Hunter.Commons, {
+  VolleyCursor                     = Macro("VolleyCursor", "/cast [@cursor] " .. Spell.Hunter.Marksmanship.Volley:Name()),
 })

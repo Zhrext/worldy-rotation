@@ -48,6 +48,21 @@ function Commons.CanDoTUnit(Unit, HealthThreshold)
   return Unit:Health() >= HealthThreshold or Unit:IsDummy();
 end
 
+-- Explosive
+do
+  local ExplosiveNPCID = 120651
+  function Commons.HandleExplosive(Spell, Macro)
+    if Target:NPCID() == ExplosiveNPCID and Spell:IsReady() then
+      if WR.Press(Spell, not Target:IsSpellInRange(Spell)) then return "Handle Explosive"; end
+    end
+    if Macro then
+      if Mouseover and Mouseover:NPCID() == ExplosiveNPCID and Spell:IsReady() then
+        if WR.Press(Macro, not Mouseover:IsSpellInRange(Spell)) then return "Handle Explosive Mouseover"; end
+      end
+    end
+  end
+end
+
 -- Interrupt
 do
   local InterruptWhitelistIDs = { };
@@ -85,8 +100,9 @@ do
 end
 
 -- Target If Helper
-function Commons.CastTargetIf(Object, Enemies, TargetIfMode, TargetIfCondition, Condition, OutofRange, OffGCD, DisplayStyle)
+function Commons.CastTargetIf(Object, Enemies, TargetIfMode, TargetIfCondition, Condition, OutofRange, OffGCD, DisplayStyle, MouseoverMacro, Immovable)
   local TargetCondition = (not Condition or (Condition and Condition(Target)))
+  if (Immovable and Player:IsMoving()) then return false; end
   if not WR.AoEON() and TargetCondition then
     return WR.Cast(Object, OffGCD, DisplayStyle, OutofRange);
   end
@@ -101,6 +117,8 @@ function Commons.CastTargetIf(Object, Enemies, TargetIfMode, TargetIfCondition, 
     if BestUnit then
       if TargetCondition and (BestUnit:GUID() == Target:GUID() or BestConditionValue == TargetIfCondition(Target)) then
         return WR.Cast(Object, OffGCD, DisplayStyle, OutofRange);
+      elseif MouseoverMacro and ((Condition and Condition(BestUnit)) or not Condition) and BestUnit:GUID() == Mouseover:GUID() then
+        return WR.Press(MouseoverMacro, OutofRange, nil, OffGCD)
       end
     end
   end

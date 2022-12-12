@@ -95,17 +95,17 @@ do
     if SpellID then
       Bind = WR.SpellBinds[SpellID];
       if not Bind then
-        WR.Print(tostring(SpellID) .. " is not bound.");
+        WR.Print(Object:Name() .. " is not bound.");
       end
     elseif ItemID then
       Bind = WR.ItemBinds[ItemID];
       if not Bind then
-        WR.Print(tostring(ItemID) .. " is not bound.");
+        WR.Print(Object:Name() .. " is not bound.");
       end
     elseif MacroID then
       Bind = WR.MacroBinds[MacroID];
       if not Bind then
-        WR.Print(tostring(MacroID) .. " is not bound.");
+        WR.Print(Object.MacroID .. " is not bound.");
       end
     end
 
@@ -216,31 +216,47 @@ end
 --- ======= COMMANDS =======
   -- Command Handler
   function WR.CmdHandler (Message)
-    local Argument = strsplit(" ", stringlower(Message));
-    if Argument == "toggle" then
+    local Argument, Argument1 = strsplit(" ", Message);
+    local ArgumentLower = stringlower(Argument);
+    if ArgumentLower == "toggle" then
       WorldyRotationCharDB.Toggles[1] = not WorldyRotationCharDB.Toggles[1];
       WR.Print("WorldyRotation is now "..(WorldyRotationCharDB.Toggles[1] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
       WR.MainFrame:ChangePixel(1, WR.ON());
       WR.ToggleFrame:UpdateButtonText(1);
-    elseif Argument == "cds" then
+    elseif ArgumentLower == "cds" then
       WorldyRotationCharDB.Toggles[2] = not WorldyRotationCharDB.Toggles[2];
       WR.Print("CDs are now "..(WorldyRotationCharDB.Toggles[2] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
       WR.ToggleFrame:UpdateButtonText(2);
-    elseif Argument == "aoe" then
+    elseif ArgumentLower == "aoe" then
       WorldyRotationCharDB.Toggles[3] = not WorldyRotationCharDB.Toggles[3];
       WR.Print("AoE is now "..(WorldyRotationCharDB.Toggles[3] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
       WR.ToggleFrame:UpdateButtonText(3);
-    elseif Argument == "lock" then
+    elseif ArgumentLower == "lock" then
       WR.ToggleFrame:ToggleLock();
-    elseif Argument == "break" then
+    elseif ArgumentLower == "break" then
       WR.Break();
-    elseif Argument == "help" then
+    elseif ArgumentLower == "cast" and Argument1 then
+      local Bind = WR.SpellBinds[tonumber(Argument1)];
+      WR.MainFrame:ChangeBind(Bind);
+      WR.Timer.Pulse = GetTime() + 0.1;
+    elseif ArgumentLower == "use" and Argument1 then
+      local Bind = WR.ItemBinds[tonumber(Argument1)];
+      WR.MainFrame:ChangeBind(Bind);
+      WR.Timer.Pulse = GetTime() + 0.1;
+    elseif ArgumentLower == "macro" and Argument1 then
+      local Bind = WR.MacroBinds[tostring(Argument1)];
+      WR.MainFrame:ChangeBind(Bind);
+      WR.Timer.Pulse = GetTime() + 0.1;
+    elseif ArgumentLower == "help" then
       WR.Print("|cffffff00--[Toggles]--|r");
       WR.Print("  On/Off: |cff8888ff/wr toggle|r");
       WR.Print("  CDs: |cff8888ff/wr cds|r");
       WR.Print("  AoE: |cff8888ff/wr aoe|r");
       WR.Print("  Un-/Lock: |cff8888ff/wr lock|r");
       WR.Print("  Break: |cff8888ff/wr break|r");
+      WR.Print("  Cast: |cff8888ff/wr cast <SpellID>|r");
+      WR.Print("  Use: |cff8888ff/wr use <ItemID>|r");
+      WR.Print("  Macro: |cff8888ff/wr macro <MacroID>|r");
     else
       WR.Print("Invalid arguments.");
       WR.Print("Type |cff8888ff/wr help|r for more infos.");

@@ -10,6 +10,8 @@ local Cache      = HeroCache
 local Unit       = HL.Unit
 local Player     = Unit.Player
 local Target     = Unit.Target
+local Focus      = Unit.Focus
+local Mouseover  = Unit.MouseOver
 local Pet        = Unit.Pet
 local Spell      = HL.Spell
 local Item       = HL.Item
@@ -152,6 +154,10 @@ local function Precombat()
   -- summon_pet
   -- Handled in APL()
   -- snapshot_stats
+  -- misdirection
+  if Focus:Exists() and S.Misdirection:IsReady() then
+    if WR.Press(M.MisdirectionFocus) then return "misdirection precombat 0"; end
+  end
   -- steel_trap,precast_time=1.5,if=!talent.wailing_arrow&talent.steel_trap
   if S.SteelTrap:IsCastable() and ((not S.WailingArrow:IsAvailable()) and S.SteelTrap:IsAvailable()) then
     if Cast(S.SteelTrap, Settings.Commons2.GCDasOffGCD.SteelTrap) then return "steel_trap precombat 2"; end
@@ -215,23 +221,23 @@ local function Trinkets()
   -- use_items,slots=trinket1,if=buff.call_of_the_wild.up|!talent.call_of_the_wild&(buff.bestial_wrath.up&(buff.bloodlust.up|target.health.pct<20))|fight_remains<31
   local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
   if Trinket1ToUse and (Player:BuffUp(S.CalloftheWildBuff) or (not S.CalloftheWild:IsAvailable()) and (Player:BuffUp(S.BestialWrathBuff) and (Player:BloodlustUp() or Target:HealthPercentage() < 20)) or FightRemains < 31) then
-    if Cast(M.Trinket1) then return "trinket1 cds 4"; end
+    if WR.Press(M.Trinket1, nil, nil, true) then return "trinket1 cds 4"; end
   end
   -- use_items,slots=trinket2,if=buff.call_of_the_wild.up|!talent.call_of_the_wild&(buff.bestial_wrath.up&(buff.bloodlust.up|target.health.pct<20))|fight_remains<31
   local Trinket2ToUse = Player:GetUseableTrinkets(OnUseExcludes, 14)
   if Trinket2ToUse and (Player:BuffUp(S.CalloftheWildBuff) or (not S.CalloftheWild:IsAvailable()) and (Player:BuffUp(S.BestialWrathBuff) and (Player:BloodlustUp() or Target:HealthPercentage() < 20)) or FightRemains < 31) then
-    if Cast(M.Trinket2) then return "trinket2 cds 6"; end
+    if WR.Press(M.Trinket2, nil, nil, true) then return "trinket2 cds 6"; end
   end
 end
 
 local function Cleave()
   -- barbed_shot,target_if=max:debuff.latent_poison.stack,if=debuff.latent_poison.stack>9&(pet.main.buff.frenzy.up&pet.main.buff.frenzy.remains<=gcd+0.25|talent.scent_of_blood&cooldown.bestial_wrath.remains<12+gcd|full_recharge_time<gcd&cooldown.bestial_wrath.remains)
   if S.BarbedShot:IsCastable() then
-    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "max", EvaluateTargetIfFilterLatentPoison, EvaluateTargetIfBarbedShotCleave, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot cleave 2"; end
+    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "max", EvaluateTargetIfFilterLatentPoison, EvaluateTargetIfBarbedShotCleave, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot cleave 2"; end
   end
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=pet.main.buff.frenzy.up&pet.main.buff.frenzy.remains<=gcd+0.25|talent.scent_of_blood&cooldown.bestial_wrath.remains<12+gcd|full_recharge_time<gcd&cooldown.bestial_wrath.remains
   if S.BarbedShot:IsCastable() then
-    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotCleave2, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot cleave 4"; end
+    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotCleave2, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot cleave 4"; end
   end
   -- multishot,if=gcd-pet.main.buff.beast_cleave.remains>0.25
   if S.MultiShot:IsReady() and (GCDMax - Pet:BuffRemains(S.BeastCleavePetBuff) > 0.25) then
@@ -275,11 +281,11 @@ local function Cleave()
   end
   -- barbed_shot,target_if=max:debuff.latent_poison.stack,if=debuff.latent_poison.stack>9&(talent.wild_instincts&buff.call_of_the_wild.up|fight_remains<9|talent.wild_call&charges_fractional>1.2)
   if S.BarbedShot:IsCastable() then
-    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "max", EvaluateTargetIfFilterLatentPoison, EvaluateTargetIfBarbedShotCleave3, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot cleave 26"; end
+    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "max", EvaluateTargetIfFilterLatentPoison, EvaluateTargetIfBarbedShotCleave3, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot cleave 26"; end
   end
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=talent.wild_instincts&buff.call_of_the_wild.up|fight_remains<9|talent.wild_call&charges_fractional>1.2
   if S.BarbedShot:IsCastable() then
-    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotCleave4, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot cleave 28"; end
+    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotCleave4, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot cleave 28"; end
   end
   -- kill_command
   if S.KillCommand:IsReady() then
@@ -291,7 +297,7 @@ local function Cleave()
   end
   -- serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>duration
   if S.SerpentSting:IsReady() then
-    if Everyone.CastTargetIf(S.SerpentSting, Enemies40y, "min", EvaluateTargetIfFilterSerpentSting, EvaluateTargetIfSerpentStingCleave, not Target:IsSpellInRange(S.SerpentSting)) then return "serpent_sting cleave 34"; end
+    if Everyone.CastTargetIf(S.SerpentSting, Enemies40y, "min", EvaluateTargetIfFilterSerpentSting, EvaluateTargetIfSerpentStingCleave, not Target:IsSpellInRange(S.SerpentSting), nil, nil, M.SerpentStingMouseover) then return "serpent_sting cleave 34"; end
   end
   -- barrage,if=pet.main.buff.frenzy.remains>execute_time
   if S.Barrage:IsReady() and (Pet:BuffRemains(S.FrenzyPetBuff) > S.Barrage:ExecuteTime()) then
@@ -300,6 +306,10 @@ local function Cleave()
   -- kill_shot
   if S.KillShot:IsReady() then
     if Cast(S.KillShot, nil, nil, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot cleave 38"; end
+  end
+  -- kill_shot_mouseover
+  if Mouseover:Exists() and S.KillShot:IsReady() and Mouseover:HealthPercentage() <= 20  then
+    if WR.Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover cleave 38"; end
   end
   -- aspect_of_the_wild
   if S.AspectoftheWild:IsCastable() and CDsON() then
@@ -311,7 +321,7 @@ local function Cleave()
   end
   -- wailing_arrow,if=pet.main.buff.frenzy.remains>execute_time|fight_remains<5
   if S.WailingArrow:IsReady() and (Pet:BuffRemains(S.FrenzyPetBuff) > S.WailingArrow:ExecuteTime() or FightRemains < 5) then
-    if Cast(S.WailingArrow, nil, nil, not Target:IsSpellInRange(S.WailingArrow)) then return "wailing_arrow cleave 44"; end
+    if WR.Press(S.WailingArrow, not Target:IsSpellInRange(S.WailingArrow), true) then return "wailing_arrow cleave 44"; end
   end
   -- bag_of_tricks,if=buff.bestial_wrath.down|target.time_to_die<5
   if S.BagofTricks:IsCastable() and CDsON() and (Player:BuffDown(S.BestialWrathBuff) or FightRemains < 5) then
@@ -326,7 +336,7 @@ end
 local function ST()
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=pet.main.buff.frenzy.up&pet.main.buff.frenzy.remains<=gcd+0.25|talent.scent_of_blood&pet.main.buff.frenzy.stack<3&cooldown.bestial_wrath.ready
   if S.BarbedShot:IsCastable() then
-    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotST, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot st 2"; end
+    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotST, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot st 2"; end
   end
   -- kill_command,if=full_recharge_time<gcd&talent.alpha_predator
   if S.KillCommand:IsReady() and (S.KillCommand:FullRechargeTime() < GCDMax and S.AlphaPredator:IsAvailable()) then
@@ -370,7 +380,7 @@ local function ST()
   end
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=talent.wild_instincts&buff.call_of_the_wild.up|talent.wild_call&charges_fractional>1.4|full_recharge_time<gcd&cooldown.bestial_wrath.remains|talent.scent_of_blood&(cooldown.bestial_wrath.remains<12+gcd|full_recharge_time+gcd<8&cooldown.bestial_wrath.remains<24+(8-gcd)+full_recharge_time)|fight_remains<9
   if S.BarbedShot:IsCastable() then
-    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotST2, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot st 24"; end
+    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotST2, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot st 24"; end
   end
   -- dire_beast
   if S.DireBeast:IsCastable() then
@@ -378,7 +388,7 @@ local function ST()
   end
   -- serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>duration
   if S.SerpentSting:IsReady() then
-    if Everyone.CastTargetIf(S.SerpentSting, Enemies40y, "min", EvaluateTargetIfFilterSerpentSting, EvaluateTargetIfSerpentStingST, not Target:IsSpellInRange(S.SerpentSting)) then return "serpent_sting st 28"; end
+    if Everyone.CastTargetIf(S.SerpentSting, Enemies40y, "min", EvaluateTargetIfFilterSerpentSting, EvaluateTargetIfSerpentStingST, not Target:IsSpellInRange(S.SerpentSting), nil, nil, M.SerpentStingMouseover) then return "serpent_sting st 28"; end
   end
   -- kill_shot
   if S.KillShot:IsReady() then
@@ -394,7 +404,7 @@ local function ST()
   end
   -- wailing_arrow,if=pet.main.buff.frenzy.remains>execute_time|target.time_to_die<5
   if S.WailingArrow:IsReady() and (Pet:BuffRemains(S.FrenzyPetBuff) > S.WailingArrow:ExecuteTime() or FightRemains < 5) then
-    if Cast(S.WailingArrow, nil, nil, not Target:IsSpellInRange(S.WailingArrow)) then return "wailing_arrow st 36"; end
+    if WR.Press(S.WailingArrow, not Target:IsSpellInRange(S.WailingArrow), true) then return "wailing_arrow st 36"; end
   end
   if CDsON() then
     -- bag_of_tricks,if=buff.bestial_wrath.down|target.time_to_die<5
@@ -434,10 +444,10 @@ local function APL()
   end
 
   -- Enemies Update
-  local PetCleaveAbility = (S.BloodBolt:IsPetKnown() and Action.FindBySpellID(S.BloodBolt:ID()) and S.BloodBolt)
-    or (S.Bite:IsPetKnown() and Action.FindBySpellID(S.Bite:ID()) and S.Bite)
-    or (S.Claw:IsPetKnown() and Action.FindBySpellID(S.Claw:ID()) and S.Claw)
-    or (S.Smack:IsPetKnown() and Action.FindBySpellID(S.Smack:ID()) and S.Smack)
+  local PetCleaveAbility = (S.BloodBolt:IsPetKnown() and S.BloodBolt)
+    or (S.Bite:IsPetKnown() and S.Bite)
+    or (S.Claw:IsPetKnown() and S.Claw)
+    or (S.Smack:IsPetKnown() and S.Smack)
     or nil
   local PetRangeAbility = (S.Growl:IsPetKnown() and Action.FindBySpellID(S.Growl:ID()) and S.Growl) or nil
   if AoEON() then
@@ -458,6 +468,10 @@ local function APL()
   if S.Exhilaration:IsCastable() and Player:HealthPercentage() <= Settings.Commons2.ExhilarationHP then
     if Cast(S.Exhilaration, Settings.Commons2.GCDasOffGCD.Exhilaration) then return "Exhilaration"; end
   end
+  -- healthstone
+  if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
+    if WR.Press(M.Healthstone, nil, nil, true) then return "healthstone defensive 3"; end
+  end
 
   -- Pet Management
   if S.SummonPet:IsCastable() then
@@ -476,8 +490,16 @@ local function APL()
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
     end
     -- Interrupts
-     local ShouldReturn = Everyone.Interrupt(S.CounterShot, 40, true); if ShouldReturn then return ShouldReturn; end
-     ShouldReturn = Everyone.InterruptWithStun(S.Intimidation, 40); if ShouldReturn then return ShouldReturn; end
+    if not Player:IsCasting(S.WailingArrow) then
+      local ShouldReturn = Everyone.Interrupt(S.CounterShot, 40, true); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.InterruptWithStun(S.Intimidation, 40); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.Interrupt(S.CounterShot, 40, true, Mouseover, M.CounterShotMouseover); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.InterruptWithStun(S.Intimidation, 40, nil, Mouseover, M.IntimidationMouseover); if ShouldReturn then return ShouldReturn; end
+    end
+    -- Explosives
+    if (Settings.Commons.Enabled.HandleExplosives) then
+      local ShouldReturn = Everyone.HandleExplosive(S.CobraShot, M.CobraShotMouseover); if ShouldReturn then return ShouldReturn; end
+    end
     -- auto_shot
     -- call_action_list,name=cds
     if (CDsON()) then
@@ -527,6 +549,7 @@ local function AutoBind()
   WR.Bind(S.DeathChakram)
   WR.Bind(S.DireBeast)
   WR.Bind(S.Exhilaration)
+  WR.Bind(S.ExplosiveShot)
   WR.Bind(S.Flare)
   WR.Bind(S.Intimidation)
   WR.Bind(S.KillCommand)
@@ -534,7 +557,9 @@ local function AutoBind()
   WR.Bind(S.MendPet)
   WR.Bind(S.MultiShot)
   WR.Bind(S.RevivePet)
+  WR.Bind(S.SerpentSting)
   WR.Bind(S.Stampede)
+  WR.Bind(S.SteelTrap)
   WR.Bind(S.TarTrap)
   WR.Bind(S.WailingArrow)
   WR.Bind(S.SummonPet)
@@ -543,16 +568,31 @@ local function AutoBind()
   WR.Bind(S.SummonPet4)
   WR.Bind(S.SummonPet5)
   
+  -- Pet Spells
+  WR.Bind(S.BloodBolt)
+  WR.Bind(S.Bite)
+  WR.Bind(S.Claw)
+  WR.Bind(S.Growl)
+  WR.Bind(S.Smack)
+  
   -- Bind Items
   WR.Bind(M.Trinket1)
   WR.Bind(M.Trinket2)
-  --WR.Bind(M.Healthstone)
-  --WR.Bind(M.PotionOfSpectralAgility)
+  WR.Bind(M.Healthstone)
+  WR.Bind(M.PotionOfSpectralAgility)
+  
+  -- Macros
+  WR.Bind(M.BarbedShotMouseover)
+  WR.Bind(M.CobraShotMouseover)
+  WR.Bind(M.CounterShotMouseover)
+  WR.Bind(M.IntimidationMouseover)
+  WR.Bind(M.KillShotMouseover)
+  WR.Bind(M.SerpentStingMouseover)
+  WR.Bind(M.MisdirectionFocus)
 end
 
 local function OnInit ()
-  WR.Print("Beast Mastery can use pet abilities to better determine AoE. Make sure you have Growl and Blood Bolt / Bite / Claw / Smack in your player action bars.")
-  --WR.Print("Beast Mastery Hunter rotation is currently a work in progress, but has been updated for patch 9.1.5.")
+  WR.Print("Beast Mastery by Worldy.")
   AutoBind()
 end
 

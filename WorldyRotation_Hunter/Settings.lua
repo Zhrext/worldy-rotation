@@ -18,6 +18,7 @@ local CreateARPanelOptions = WR.GUI.CreateARPanelOptions
 WR.GUISettings.APL.Hunter = {
   Commons = {
     Enabled = {
+      HandleExplosives = true,
       Potions = true,
       Trinkets = true,
     },

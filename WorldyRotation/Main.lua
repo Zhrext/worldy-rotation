@@ -322,7 +322,7 @@ local EnabledRotation = {
   --  [105]   = "WorldyRotation_Druid",         -- Restoration
   ---- Hunter
     [253]   = "WorldyRotation_Hunter",        -- Beast Mastery
-    --[254]   = "WorldyRotation_Hunter",        -- Marksmanship
+    [254]   = "WorldyRotation_Hunter",        -- Marksmanship
     --[255]   = "WorldyRotation_Hunter",        -- Survival
   ---- Mage
   --  [62]    = "WorldyRotation_Mage",          -- Arcane
