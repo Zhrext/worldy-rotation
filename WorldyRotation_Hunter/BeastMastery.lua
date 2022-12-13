@@ -308,7 +308,7 @@ local function Cleave()
     if Cast(S.KillShot, nil, nil, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot cleave 38"; end
   end
   -- kill_shot_mouseover
-  if Mouseover:Exists() and S.KillShot:IsReady() and Mouseover:HealthPercentage() <= 20  then
+  if Mouseover:Exists() and S.KillShot:IsCastable() and Mouseover:HealthPercentage() <= 20  then
     if WR.Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover cleave 38"; end
   end
   -- aspect_of_the_wild
@@ -583,6 +583,7 @@ local function AutoBind()
   
   -- Macros
   WR.Bind(M.BarbedShotMouseover)
+  WR.Bind(M.BindingShotCursor)
   WR.Bind(M.CobraShotMouseover)
   WR.Bind(M.CounterShotMouseover)
   WR.Bind(M.IntimidationMouseover)

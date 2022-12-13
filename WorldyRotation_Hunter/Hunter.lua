@@ -51,6 +51,7 @@ Spell.Hunter.Commons = {
   AlphaPredator                         = Spell(269737),
   Barrage                               = Spell(120360),
   BeastMaster                           = Spell(378007),
+  BindingShot                           = Spell(109248),
   CounterShot                           = Spell(147362),
   DeathChakram                          = Spell(375891),
   ExplosiveShot                         = Spell(212431),
@@ -174,6 +175,7 @@ Macro.Hunter.Commons = {
   
   -- Spells
   ArcaneShotMouseover              = Macro("ArcaneShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.ArcaneShot:Name()),
+  BindingShotCursor                = Macro("BindingShotCursor", "/cast [@cursor] " .. Spell.Hunter.Commons.BindingShot:Name()),
   CounterShotMouseover             = Macro("CounterShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.CounterShot:Name()),
   IntimidationMouseover            = Macro("IntimidationMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.Intimidation:Name()),
   KillShotMouseover                = Macro("KillShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.KillShot:Name()),

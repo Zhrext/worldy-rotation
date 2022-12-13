@@ -125,5 +125,6 @@ HL.AddCoreOverride("Player.FocusP",
         return Focus - 35
       end
     end
+    return Focus
   end
 , 254)

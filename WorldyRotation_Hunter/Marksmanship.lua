@@ -192,7 +192,7 @@ local function Precombat()
   end
   -- snapshot_stats
   -- double_tap,precast_time=10
-  if S.DoubleTap:IsReady() then
+  if S.DoubleTap:IsReady() and CDsON() then
     if Cast(S.DoubleTap, Settings.Marksmanship.GCDasOffGCD.DoubleTap) then return "double_tap opener"; end
   end
   -- aimed_shot,if=active_enemies<3&(!talent.volley|active_enemies<2)
@@ -249,7 +249,7 @@ local function St()
     if Cast(S.KillShot, nil, nil, not TargetInRange40y) then return "kill_shot st 4"; end
   end
   -- kill_shot_mouseover
-  if Mouseover:Exists() and S.KillShot:IsReady() and Mouseover:HealthPercentage() <= 20  then
+  if Mouseover:Exists() and S.KillShot:IsCastable() and Mouseover:HealthPercentage() <= 20  then
     if Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover cleave 38"; end
   end
   -- steel_trap
@@ -265,15 +265,15 @@ local function St()
     if Cast(S.ExplosiveShot, nil, nil, not TargetInRange40y) then return "explosive_shot st 10"; end
   end
   -- double_tap,if=(cooldown.rapid_fire.remains<gcd|ca_active|!talent.streamline)&(!raid_event.adds.exists|raid_event.adds.up&(raid_event.adds.in<10&raid_event.adds.remains<3|raid_event.adds.in>cooldown|active_enemies>1)|!raid_event.adds.up&(raid_event.adds.count=1|raid_event.adds.in>cooldown))
-  if S.DoubleTap:IsReady() and ((S.RapidFire:CooldownRemains() < Player:GCD() or Target:HealthPercentage() > 70 or not S.Streamline:IsAvailable())) then
+  if S.DoubleTap:IsReady() and ((S.RapidFire:CooldownRemains() < Player:GCD() or Target:HealthPercentage() > 70 or not S.Streamline:IsAvailable())) and CDsON() then
     if Cast(S.DoubleTap, Settings.Marksmanship.GCDasOffGCD.DoubleTap) then return "double_tap st 12"; end
   end
   -- stampede
-  if S.Stampede:IsCastable() then
+  if S.Stampede:IsCastable() and CDsON() then
     if Cast(S.Stampede, nil, nil, not Target:IsInRange(30)) then return "stampede st 14"; end
   end
   -- death_chakram
-  if S.DeathChakram:IsReady() then
+  if S.DeathChakram:IsReady() and CDsON() then
     if Cast(S.DeathChakram, nil, Settings.Commons.DisplayStyle.Signature, not TargetInRange40y) then return "dark_chakram st 16"; end
   end
   -- wailing_arrow,if=active_enemies>1
@@ -345,11 +345,11 @@ local function Trickshots()
     if Cast(S.KillShot, nil, nil, not TargetInRange40y) then return "kill_shot trickshots 4"; end
   end
   -- kill_shot_mouseover
-  if Mouseover:Exists() and S.KillShot:IsReady() and Mouseover:HealthPercentage() <= 20  then
+  if Mouseover:Exists() and S.KillShot:IsCastable() and Mouseover:HealthPercentage() <= 20  then
     if Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover cleave 38"; end
   end
   -- double_tap,if=cooldown.rapid_fire.remains<gcd|ca_active|!talent.streamline
-  if S.DoubleTap:IsReady() and (S.RapidFire:CooldownRemains() < Player:GCD() or Target:HealthPercentage() > 70 or not S.Streamline:IsAvailable()) then
+  if S.DoubleTap:IsReady() and (S.RapidFire:CooldownRemains() < Player:GCD() or Target:HealthPercentage() > 70 or not S.Streamline:IsAvailable()) and CDsON() then
     if Cast(S.DoubleTap, Settings.Marksmanship.GCDasOffGCD.DoubleTap) then return "double_tap trickshots 6"; end
   end
   -- explosive_shot
@@ -357,11 +357,11 @@ local function Trickshots()
     if Cast(S.ExplosiveShot, nil, nil, not TargetInRange40y) then return "explosive_shot trickshots 8"; end
   end
   -- death_chakram
-  if S.DeathChakram:IsReady() then
+  if S.DeathChakram:IsReady() and CDsON() then
     if Cast(S.DeathChakram, nil, Settings.Commons.DisplayStyle.Signature, not TargetInRange40y) then return "death_chakram trickshots 10"; end
   end
   -- stampede
-  if S.Stampede:IsReady() then
+  if S.Stampede:IsReady() and CDsON() then
     if Cast(S.Stampede, nil, nil, not Target:IsInRange(30)) then return "stampede trickshots 12"; end
   end
   -- wailing_arrow
@@ -373,7 +373,7 @@ local function Trickshots()
     if Everyone.CastTargetIf(S.SerpentSting, Enemies40y, "min", EvaluateTargetIfFilterSerpentRemains, EvaluateTargetIfSerpentSting2, not TargetInRange40y) then return "serpent_sting trickshots 16"; end
   end
   -- barrage,if=active_enemies>7
-  if S.Barrage:IsReady() and (EnemiesCount10ySplash > 7) then
+  if S.Barrage:IsReady() and (EnemiesCount10ySplash > 7) and CDsON() then
     if Cast(S.Barrage, nil, nil, not TargetInRange40y) then return "barrage trickshots 18"; end
   end
   -- volley
@@ -464,14 +464,19 @@ local function APL()
     if S.Exhilaration:IsReady() and Player:HealthPercentage() <= Settings.Commons2.ExhilarationHP then
       if Cast(S.Exhilaration, Settings.Commons2.GCDasOffGCD.Exhilaration) then return "exhilaration"; end
     end
+    -- Interrupts
     if not Player:IsCasting(S.WailingArrow) then
       local ShouldReturn = Everyone.Interrupt(S.CounterShot, 40, true); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.InterruptWithStun(S.Intimidation, 40); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.Interrupt(S.CounterShot, 40, true, Mouseover, M.CounterShotMouseover); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.InterruptWithStun(S.Intimidation, 40, false, Mouseover, M.IntimidationMouseover); if ShouldReturn then return ShouldReturn; end
     end
+    -- Explosives
+    if (Settings.Commons.Enabled.HandleExplosives) then
+      local ShouldReturn = Everyone.HandleExplosive(S.ArcaneShot, M.ArcaneShotMouseover); if ShouldReturn then return ShouldReturn; end
+    end
     -- auto_shot
-    if Settings.Commons.Enabled.Trinkets then
+    if Settings.Commons.Enabled.Trinkets and CDsON() then
       -- use_items,slots=trinket1,if=!trinket.1.has_use_buff|buff.trueshot.up
       local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
       if Trinket1ToUse and ((not Trinket1ToUse:TrinketHasUseBuff()) or Player:BuffUp(S.TrueshotBuff)) then
@@ -544,6 +549,7 @@ local function AutoBind()
   
   -- Macros
   WR.Bind(M.ArcaneShotMouseover)
+  WR.Bind(M.BindingShotCursor)
   WR.Bind(M.CounterShotMouseover)
   WR.Bind(M.IntimidationMouseover)
   WR.Bind(M.KillShotMouseover)
