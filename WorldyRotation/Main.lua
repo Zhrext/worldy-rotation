@@ -330,7 +330,7 @@ local EnabledRotation = {
   --  [64]    = "WorldyRotation_Mage",          -- Frost
   ---- Monk
   --  [268]   = "WorldyRotation_Monk",          -- Brewmaster
-  --  [269]   = "WorldyRotation_Monk",          -- Windwalker
+      [269]   = "WorldyRotation_Monk",          -- Windwalker
   --  [270]   = "WorldyRotation_Monk",          -- Mistweaver
   ---- Paladin
   --  [65]    = "WorldyRotation_Paladin",       -- Holy
@@ -338,11 +338,11 @@ local EnabledRotation = {
   --  [70]    = "WorldyRotation_Paladin",       -- Retribution
   -- Priest
   --  [256]   = "WorldyRotation_Priest",        -- Discipline
-  [257]   = "WorldyRotation_Priest",        -- Holy
+      [257]   = "WorldyRotation_Priest",        -- Holy
   --  [258]   = "WorldyRotation_Priest",        -- Shadow
   ---- Rogue
   --  [259]   = "WorldyRotation_Rogue",         -- Assassination
-    [261]   = "WorldyRotation_Rogue",         -- Subtlety
+  --  [261]   = "WorldyRotation_Rogue",         -- Subtlety
   [260]   = "WorldyRotation_Rogue",         -- Outlaw
   ---- Shaman
   --  [262]   = "WorldyRotation_Shaman",        -- Elemental
