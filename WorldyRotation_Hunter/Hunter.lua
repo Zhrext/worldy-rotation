@@ -189,5 +189,6 @@ Macro.Hunter.BeastMastery = MergeTableByKey(Macro.Hunter.Commons, {
 })
 
 Macro.Hunter.Marksmanship = MergeTableByKey(Macro.Hunter.Commons, {
+  AimedShotMouseover               = Macro("AimedShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.Marksmanship.AimedShot:Name()),
   VolleyCursor                     = Macro("VolleyCursor", "/cast [@cursor] " .. Spell.Hunter.Marksmanship.Volley:Name()),
 })

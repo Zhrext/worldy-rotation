@@ -115,11 +115,16 @@ function Commons.CastTargetIf(Object, Enemies, TargetIfMode, TargetIfCondition, 
       end
     end
     if BestUnit then
-      if TargetCondition and (BestUnit:GUID() == Target:GUID() or BestConditionValue == TargetIfCondition(Target)) then
+      if BestUnit:GUID() == Target:GUID() and TargetCondition then
         return WR.Cast(Object, OffGCD, DisplayStyle, OutofRange);
-      elseif MouseoverMacro and ((Condition and Condition(BestUnit)) or not Condition) and BestUnit:GUID() == Mouseover:GUID() then
-        return WR.Press(MouseoverMacro, OutofRange, nil, OffGCD)
+      elseif BestUnit:GUID() == Mouseover:GUID() and MouseoverMacro and ((Condition and Condition(Mouseover)) or not Condition) then
+        return WR.Press(MouseoverMacro, OutofRange, nil, OffGCD);
       end
+    end
+    if TargetCondition then
+      return WR.Cast(Object, OffGCD, DisplayStyle, OutofRange);
+    elseif MouseoverMacro and ((Condition and Condition(Mouseover)) or not Condition) then
+      return WR.Press(MouseoverMacro, OutofRange, nil, OffGCD);
     end
   end
 end

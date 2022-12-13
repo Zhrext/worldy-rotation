@@ -258,7 +258,7 @@ local function St()
   end
   -- serpent_sting,target_if=min:dot.serpent_sting.remains,if=refreshable&!talent.serpentstalkers_trickery&buff.trueshot.down
   if S.SerpentSting:IsReady() and (Player:BuffDown(S.TrueshotBuff)) then
-    if Everyone.CastTargetIf(S.SerpentSting, Enemies40y, "min", EvaluateTargetIfFilterSerpentRemains, EvaluateTargetIfSerpentSting, not TargetInRange40y) then return "serpent_sting st 8"; end
+    if Everyone.CastTargetIf(S.SerpentSting, Enemies40y, "min", EvaluateTargetIfFilterSerpentRemains, EvaluateTargetIfSerpentSting, not TargetInRange40y, nil, nil, M.SerpentStingMouseover) then return "serpent_sting st 8"; end
   end
   -- explosive_shot
   if S.ExplosiveShot:IsReady() then
@@ -298,11 +298,11 @@ local function St()
   end
   -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=talent.serpentstalkers_trickery&((buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(!talent.chimaera_shot|active_enemies<2))|buff.trick_shots.remains>execute_time&active_enemies>1)
   if S.AimedShot:IsReady() then
-    if Everyone.CastTargetIf(S.AimedShot, Enemies40y, "min", EvaluateTargetIfFilterAimedShot, EvaluateTargetIfAimedShot, not TargetInRange40y, nil, nil, nil, true) then return "aimed_shot st 28"; end
+    if Everyone.CastTargetIf(S.AimedShot, Enemies40y, "min", EvaluateTargetIfFilterAimedShot, EvaluateTargetIfAimedShot, not TargetInRange40y, nil, nil, M.AimedShotMouseover, true) then return "aimed_shot st 28"; end
   end
   -- aimed_shot,target_if=max:debuff.latent_poison.stack,if=(buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(!talent.chimaera_shot|active_enemies<2))|buff.trick_shots.remains>execute_time&active_enemies>1
   if S.AimedShot:IsReady() then
-    if Everyone.CastTargetIf(S.AimedShot, Enemies40y, "max", EvaluateTargetIfFilterLatentPoison, EvaluateTargetIfAimedShot2, not TargetInRange40y, nil, nil, nil, true) then return "aimed_shot st 30"; end
+    if Everyone.CastTargetIf(S.AimedShot, Enemies40y, "max", EvaluateTargetIfFilterLatentPoison, EvaluateTargetIfAimedShot2, not TargetInRange40y, nil, nil, M.AimedShotMouseover, true) then return "aimed_shot st 30"; end
   end
   -- steady_shot,if=talent.steady_focus&buff.steady_focus.remains<execute_time*2
   -- Note: Added SteadyShotTracker.Count ~= 2 so we don't suggest this during the cast that will grant us SteadyFocusBuff
@@ -370,7 +370,7 @@ local function Trickshots()
   end
   -- serpent_sting,target_if=min:dot.serpent_sting.remains,if=refreshable&talent.hydras_bite&!talent.serpentstalkers_trickery
   if S.SerpentSting:IsReady() then
-    if Everyone.CastTargetIf(S.SerpentSting, Enemies40y, "min", EvaluateTargetIfFilterSerpentRemains, EvaluateTargetIfSerpentSting2, not TargetInRange40y) then return "serpent_sting trickshots 16"; end
+    if Everyone.CastTargetIf(S.SerpentSting, Enemies40y, "min", EvaluateTargetIfFilterSerpentRemains, EvaluateTargetIfSerpentSting2, not TargetInRange40y, nil, nil, M.SerpentStingMouseover) then return "serpent_sting trickshots 16"; end
   end
   -- barrage,if=active_enemies>7
   if S.Barrage:IsReady() and (EnemiesCount10ySplash > 7) and CDsON() then
@@ -390,11 +390,11 @@ local function Trickshots()
   end
   -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=talent.serpentstalkers_trickery&(buff.trick_shots.remains>=execute_time&(buff.precise_shots.down|buff.trueshot.up|full_recharge_time<cast_time+gcd))
   if S.AimedShot:IsReady() then
-    if Everyone.CastTargetIf(S.AimedShot, Enemies40y, "min", EvaluateTargetIfFilterAimedShot, EvaluateTargetIfAimedShot3, not TargetInRange40y) then return "aimed_shot trickshots 26"; end
+    if Everyone.CastTargetIf(S.AimedShot, Enemies40y, "min", EvaluateTargetIfFilterAimedShot, EvaluateTargetIfAimedShot3, not TargetInRange40y, nil, nil, M.AimedShotMouseover, true) then return "aimed_shot trickshots 26"; end
   end
   -- aimed_shot,target_if=max:debuff.latent_poison.stack,if=(buff.trick_shots.remains>=execute_time&(buff.precise_shots.down|buff.trueshot.up|full_recharge_time<cast_time+gcd))
   if S.AimedShot:IsReady() then
-    if Everyone.CastTargetIf(S.AimedShot, Enemies40y, "max", EvaluateTargetIfFilterLatentPoison, EvaluateTargetIfAimedShot4, not TargetInRange40y) then return "aimed_shot trickshots 28"; end
+    if Everyone.CastTargetIf(S.AimedShot, Enemies40y, "max", EvaluateTargetIfFilterLatentPoison, EvaluateTargetIfAimedShot4, not TargetInRange40y, nil, nil, M.AimedShotMouseover, true) then return "aimed_shot trickshots 28"; end
   end
   -- rapid_fire,if=buff.trick_shots.remains>=execute_time
   if S.RapidFire:IsCastable() and (Player:BuffRemains(S.TrickShotsBuff) >= S.RapidFire:ExecuteTime()) then
@@ -410,7 +410,7 @@ local function Trickshots()
   end
   -- serpent_sting,target_if=min:dot.serpent_sting.remains,if=refreshable&talent.poison_injection&!talent.serpentstalkers_trickery
   if S.SerpentSting:IsReady() then
-    if Everyone.CastTargetIf(S.SerpentSting, Enemies40y, "min", EvaluateTargetIfFilterSerpentRemains, EvaluateTargetIfSerpentSting3, not TargetInRange40y) then return "serpent_sting trickshots 36"; end
+    if Everyone.CastTargetIf(S.SerpentSting, Enemies40y, "min", EvaluateTargetIfFilterSerpentRemains, EvaluateTargetIfSerpentSting3, not TargetInRange40y, nil, nil, M.SerpentStingMouseover) then return "serpent_sting trickshots 36"; end
   end
   -- steel_trap
   if S.SteelTrap:IsCastable() then
@@ -548,6 +548,7 @@ local function AutoBind()
   WR.Bind(M.PotionOfSpectralAgility)
   
   -- Macros
+  WR.Bind(M.AimedShotMouseover)
   WR.Bind(M.ArcaneShotMouseover)
   WR.Bind(M.BindingShotCursor)
   WR.Bind(M.CounterShotMouseover)
