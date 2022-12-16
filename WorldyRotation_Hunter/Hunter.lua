@@ -22,7 +22,7 @@ local Macro      = WR.Macro
 --- ============================ CONTENT ============================
 
 -- Spells
-if not Spell.Hunter then Spell.Hunter = {} end
+if not Spell.Hunter then Spell.Hunter = {}; end
 Spell.Hunter.Commons = {
   -- Racials
   AncestralCall                         = Spell(274738),
@@ -153,11 +153,10 @@ Spell.Hunter.Marksmanship = MergeTableByKey(Spell.Hunter.Commons, {
 })
 
 -- Items
-if not Item.Hunter then Item.Hunter = {} end
+if not Item.Hunter then Item.Hunter = {}; end
 Item.Hunter.Commons = {
   -- Potions
   Healthstone                           = Item(5512),
-  PotionOfSpectralAgility               = Item(171270),
 }
 
 Item.Hunter.BeastMastery = MergeTableByKey(Item.Hunter.Commons, {
@@ -165,13 +164,12 @@ Item.Hunter.BeastMastery = MergeTableByKey(Item.Hunter.Commons, {
 
 
 -- Macros
-if not Macro.Hunter then Macro.Hunter = {} end
+if not Macro.Hunter then Macro.Hunter = {}; end
 Macro.Hunter.Commons = {
   -- Items
   Trinket1                         = Macro("Trinket1", "/use 13"),
   Trinket2                         = Macro("Trinket2", "/use 14"),
-  Healthstone                      = Macro("Healthstone", "/use " .. Item.Hunter.Commons.Healthstone:Name()),
-  PotionOfSpectralAgility          = Macro("PotionOfSpectralAgility", "/use " .. Item.Hunter.Commons.PotionOfSpectralAgility:Name()),
+  Healthstone                      = Macro("Healthstone", "/use item:5512"),
   
   -- Spells
   ArcaneShotMouseover              = Macro("ArcaneShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.ArcaneShot:Name()),
@@ -180,6 +178,7 @@ Macro.Hunter.Commons = {
   IntimidationMouseover            = Macro("IntimidationMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.Intimidation:Name()),
   KillShotMouseover                = Macro("KillShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.KillShot:Name()),
   SerpentStingMouseover            = Macro("SerpentStingMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.SerpentSting:Name()),
+  SteelTrapCursor                  = Macro("SteelTrapCursor", "/cast [@cursor] " .. Spell.Hunter.Commons.SteelTrap:Name()),
   MisdirectionFocus                = Macro("MisdirectionFocus", "/cast [@focus] " .. Spell.Hunter.Commons.Misdirection:Name()),
 }
 

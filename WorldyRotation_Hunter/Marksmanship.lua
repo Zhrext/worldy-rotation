@@ -253,8 +253,8 @@ local function St()
     if Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover cleave 38"; end
   end
   -- steel_trap
-  if S.SteelTrap:IsCastable() then
-    if Cast(S.SteelTrap, Settings.Commons2.GCDasOffGCD.SteelTrap, nil, not Target:IsInRange(40)) then return "steel_trap st 6"; end
+  if Settings.Commons.UseSteelTrap and S.SteelTrap:IsCastable() and Target:GUID() == Mouseover:GUID() then
+    if Press(M.SteelTrapCursor, not Target:IsInRange(40)) then return "steel_trap st 6"; end
   end
   -- serpent_sting,target_if=min:dot.serpent_sting.remains,if=refreshable&!talent.serpentstalkers_trickery&buff.trueshot.down
   if S.SerpentSting:IsReady() and (Player:BuffDown(S.TrueshotBuff)) then
@@ -281,7 +281,7 @@ local function St()
     if Press(S.WailingArrow, not TargetInRange40y, true) then return "wailing_arrow st 18"; end
   end
   -- volley
-  if S.Volley:IsReady() and Mouseover:GUID() == Target:GUID() then
+  if Settings.Marksmanship.UseVolley and S.Volley:IsReady() and Mouseover:GUID() == Target:GUID() then
     if Cast(M.VolleyCursor, Settings.Marksmanship.GCDasOffGCD.Volley, nil, not TargetInRange40y)  then return "volley st 20"; end
   end
   -- rapid_fire,if=talent.surging_shots|buff.double_tap.up&talent.streamline&!ca_active
@@ -377,7 +377,7 @@ local function Trickshots()
     if Cast(S.Barrage, nil, nil, not TargetInRange40y) then return "barrage trickshots 18"; end
   end
   -- volley
-  if S.Volley:IsReady() and Mouseover:GUID() == Target:GUID() then
+  if Settings.Marksmanship.UseVolley and S.Volley:IsReady() and Mouseover:GUID() == Target:GUID() then
     if Cast(M.VolleyCursor, Settings.Marksmanship.GCDasOffGCD.Volley)  then return "volley trickshots 20"; end
   end
   -- trueshot
@@ -413,8 +413,8 @@ local function Trickshots()
     if Everyone.CastTargetIf(S.SerpentSting, Enemies40y, "min", EvaluateTargetIfFilterSerpentRemains, EvaluateTargetIfSerpentSting3, not TargetInRange40y, nil, nil, M.SerpentStingMouseover) then return "serpent_sting trickshots 36"; end
   end
   -- steel_trap
-  if S.SteelTrap:IsCastable() then
-    if Cast(S.SteelTrap, Settings.Commons2.GCDasOffGCD.SteelTrap, nil, not Target:IsInRange(40)) then return "steel_trap trickshots 38"; end
+  if Settings.Commons.UseSteelTrap and S.SteelTrap:IsCastable() and Target:GUID() == Mouseover:GUID() then
+    if Press(M.SteelTrapCursor, not Target:IsInRange(40)) then return "steel_trap trickshots 38"; end
   end
   -- kill_shot,if=focus>cost+action.aimed_shot.cost
   if S.KillShot:IsReady() and (Player:FocusP() > S.KillShot:Cost() + S.AimedShot:Cost()) then
@@ -465,7 +465,7 @@ local function APL()
       if Cast(S.Exhilaration, Settings.Commons2.GCDasOffGCD.Exhilaration) then return "exhilaration"; end
     end
     -- Interrupts
-    if not Player:IsCasting(S.WailingArrow) then
+    if not Player:IsCasting(S.WailingArrow) and not Player:IsCasting(S.RapidFire) then
       local ShouldReturn = Everyone.Interrupt(S.CounterShot, 40, true); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.InterruptWithStun(S.Intimidation, 40); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.Interrupt(S.CounterShot, 40, true, Mouseover, M.CounterShotMouseover); if ShouldReturn then return ShouldReturn; end
@@ -532,6 +532,7 @@ local function AutoBind()
   WR.Bind(S.RevivePet)
   WR.Bind(S.SerpentSting)
   WR.Bind(S.Stampede)
+  WR.Bind(S.SteelTrap)
   WR.Bind(S.TarTrap)
   WR.Bind(S.Trueshot)
   WR.Bind(S.SummonPet)
@@ -545,7 +546,6 @@ local function AutoBind()
   WR.Bind(M.Trinket1)
   WR.Bind(M.Trinket2)
   WR.Bind(M.Healthstone)
-  WR.Bind(M.PotionOfSpectralAgility)
   
   -- Macros
   WR.Bind(M.AimedShotMouseover)
@@ -555,6 +555,7 @@ local function AutoBind()
   WR.Bind(M.IntimidationMouseover)
   WR.Bind(M.KillShotMouseover)
   WR.Bind(M.SerpentStingMouseover)
+  WR.Bind(M.SteelTrapCursor)
   WR.Bind(M.MisdirectionFocus)
   WR.Bind(M.VolleyCursor)
 end

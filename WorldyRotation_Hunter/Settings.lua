@@ -19,6 +19,7 @@ WR.GUISettings.APL.Hunter = {
   Commons = {
     Enabled = {
       HandleExplosives = true,
+      UseSteelTrap = true,
       Potions = true,
       Trinkets = true,
     },
@@ -67,6 +68,7 @@ WR.GUISettings.APL.Hunter = {
   },
   Marksmanship = {
     HideAimedWhileMoving = false,
+    UseVolley = true,
     GCDasOffGCD = {
       DoubleTap = false,
       Volley = false,
@@ -121,6 +123,7 @@ CreateARPanelOptions(CP_BeastMastery, "APL.Hunter.BeastMastery")
 
 -- Marksmanship
 CreatePanelOption("CheckButton", CP_Marksmanship, "APL.Hunter.Marksmanship.HideAimedWhileMoving", "Hide Moving Aimed Shot", "Enable this option to hide Aimed Shot while your character is moving.")
+CreatePanelOption("CheckButton", CP_Marksmanship, "APL.Hunter.Marksmanship.UseVolley", "Use Volley when Mouseover", "Enable this option to use volley when target is equal to mouseover.")
 CreateARPanelOptions(CP_Marksmanship, "APL.Hunter.Marksmanship")
 
 -- Survival

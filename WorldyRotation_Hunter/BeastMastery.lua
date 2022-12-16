@@ -579,7 +579,6 @@ local function AutoBind()
   WR.Bind(M.Trinket1)
   WR.Bind(M.Trinket2)
   WR.Bind(M.Healthstone)
-  WR.Bind(M.PotionOfSpectralAgility)
   
   -- Macros
   WR.Bind(M.BarbedShotMouseover)
