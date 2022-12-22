@@ -65,8 +65,61 @@ end
 
 -- Interrupt
 do
-  local InterruptWhitelistIDs = { };
-  local StunWhitelistIDs = { };
+  local InterruptWhitelistIDs = {
+    396812,
+    388392,
+    388863,
+    377389,
+    396640,
+    387843,
+    209413,
+    207980,
+    208165,
+    198595,
+    198959,
+    215433,
+    199726,
+    198750,
+    373017,
+    392451,
+    385310,
+    152818,
+    -- 154327, -- Domination Manual Interrupt
+    156776,
+    156722,
+    398206,
+    156718,
+    153524,
+    397888,
+    397889,
+    395859,
+    396073,
+    397914,
+    387564,
+    375602,
+    386546,
+    377488,
+    373932,
+    384365,
+    386024,
+    387411,
+    387606,
+    384808,
+    373395,
+    376725,
+  };
+  local StunWhitelistIDs = {
+    210261,
+    372749,
+    372735,
+    370225,
+    386526,
+    384476,
+    383823,
+    386490,
+    387615,
+    382077,
+  };
   function Commons.Interrupt(Spell, Range, OffGCD, Unit, Macro)
     if not Unit then
       Unit = Target;
@@ -150,7 +203,21 @@ end
 
 -- Mitigate
 do
-  local MitigateIDs = { };
+  local MitigateIDs = {
+    388911,
+    193092,
+    193668,
+    381514,
+    396019,
+    397904,
+    106823,
+    106841,
+    389804,
+    377105,
+    384978,
+    384686,
+    382836,
+  };
   function Commons.ShouldMitigate()
     return Utils.ValueIsInArray(MitigateIDs, Target:CastSpellID()) or Utils.ValueIsInArray(MitigateIDs, Target:ChannelSpellID());
   end
@@ -158,7 +225,12 @@ end
 
 -- Dispel Buffs
 do
-  Commons.DispellableEnrageBuffIDs = {};
+  Commons.DispellableEnrageBuffIDs = {
+    390938,
+    397410,
+    190225,
+    396018,
+  };
   function Commons.UnitHasEnrageBuff(U)
     for i = 1, #Commons.DispellableEnrageBuffIDs do
       if U:BuffUp(Commons.DispellableEnrageBuffIDs[i], true) then
@@ -168,7 +240,11 @@ do
     return false;
   end
 
-  Commons.DispellableMagicBuffIDs = {};
+  Commons.DispellableMagicBuffIDs = {
+    392454,
+    398151,
+    386223,
+  };
   function Commons.UnitHasMagicBuff(U)
     for i = 1, #Commons.DispellableMagicBuffIDs do
       if U:BuffUp(Commons.DispellableMagicBuffIDs[i], true) then

@@ -77,6 +77,12 @@
 --- ======= CASTS =======
   -- Main Cast
 do
+  local SilenceIDs = {
+    377004,
+    397892,
+    196543,
+    381516,
+  };
   local QuakingDebuffId = Spell(240447);
   local PoolResource = 999910;
   function WR.Press(Object, OutofRange, Immovable, OffGCD)
@@ -85,7 +91,8 @@ do
     local MacroID = Object.MacroID;
     local Usable = MacroID or Object:IsUsable();
     local ShowPooling = Object.SpellID == PoolResource;
-    if ShowPooling or not Usable or OutofRange or (Immovable and (Player:IsMoving() or Player:DebuffUp(QuakingDebuffId, true))) or (not OffGCD and (Player:CastEnd() - HL.Latency() > 0 or Player:GCDRemains() - HL.Latency() > 0)) then
+    local TargetIsCastingSilence = Target:Exists() and Utils.ValueIsInArray(SilenceIDs, Target:CastSpellID());
+    if ShowPooling or not Usable or OutofRange or (Immovable and (Player:IsMoving() or Player:DebuffUp(QuakingDebuffId, true) or TargetIsCastingSilence)) or (not OffGCD and (Player:CastEnd() - HL.Latency() > 0 or Player:GCDRemains() - HL.Latency() > 0)) then
       WR.MainFrame:ChangeBind(nil);
       Object.LastDisplayTime = GetTime();
       return false;
@@ -115,6 +122,15 @@ do
   end
   function WR.Cast(Object, OffGCD, DisplayStyle, OutofRange, CustomTime)
     return WR.Press(Object, OutofRange, nil, OffGCD);
+  end
+  function WR.CastAnnotated(Object, OffGCD, Text)
+    return WR.Press(Object, nil, nil OffGCD);
+  end
+  function WR.CastPooling(Object, CustomTime, OutofRange)
+    return WR.Press(Object, OutofRange);
+  end
+  function WR.CastSuggested(Object, OutofRange)
+    return WR.Press(Object, OutofRange);
   end
 end
 
