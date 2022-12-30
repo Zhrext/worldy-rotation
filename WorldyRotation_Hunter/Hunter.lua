@@ -68,6 +68,7 @@ Spell.Hunter.Commons = {
   Stampede                              = Spell(201430),
   SteelTrap                             = Spell(162488),
   TarTrap                               = Spell(187698),
+  TranquilizingShot                     = Spell(19801),
   WailingArrow                          = Spell(392060),
   -- Buffs
   BerserkingBuff                        = Spell(26297),
@@ -148,6 +149,7 @@ Spell.Hunter.Marksmanship = MergeTableByKey(Spell.Hunter.Commons, {
   TrueshotBuff                          = Spell(288613),
   VolleyBuff                            = Spell(260243),
   -- Debuffs
+  SalvoDebuff                           = Spell(388909),
   -- Legendaries
   EagletalonsTrueFocusBuff              = Spell(336851),
 })

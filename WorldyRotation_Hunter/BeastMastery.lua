@@ -536,7 +536,6 @@ local function APL()
   if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
     if WR.Press(M.Healthstone, nil, nil, true) then return "healthstone defensive 3"; end
   end
-
   -- Pet Management
   if S.SummonPet:IsCastable() then
     if Cast(SummonPetSpells[Settings.Commons2.SummonPetSlot], Settings.Commons2.GCDasOffGCD.SummonPet) then return "Summon Pet"; end
@@ -563,6 +562,10 @@ local function APL()
     -- Explosives
     if (Settings.Commons.Enabled.HandleExplosives) then
       local ShouldReturn = Everyone.HandleExplosive(S.CobraShot, M.CobraShotMouseover); if ShouldReturn then return ShouldReturn; end
+    end
+    -- Dispels
+    if Settings.General.Enabled.DispelDebuffs and not Player:IsCasting() and not Player:IsChanneling() and (Everyone.UnitHasEnrageBuff(Target) or Everyone.UnitHasMagicBuff(Target)) then
+      if WR.Press(S.TranquilizingShot, not TargetInRange40y) then return "dispel"; end
     end
     -- auto_shot
     -- call_action_list,name=cds
@@ -625,6 +628,7 @@ local function AutoBind()
   WR.Bind(S.Stampede)
   WR.Bind(S.SteelTrap)
   WR.Bind(S.TarTrap)
+  WR.Bind(S.TranquilizingShot)
   WR.Bind(S.WailingArrow)
   WR.Bind(S.SummonPet)
   WR.Bind(S.SummonPet2)

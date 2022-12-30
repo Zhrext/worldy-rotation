@@ -1,15 +1,15 @@
 ## Interface: 100002
 
-## Title: Worldy|cFFA330C9Rotation|r [|cFFC41F3BDeathKnight|r]
+## Title: Worldy|cFFA330C9Rotation|r [|cFFFF7C0ADruid|r]
 ## Author: Worldy
-## Notes: Worldy Rotation - DeathKnight Module.
+## Notes: Worldy Rotation - Druid Module.
 
 ## DefaultState: Enabled
 ## LoadOnDemand: 1
 ## Dependencies: WorldyRotation
 
 Settings.lua
-DeathKnight.lua
+Druid.lua
 Events.lua
-Blood.lua
+Restoration.lua
 Overrides.lua

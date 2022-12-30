@@ -7,6 +7,7 @@
   local Cache, Utils = HeroCache, HL.Utils;
   local Unit = HL.Unit;
   local Player = Unit.Player;
+  local Focus = Unit.Focus;
   local Target = Unit.Target;
   local Mouseover = Unit.MouseOver;
   local Party = Unit.Party;
@@ -25,6 +26,15 @@
   local AbilitySettings = WR.GUISettings.Abilities;
 
 --- ============================ CONTENT ============================
+-- Num/Bool helper functions
+function Commons.num(val)
+  if val then return 1 else return 0 end
+end
+
+function Commons.bool(val)
+  return val ~= 0
+end
+
 -- Is the current target valid?
 function Commons.TargetIsValid()
   return Target:Exists() and Player:CanAttack(Target) and not Target:IsDeadOrGhost();
@@ -32,9 +42,9 @@ end
 
 -- Is the current target a valid npc healable unit?
 do
-  local HealableNpcIDs = { };
+  Commons.HealableNpcIDs = {};
   function Commons.TargetIsValidHealableNpc()
-    return Target:Exists() and not Player:CanAttack(Target) and not Target:IsDeadOrGhost() and Utils.ValueIsInArray(HealableNpcIDs, Target:NPCID());
+    return Target:Exists() and not Player:CanAttack(Target) and not Target:IsDeadOrGhost() and Utils.ValueIsInArray(Commons.HealableNpcIDs, Target:NPCID());
   end
 end
 
@@ -50,7 +60,7 @@ end
 
 -- Explosive
 do
-  local ExplosiveNPCID = 120651
+  local ExplosiveNPCID = 120651;
   function Commons.HandleExplosive(Spell, Macro)
     if Target:NPCID() == ExplosiveNPCID and Spell:IsReady() then
       if WR.Press(Spell, not Target:IsSpellInRange(Spell)) then return "Handle Explosive"; end
@@ -65,7 +75,7 @@ end
 
 -- Interrupt
 do
-  local InterruptWhitelistIDs = {
+  Commons.InterruptWhitelistIDs = {
     396812,
     388392,
     388863,
@@ -108,7 +118,7 @@ do
     373395,
     376725,
   };
-  local StunWhitelistIDs = {
+  Commons.StunWhitelistIDs = {
     210261,
     372749,
     372735,
@@ -124,7 +134,7 @@ do
     if not Unit then
       Unit = Target;
     end
-    if Settings.Enabled.Interrupt and Unit:IsInterruptible() and (Unit:CastPercentage() >= Settings.Threshold.Interrupt or Unit:IsChanneling()) and (not Settings.Enabled.InterruptOnlyWhitelist or Utils.ValueIsInArray(InterruptWhitelistIDs, Unit:CastSpellID()) or Utils.ValueIsInArray(InterruptWhitelistIDs, Unit:ChannelSpellID())) then
+    if Settings.Enabled.Interrupt and Unit:IsInterruptible() and (Unit:CastPercentage() >= Settings.Threshold.Interrupt or Unit:IsChanneling()) and (not Settings.Enabled.InterruptOnlyWhitelist or Utils.ValueIsInArray(Commons.InterruptWhitelistIDs, Unit:CastSpellID()) or Utils.ValueIsInArray(Commons.InterruptWhitelistIDs, Unit:ChannelSpellID())) then
       if Spell:IsCastable() then
         if Macro then
           if WR.Press(Macro, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt)"; end
@@ -139,7 +149,7 @@ do
       Unit = Target;
     end
     if Settings.Enabled.InterruptWithStun and (Unit:CastPercentage() >= Settings.Threshold.Interrupt or Unit:IsChanneling()) then
-      if (Settings.Enabled.InterruptOnlyWhitelist and (Utils.ValueIsInArray(StunWhitelistIDs, Unit:CastSpellID()) or Utils.ValueIsInArray(StunWhitelistIDs, Unit:ChannelSpellID()))) or (not Settings.Enabled.InterruptOnlyWhitelist and Unit:CanBeStunned()) then
+      if (Settings.Enabled.InterruptOnlyWhitelist and (Utils.ValueIsInArray(Commons.StunWhitelistIDs, Unit:CastSpellID()) or Utils.ValueIsInArray(Commons.StunWhitelistIDs, Unit:ChannelSpellID()))) or (not Settings.Enabled.InterruptOnlyWhitelist and Unit:CanBeStunned()) then
         if Spell:IsCastable() then
           if Macro then
             if WR.Press(Macro, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Interrupt With Stun)"; end
@@ -152,15 +162,43 @@ do
   end
 end
 
+-- CycleUnit
+function Commons.CastCycle(Object, Enemies, Condition, OutofRange, OffGCD, DisplayStyle, MouseoverMacro, Immovable)
+  if (Immovable and Player:IsMoving()) then return false; end
+  if not WR.AoEON() and Condition(Target) then
+    return WR.Cast(Object, OffGCD, DisplayStyle, OutofRange);
+  end
+  if WR.AoEON() then
+    local BestUnit, BestConditionValue = nil, nil;
+    for _, CycleUnit in pairs(Enemies) do
+      if not CycleUnit:IsFacingBlacklisted() and not CycleUnit:IsUserCycleBlacklisted() and Condition(CycleUnit) then
+        BestUnit, BestConditionValue = CycleUnit, Condition(CycleUnit);
+      end
+    end
+    if BestUnit then
+      if BestUnit:GUID() == Target:GUID() then
+        return WR.Cast(Object, OffGCD, DisplayStyle, OutofRange);
+      elseif Mouseover and Mouseover:Exists() and BestUnit:GUID() == Mouseover:GUID() and MouseoverMacro then
+        return WR.Press(MouseoverMacro, OutofRange, nil, OffGCD);
+      end
+    end
+    if Condition(Target) then
+      return WR.Cast(Object, OffGCD, DisplayStyle, OutofRange);
+    elseif Mouseover and Mouseover:Exists() and MouseoverMacro and Condition(Mouseover) then
+      return WR.Press(MouseoverMacro, OutofRange, nil, OffGCD);
+    end
+  end
+end
+
 -- Target If Helper
 function Commons.CastTargetIf(Object, Enemies, TargetIfMode, TargetIfCondition, Condition, OutofRange, OffGCD, DisplayStyle, MouseoverMacro, Immovable)
-  local TargetCondition = (not Condition or (Condition and Condition(Target)))
+  local TargetCondition = (not Condition or (Condition and Condition(Target)));
   if (Immovable and Player:IsMoving()) then return false; end
   if not WR.AoEON() and TargetCondition then
     return WR.Cast(Object, OffGCD, DisplayStyle, OutofRange);
   end
   if WR.AoEON() then
-    local BestUnit, BestConditionValue = nil, nil
+    local BestUnit, BestConditionValue = nil, nil;
     for _, CycleUnit in pairs(Enemies) do
       if not CycleUnit:IsFacingBlacklisted() and not CycleUnit:IsUserCycleBlacklisted() and (CycleUnit:AffectingCombat() or CycleUnit:IsDummy())
         and (not BestConditionValue or Utils.CompareThis(TargetIfMode, TargetIfCondition(CycleUnit), BestConditionValue)) then
@@ -170,13 +208,13 @@ function Commons.CastTargetIf(Object, Enemies, TargetIfMode, TargetIfCondition, 
     if BestUnit then
       if BestUnit:GUID() == Target:GUID() and TargetCondition then
         return WR.Cast(Object, OffGCD, DisplayStyle, OutofRange);
-      elseif BestUnit:GUID() == Mouseover:GUID() and MouseoverMacro and ((Condition and Condition(Mouseover)) or not Condition) then
+      elseif Mouseover and Mouseover:Exists() and BestUnit:GUID() == Mouseover:GUID() and MouseoverMacro and ((Condition and Condition(Mouseover)) or not Condition) then
         return WR.Press(MouseoverMacro, OutofRange, nil, OffGCD);
       end
     end
     if TargetCondition then
       return WR.Cast(Object, OffGCD, DisplayStyle, OutofRange);
-    elseif MouseoverMacro and ((Condition and Condition(Mouseover)) or not Condition) then
+    elseif Mouseover and Mouseover:Exists() and MouseoverMacro and ((Condition and Condition(Mouseover)) or not Condition) then
       return WR.Press(MouseoverMacro, OutofRange, nil, OffGCD);
     end
   end
@@ -184,12 +222,12 @@ end
 
 -- CC
 do
-  local CrowdControlUnitIDs = { };
+  Commons.CrowdControlUnitIDs = { };
   function Commons.CrowdControl(Spell, Range, OffGCD, Unit, Macro)
     if not Unit then
       Unit = Target;
     end
-    if Settings.Enabled.CrowdControl and Utils.ValueIsInArray(CrowdControlUnitIDs, Unit:NPCID()) and Unit:IsMoving() then
+    if Settings.Enabled.CrowdControl and Utils.ValueIsInArray(Commons.CrowdControlUnitIDs, Unit:NPCID()) and Unit:IsMoving() then
       if Spell:IsCastable() then
         if Macro then
           if WR.Press(Macro, not Unit:IsInRange(Range), nil, OffGCD) then return "Cast " .. Spell:Name() .. " (Crowd Control)"; end
@@ -203,7 +241,7 @@ end
 
 -- Mitigate
 do
-  local MitigateIDs = {
+  Commons.MitigateIDs = {
     388911,
     193092,
     193668,
@@ -219,17 +257,17 @@ do
     382836,
   };
   function Commons.ShouldMitigate()
-    return Utils.ValueIsInArray(MitigateIDs, Target:CastSpellID()) or Utils.ValueIsInArray(MitigateIDs, Target:ChannelSpellID());
+    return Utils.ValueIsInArray(Commons.MitigateIDs, Target:CastSpellID()) or Utils.ValueIsInArray(Commons.MitigateIDs, Target:ChannelSpellID());
   end
 end
 
 -- Dispel Buffs
 do
   Commons.DispellableEnrageBuffIDs = {
-    390938,
-    397410,
-    190225,
-    396018,
+    Spell(390938),
+    Spell(397410),
+    Spell(190225),
+    Spell(396018),
   };
   function Commons.UnitHasEnrageBuff(U)
     for i = 1, #Commons.DispellableEnrageBuffIDs do
@@ -241,9 +279,9 @@ do
   end
 
   Commons.DispellableMagicBuffIDs = {
-    392454,
-    398151,
-    386223,
+    Spell(392454),
+    Spell(398151),
+    Spell(386223),
   };
   function Commons.UnitHasMagicBuff(U)
     for i = 1, #Commons.DispellableMagicBuffIDs do
@@ -257,30 +295,49 @@ end
 
 -- Dispel Debuffs
 do
-  Commons.DispellableMagicDebuffIDs = {};
+  Commons.DispellableMagicDebuffs = {
+    Spell(388392),
+    Spell(391977),
+    -- Manual
+    --Spell(374352),
+    Spell(207278),
+    Spell(207981),
+    Spell(372682),
+    Spell(392641),
+    Spell(397878),
+    Spell(114803),
+    Spell(395872),
+    Spell(386549),
+    Spell(377488),
+    Spell(386025),
+    Spell(384686),
+    Spell(376827),
+  };
   function Commons.UnitHasMagicDebuff(U)
-    for i = 1, #Commons.DispellableMagicDebuffIDs do
-      if U:DebuffUp(Commons.DispellableMagicDebuffIDs[i], true) then
+    for i = 1, #Commons.DispellableMagicDebuffs do
+      if U:DebuffUp(Commons.DispellableMagicDebuffs[i], true) then
         return true;
       end
     end
     return false;
   end
 
-  Commons.DispellableDiseaseDebuffIDs = {};
+  Commons.DispellableDiseaseDebuffs = {};
   function Commons.UnitHasDiseaseDebuff(U)
-    for i = 1, #Commons.DispellableDiseaseDebuffIDs do
-      if U:DebuffUp(Commons.DispellableDiseaseDebuffIDs[i], true) then
+    for i = 1, #Commons.DispellableDiseaseDebuffs do
+      if U:DebuffUp(Commons.DispellableDiseaseDebuffs[i], true) then
         return true;
       end
     end
     return false;
   end
 
-  Commons.DispellableCurseDebuffIDs = {};
+  Commons.DispellableCurseDebuffs = {
+    Spell(387615),
+  };
   function Commons.UnitHasCurseDebuff(U)
-    for i = 1, #Commons.DispellableCurseDebuffIDs do
-      if U:DebuffUp(Commons.DispellableCurseDebuffIDs[i], true) then
+    for i = 1, #Commons.DispellableCurseDebuffs do
+      if U:DebuffUp(Commons.DispellableCurseDebuffs[i], true) then
         return true;
       end
     end
@@ -322,31 +379,34 @@ do
   end
 end
 
--- Get dispellable friendly units.
-function Commons.DispellableFriendlyUnits(DispellableDebuffs)
-  local FriendlyUnits = Commons.FriendlyUnits();
-  local DispellableUnits = {};
-  for i = 1, #FriendlyUnits do
-    local DispellableUnit = FriendlyUnits[i];
-    for j = 1, #DispellableDebuffs do
-      if DispellableUnit:DebuffUp(DispellableDebuffs[j], true) then
-        tableinsert(DispellableUnits, DispellableUnit);
+do
+  Commons.DispellableDebuffs = {};
+  -- Get dispellable friendly units.
+  function Commons.DispellableFriendlyUnits()
+    local FriendlyUnits = Commons.FriendlyUnits();
+    local DispellableUnits = {};
+    for i = 1, #FriendlyUnits do
+      local DispellableUnit = FriendlyUnits[i];
+      for j = 1, #Commons.DispellableDebuffs do
+        if DispellableUnit:DebuffUp(Commons.DispellableDebuffs[j], true) then
+          tableinsert(DispellableUnits, DispellableUnit);
+        end
       end
     end
+    return DispellableUnits;
   end
-  return DispellableUnits;
-end
-function Commons.DispellableFriendlyUnit(DispellableDebuffs)
-  local DispellableFriendlyUnits = Commons.DispellableFriendlyUnits(DispellableDebuffs);
-  local DispellableFriendlyUnitsCount = #DispellableFriendlyUnits;
-  if DispellableFriendlyUnitsCount > 0 then
-    for i = 1, DispellableFriendlyUnitsCount do
-      local DispellableFriendlyUnit = DispellableFriendlyUnits[i];
-      if not Commons.UnitGroupRole(DispellableFriendlyUnit) == "TANK" then
-        return DispellableFriendlyUnit;
+  function Commons.DispellableFriendlyUnit()
+    local DispellableFriendlyUnits = Commons.DispellableFriendlyUnits();
+    local DispellableFriendlyUnitsCount = #DispellableFriendlyUnits;
+    if DispellableFriendlyUnitsCount > 0 then
+      for i = 1, DispellableFriendlyUnitsCount do
+        local DispellableFriendlyUnit = DispellableFriendlyUnits[i];
+        if not Commons.UnitGroupRole(DispellableFriendlyUnit) == "TANK" then
+          return DispellableFriendlyUnit;
+        end
       end
+      return DispellableFriendlyUnits[1];
     end
-    return DispellableFriendlyUnits[1];
   end
 end
 
@@ -359,11 +419,11 @@ end
 
 -- Mind Control Blacklist
 do
-  local MindControllSpells = { };
+  Commons.MindControllSpells = {};
   function Commons.IsMindControlled(FriendlyUnit)
     if FriendlyUnit and FriendlyUnit:Exists() and not FriendlyUnit:IsDeadOrGhost() then
-      for i = 1, #MindControllSpells do
-        if FriendlyUnit:DebuffUp(MindControllSpells[i], true) then
+      for i = 1, #Commons.MindControllSpells do
+        if FriendlyUnit:DebuffUp(Commons.MindControllSpells[i], true) then
           return true;
         end
       end
@@ -403,6 +463,36 @@ function Commons.FriendlyUnitsBelowHealthPercentageCount(HealthPercentage)
   return Count;
 end
 
+-- Get friendly units with a buff.
+function Commons.FriendlyUnitsWithBuffCount(Buff, OnlyTanks, OnlyNonTanks)
+  local Count = 0;
+  local FriendlyUnits = Commons.FriendlyUnits();
+  for i = 1, #FriendlyUnits do
+    local FriendlyUnit = FriendlyUnits[i];
+    if FriendlyUnit:Exists() and not FriendlyUnit:IsDeadOrGhost() and (not OnlyTanks or Commons.UnitGroupRole(FriendlyUnit) == "TANK") and (not OnlyNonTanks or (not Commons.UnitGroupRole(FriendlyUnit) == "TANK")) then
+      if FriendlyUnit:BuffUp(Buff) and not FriendlyUnit:BuffRefreshable(Buff) then
+        Count = Count + 1;
+      end
+    end
+  end
+  return Count;
+end
+
+-- Get friendly units without a buff.
+function Commons.FriendlyUnitsWithoutBuffCount(Buff, OnlyTanks, OnlyNonTanks)
+  local FriendlyUnits = Commons.FriendlyUnits();
+  local Count = #FriendlyUnits;
+  for i = 1, #FriendlyUnits do
+    local FriendlyUnit = FriendlyUnits[i];
+    if FriendlyUnit:Exists() and not FriendlyUnit:IsDeadOrGhost() and (not OnlyTanks or Commons.UnitGroupRole(FriendlyUnit) == "TANK") and (not OnlyNonTanks or (not Commons.UnitGroupRole(FriendlyUnit) == "TANK")) then
+      if FriendlyUnit:BuffUp(Buff) and not FriendlyUnit:BuffRefreshable(Buff) then
+        Count = Count - 1;
+      end
+    end
+  end
+  return Count;
+end
+
 -- Get dead friendly units count.
 function Commons.DeadFriendlyUnitsCount()
   local Count = 0;
@@ -414,4 +504,66 @@ function Commons.DeadFriendlyUnitsCount()
     end
   end
   return Count;
+end
+
+-- Get Focus Unit
+function Commons.GetFocusUnit(IncludeDispellableUnits)
+  if Commons.TargetIsValidHealableNpc() then return Target; end
+  if Commons.IsSoloMode() then return Player; end
+  if IncludeDispellableUnits then
+    local DispellableFriendlyUnit = Commons.DispellableFriendlyUnit();
+    if DispellableFriendlyUnit then
+      return DispellableFriendlyUnit;
+    end
+  end
+  local LowestFriendlyUnit = Commons.LowestFriendlyUnit();
+  if LowestFriendlyUnit then return LowestFriendlyUnit; end
+end
+
+-- Focus Unit
+function Commons.FocusUnit(IncludeDispellableUnits, Macros)
+  local NewFocusUnit = Commons.GetFocusUnit(IncludeDispellableUnits);
+  if NewFocusUnit ~= nil and (Focus == nil or not Focus:Exists() or NewFocusUnit:GUID() ~= Focus:GUID() or not Focus:IsInRange(40)) then
+    local FocusUnitKey = "Focus" .. Utils.UpperCaseFirst(NewFocusUnit:ID())
+    if WR.Press(Macros[FocusUnitKey], nil, nil, true) then return "focus " .. NewFocusUnit:ID() .. " focus_unit 1"; end
+  end
+end
+
+-- Settings Utils
+function Commons.AreUnitsBelowHealthPercentage(SettingTable, SettingName)
+  if Commons.IsSoloMode() or (Player:IsInParty() and not Player:IsInRaid()) then
+    return Commons.FriendlyUnitsBelowHealthPercentageCount(SettingTable.HP[SettingName]) >= SettingTable.AoEGroup[SettingName]
+  elseif Player:IsInRaid() then
+    return Commons.FriendlyUnitsBelowHealthPercentageCount(SettingTable.HP[SettingName]) >= SettingTable.AoERaid[SettingName]
+  end
+end
+
+-- Group Buffs
+function Commons.GroupBuffMissing(spell)
+  local range = 40;
+  local buffIDs = { 381732, 381741, 381746, 381748, 381749, 381750, 381751, 381752, 381753, 381754, 381756, 381757, 381758 };
+  if spell:Name() == "Battle Shout" then range = 100; end
+  local Group;
+  if UnitInRaid("player") then
+    Group = Unit.Raid;
+  elseif UnitInParty("player") then
+    Group = Unit.Party;
+  else
+    return false;
+  end
+  for _, Char in pairs(Group) do
+    if spell:Name() == "Blessing of the Bronze" then
+      if Char:Exists() and Char:IsInRange(range) then
+        for _, v in pairs(buffIDs) do
+          if Char:BuffUp(HL.Spell(v)) then return false; end
+        end
+        return true;
+      end
+    else
+      if Char:Exists() and Char:IsInRange(range) and Char:BuffDown(spell, true) then
+        return true;
+      end
+    end
+  end
+  return false;
 end

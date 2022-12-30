@@ -234,20 +234,20 @@ end
   function WR.CmdHandler (Message)
     local Argument, Argument1 = strsplit(" ", Message);
     local ArgumentLower = stringlower(Argument);
-    if ArgumentLower == "toggle" then
-      WorldyRotationCharDB.Toggles[1] = not WorldyRotationCharDB.Toggles[1];
-      WR.Print("WorldyRotation is now "..(WorldyRotationCharDB.Toggles[1] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
-      WR.MainFrame:ChangePixel(1, WR.ON());
-      WR.ToggleFrame:UpdateButtonText(1);
-    elseif ArgumentLower == "cds" then
-      WorldyRotationCharDB.Toggles[2] = not WorldyRotationCharDB.Toggles[2];
-      WR.Print("CDs are now "..(WorldyRotationCharDB.Toggles[2] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
-      WR.ToggleFrame:UpdateButtonText(2);
-    elseif ArgumentLower == "aoe" then
-      WorldyRotationCharDB.Toggles[3] = not WorldyRotationCharDB.Toggles[3];
-      WR.Print("AoE is now "..(WorldyRotationCharDB.Toggles[3] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
-      WR.ToggleFrame:UpdateButtonText(3);
-    elseif ArgumentLower == "lock" then
+    for k, v in pairs(WR.Toggles) do
+      local Toggle = k;
+      local Index = v;
+      if ArgumentLower == Toggle then
+        WorldyRotationCharDB.Toggles[Index] = not WorldyRotationCharDB.Toggles[Index];
+        WR.Print("WorldyRotation: " .. Toggle .. " is now "..(WorldyRotationCharDB.Toggles[Index] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
+        WR.ToggleFrame:UpdateButtonText(Index);
+        if ArgumentLower == "toggle" then
+          WR.MainFrame:ChangePixel(1, WR.ON());
+        end
+        return;
+      end
+    end
+    if ArgumentLower == "lock" then
       WR.ToggleFrame:ToggleLock();
     elseif ArgumentLower == "break" then
       WR.Break();
@@ -281,9 +281,18 @@ end
   SLASH_WORLDYROTATION1 = "/wr"
   SlashCmdList["WORLDYROTATION"] = WR.CmdHandler;
 
+  -- Add a toggle
+  function WR.AddToggle(Toggle)
+    table.insert(WR.Toggles, Toggle);
+  end
+
   -- Get if the main toggle is on.
   function WR.ON ()
     return WorldyRotationCharDB.Toggles[1];
+  end
+  
+  function WR.Toggle (Index)
+   return WorldyRotationCharDB.Toggles[Index];
   end
 
   -- Get if the CDs are enabled.

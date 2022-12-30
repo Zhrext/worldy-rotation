@@ -27,6 +27,9 @@ local Press      = WR.Press
 local GetTime    = GetTime
 -- File Locals
 local Hunter     = WR.Commons.Hunter
+-- Num/Bool Helper Functions
+local num           = WR.Commons.Everyone.num
+local bool          = WR.Commons.Everyone.bool
 
 --- ============================ CONTENT ===========================
 --- ======= APL LOCALS =======
@@ -110,15 +113,6 @@ end, "LEARNED_SPELL_IN_TAB")
 S.SerpentSting:RegisterInFlight()
 S.SteadyShot:RegisterInFlight()
 S.AimedShot:RegisterInFlight()
-
---Functions
-local function num(val)
-  if val then return 1 else return 0 end
-end
-
-local function bool(val)
-  return val ~= 0
-end
 
 -- TODO(mrdmnd) - if you're casting (aimed or rapid fire) with volley up, you actually only have trick shots for next
 -- aimed shot if volley buff is still up at the end of the cast. also conceivably build in buffer here.
@@ -305,8 +299,8 @@ local function St()
     if Press(S.Trueshot, not TargetInRange40y, nil, true) then return "trueshot st 24"; end
   end
   -- multishot,if=buff.bombardment.up&buff.trick_shots.down&active_enemies>1|talent.salvo&buff.salvo.down&!talent.volley
-  if S.MultiShot:IsReady() and (Player:BuffUp(S.BombardmentBuff) and (not TrickShotsBuffCheck()) and EnemiesCount10ySplash > 1 or S.Salvo:IsAvailable() and not S.Volley:IsAvailable()) then
-    if Cast(S.MultiShot, nil, nil, not TargetInRange40y) then return "multishot st 26"; end
+  if S.MultiShot:IsReady() and ((Player:BuffUp(S.BombardmentBuff) and (not TrickShotsBuffCheck()) and EnemiesCount10ySplash > 1) or (S.Salvo:IsAvailable() and Player:DebuffDown(S.SalvoDebuff) and not S.Volley:IsAvailable())) then
+    if Press(S.MultiShot, not TargetInRange40y) then return "multishot st 26"; end
   end
   -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=talent.serpentstalkers_trickery&((buff.precise_shots.down|(buff.trueshot.up|full_recharge_time<gcd+cast_time)&(!talent.chimaera_shot|active_enemies<2))|buff.trick_shots.remains>execute_time&active_enemies>1)
   if S.AimedShot:IsReady() then
@@ -535,6 +529,10 @@ local function APL()
     if S.Exhilaration:IsReady() and Player:HealthPercentage() <= Settings.Commons2.ExhilarationHP then
       if Cast(S.Exhilaration, Settings.Commons2.GCDasOffGCD.Exhilaration) then return "exhilaration"; end
     end
+    -- healthstone
+    if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
+      if Press(M.Healthstone, nil, nil, true) then return "healthstone"; end
+    end
     -- Interrupts
     if not Player:IsCasting() and not Player:IsChanneling() then
       local ShouldReturn = Everyone.Interrupt(S.CounterShot, 40, true); if ShouldReturn then return ShouldReturn; end
@@ -545,6 +543,10 @@ local function APL()
     -- Explosives
     if (Settings.Commons.Enabled.HandleExplosives) then
       local ShouldReturn = Everyone.HandleExplosive(S.ArcaneShot, M.ArcaneShotMouseover); if ShouldReturn then return ShouldReturn; end
+    end
+    -- Dispels
+    if Settings.General.Enabled.DispelDebuffs and not Player:IsCasting() and not Player:IsChanneling() and (Everyone.UnitHasEnrageBuff(Target) or Everyone.UnitHasMagicBuff(Target)) then
+      if Press(S.TranquilizingShot, not TargetInRange40y) then return "dispel"; end
     end
     -- auto_shot
     -- trinkets
@@ -597,6 +599,7 @@ local function AutoBind()
   WR.Bind(S.Stampede)
   WR.Bind(S.SteelTrap)
   WR.Bind(S.TarTrap)
+  WR.Bind(S.TranquilizingShot)
   WR.Bind(S.Trueshot)
   WR.Bind(S.SummonPet)
   WR.Bind(S.SummonPet2)

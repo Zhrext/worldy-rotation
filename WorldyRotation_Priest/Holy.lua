@@ -451,69 +451,6 @@ end
 local function Init()
   WR.Print("Holy Priest by Worldy")
   AutoBind()
-  DispellableDebuffs = {
-    Spell(325885), -- Anguished Cries
-    Spell(325224), -- Anima Injection
-    Spell(321968), -- Bewildering Pollen
-    Spell(327882), -- Blightbeak
-    -- NOTE(Worldy): Manually.
-    --Spell(324859), -- Bramblethorn Entanglement
-    Spell(317963), -- Burden of Knowledge
-    Spell(322358), -- Burning Strain
-    Spell(243237), -- Burst
-    Spell(360148), -- Bursting Dread
-    Spell(338729), -- Charged Anima
-    Spell(328664), -- Chilled
-    Spell(323347), -- Clinging Darkness
-    Spell(320512), -- Corroded Claws
-    Spell(319070), -- Corrosive Gunk
-    Spell(325725), -- Cosmic Artifice
-    Spell(365297), -- Crushing Prism
-    Spell(327481), -- Dark Lance
-    Spell(324652), -- Debilitating Plague
-    Spell(330700), -- Decaying Blight
-    Spell(364522), -- Devouring Blood
-    Spell(356324), -- Empowered Glyph of Restraint
-    Spell(328331), -- Forced Confession
-    -- NOTE(Worldy): Manually.
-    -- 320788, -- Frozen Binds
-    Spell(320248), -- Genetic Alteration
-    Spell(355915), -- Glyph of Restraint
-    Spell(364031), -- Gloom
-    Spell(338353), -- Goresplatter
-    Spell(328180), -- Gripping Infection
-    Spell(346286), -- Hazardous Liquids
-    Spell(320596), -- Heaving Retch
-    Spell(332605), -- Hex
-    Spell(328002), -- Hurl Spores
-    Spell(357029), -- Hyperlight Bomb
-    Spell(317661), -- Insidious Venom
-    Spell(327648), -- Internal Strife
-    Spell(322818), -- Lost Confidence
-    Spell(319626), -- Phantasmal Parasite
-    Spell(349954), -- Purification Protocol
-    Spell(324293), -- Rasping Scream
-    Spell(328756), -- Repulsive Visage
-    -- NOTE(Worldy): Manually.
-    -- 360687, -- Runecarver's Deathtouch
-    Spell(355641), -- Scintillate
-    Spell(332707), -- Shadow Word: Pain
-    Spell(334505), -- Shimmerdust Sleep
-    Spell(339237), -- Sinlight Visions
-    Spell(325701), -- Siphon Life
-    Spell(329110), -- Slime Injection
-    Spell(333708), -- Soul Corruption
-    Spell(322557), -- Soul Split
-    Spell(356031), -- Stasis Beam
-    Spell(326632), -- Stony Veins
-    Spell(353835), -- Suppression
-    Spell(326607), -- Turn to Stone
-    Spell(360241), -- Unsettling Dreams
-    Spell(340026), -- Wailing Grief
-    Spell(320529), -- Wasting Blight
-    Spell(341949), -- Withering Blight
-    Spell(321038), -- Wrack Soul
-  }
 end
 
 

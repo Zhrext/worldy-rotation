@@ -1,0 +1,202 @@
+--- ============================ HEADER ============================
+--- ======= LOCALIZE =======
+-- Addon
+local addonName, addonTable = ...
+-- HeroDBC
+local DBC = HeroDBC.DBC
+-- HeroLib
+local HL         = HeroLib
+local Cache      = HeroCache
+local Unit       = HL.Unit
+local Player     = Unit.Player
+local Target     = Unit.Target
+local Pet        = Unit.Pet
+local Spell      = HL.Spell
+local MultiSpell = HL.MultiSpell
+local Item       = HL.Item
+local MergeTableByKey = HL.Utils.MergeTableByKey
+-- WorldyRotation
+local WR         = WorldyRotation
+local Macro      = WR.Macro
+
+--- ============================ CONTENT ============================
+
+-- Spell
+if not Spell.Druid then Spell.Druid = {} end
+Spell.Druid.Commons = {
+  -- Racials
+  Berserking                            = Spell(26297),
+  Shadowmeld                            = Spell(58984),
+  -- Abilities
+  Barkskin                              = Spell(22812),
+  BearForm                              = Spell(5487),
+  CatForm                               = Spell(768),
+  FerociousBite                         = Spell(22568),
+  MarkOfTheWild                         = Spell(1126),
+  Moonfire                              = Spell(8921),
+  Prowl                                 = Spell(5215),
+  Rebirth                               = Spell(20484),
+  Regrowth                              = Spell(8936),
+  Rejuvenation                          = Spell(774),
+  Revive                                = Spell(50769),
+  Shred                                 = Spell(5221),
+  -- Talents
+  ConvokeTheSpirits                     = Spell(391528),
+  FrenziedRegeneration                  = Spell(22842),
+  HeartOfTheWild                        = Spell(319454),
+  Innervate                             = Spell(29166),
+  ImprovedNaturesCure                   = Spell(392378),
+  Ironfur                               = Spell(192081),
+  NaturesVigil                          = Spell(124974),
+  Maim                                  = Spell(22570),
+  MightyBash                            = Spell(5211),
+  MoonkinForm                           = MultiSpell(24858,197625),
+  Rake                                  = Spell(1822),
+  Rip                                   = Spell(1079),
+  SkullBash                             = Spell(106839),
+  StampedingRoar                        = Spell(77764),
+  Starfire                              = Spell(194153),
+  Starsurge                             = MultiSpell(78674,197626),
+  Sunfire                               = Spell(93402),
+  SurvivalInstincts                     = Spell(61336),
+  Swiftmend                             = Spell(18562),
+  Thrash                                = MultiSpell(77758,106830),
+  WildCharge                            = MultiSpell(16979,49376,102417),
+  Wildgrowth                            = Spell(48438),
+  UrsolsVortex                          = Spell(102793),
+  MassEntanglement                      = Spell(102359),
+  -- Buffs
+  FrenziedRegenerationBuff              = Spell(22842),
+  IronfurBuff                           = Spell(192081),
+  -- Debuffs
+  MoonfireDebuff                        = Spell(164812),
+  RakeDebuff                            = Spell(155722),
+  SunfireDebuff                         = Spell(164815),
+  ThrashDebuff                          = MultiSpell(106830,192090),
+  -- Other
+  Pool                                  = Spell(999910)
+}
+
+Spell.Druid.Restoration = MergeTableByKey(Spell.Druid.Commons, {
+  -- Abilities
+  EclipseLunar                          = Spell(48518),
+  EclipseSolar                          = Spell(48517),
+  Efflorescence                         = Spell(145205),
+  Lifebloom                             = Spell(33763),
+  NaturesCure                           = Spell(88423),
+  Revitalize                            = Spell(212040),
+  Starfire                              = Spell(197628),
+  Starsurge                             = Spell(197626),
+  Swipe                                 = Spell(213764),
+  Wrath                                 = Spell(5176),
+  -- Talents
+  Abundance                             = Spell(207383),
+  AdaptiveSwarm                         = Spell(391888),
+  BalanceAffinity                       = Spell(197632),
+  CenarionWard                          = Spell(102351),
+  FeralAffinity                         = Spell(197490),
+  Flourish                              = Spell(197721),
+  IronBark                              = Spell(102342),
+  NaturesSwiftness                      = Spell(132158),
+  Reforestation                         = Spell(392356),
+  SoulOfTheForest                       = Spell(158478),
+  Tranquility                           = Spell(740),
+  UnbridledSwarm                        = Spell(391951),
+  Undergrowth                           = Spell(392301),
+  -- Buffs
+  AdaptiveSwarmHeal                     = Spell(391891),
+  IncarnationBuff                       = Spell(117679),
+  SoulOfTheForestBuff                   = Spell(114108),
+  -- Debuffs
+  AdaptiveSwarmDebuff                   = Spell(391889),
+})
+
+-- Items
+if not Item.Druid then Item.Druid = {} end
+Item.Druid.Commons = {
+  -- Potion
+  Healthstone                      = Item(5512),
+}
+
+Item.Druid.Restoration = MergeTableByKey(Item.Druid.Commons, {
+})
+
+
+-- Macros
+if not Macro.Druid then Macro.Druid = {} end
+Macro.Druid.Commons = {
+  -- Base Spells
+  InnervatePlayer                  = Macro("InnervatePlayer", "/cast [@player] " .. Spell.Druid.Commons.Innervate:Name()),
+  MarkOfTheWildPlayer              = Macro("MarkOfTheWildPlayer", "/cast [@player] " .. Spell.Druid.Commons.MarkOfTheWild:Name()),
+  MoonfireMouseover                = Macro("MoonfireMouseover", "/cast [@mouseover] " .. Spell.Druid.Commons.Moonfire:Name()),
+  RebirthMouseover                 = Macro("RebirthMouseover", "/cast [@mouseover] " .. Spell.Druid.Commons.Rebirth:Name()),
+  RegrowthFocus                    = Macro("RegrowthFocus", "/cast [@focus] " .. Spell.Druid.Commons.Regrowth:Name()),
+  RejuvenationFocus                = Macro("RejuvenationFocus", "/cast [@focus] " .. Spell.Druid.Commons.Rejuvenation:Name()),
+  RejuvenationMouseover            = Macro("RejuvenationMouseover", "/cast [@mouseover] " .. Spell.Druid.Commons.Rejuvenation:Name()),
+  SunfireMouseover                 = Macro("SunfireMouseover", "/cast [@mouseover] " .. Spell.Druid.Commons.Sunfire:Name()),
+  SwiftmendFocus                   = Macro("SwiftmendFocus", "/cast [@focus] " .. Spell.Druid.Commons.Swiftmend:Name()),
+  WildgrowthFocus                  = Macro("WildgrowthFocus", "/cast [@focus] " .. Spell.Druid.Commons.Wildgrowth:Name()),
+  UrsolsVortexCursor               = Macro("UrsolsVortexCursor", "/cast [@cursor] " .. Spell.Druid.Commons.UrsolsVortex:Name()),
+}
+
+Macro.Druid.Restoration = MergeTableByKey(Macro.Druid.Commons, {
+  -- Base Spells
+  AdaptiveSwarmFocus               = Macro("AdaptiveSwarmFocus", "/cast [@focus] " .. Spell.Druid.Restoration.AdaptiveSwarm:Name()),
+  CenarionWardFocus                = Macro("CenarionWardFocus", "/cast [@focus] " .. Spell.Druid.Restoration.CenarionWard:Name()),
+  EfflorescenceCursor              = Macro("EfflorescenceCursor", "/cast [@cursor] " .. Spell.Druid.Restoration.Efflorescence:Name()),
+  IronBarkFocus                    = Macro("IronBarkFocus", "/cast [@focus] " .. Spell.Druid.Restoration.IronBark:Name()),
+  LifebloomFocus                   = Macro("LifebloomFocus", "/cast [@focus] " .. Spell.Druid.Restoration.Lifebloom:Name()),
+  NaturesCureFocus                 = Macro("NaturesCureFocus", "/cast [@focus] " .. Spell.Druid.Restoration.NaturesCure:Name()),
+  NaturesCureMouseover             = Macro("NaturesCureMouseover", "/cast [@mouseover] " .. Spell.Druid.Restoration.NaturesCure:Name()),
+  -- Items
+  Trinket1                         = Macro("Trinket1", "/use 13"),
+  Trinket2                         = Macro("Trinket2", "/use 14"),
+  Healthstone                      = Macro("Healthstone", "/use item:5512"),
+  -- Focus
+  FocusTarget                      = Macro("FocusTarget", "/focus target"),
+  FocusPlayer                      = Macro("FocusPlayer", "/focus player"),
+  FocusParty1                      = Macro("FocusParty1", "/focus party1"),
+  FocusParty2                      = Macro("FocusParty2", "/focus party2"),
+  FocusParty3                      = Macro("FocusParty3", "/focus party3"),
+  FocusParty4                      = Macro("FocusParty4", "/focus party4"),
+  FocusRaid1                       = Macro("FocusRaid1", "/focus raid1"),
+  FocusRaid2                       = Macro("FocusRaid2", "/focus raid2"),
+  FocusRaid3                       = Macro("FocusRaid3", "/focus raid3"),
+  FocusRaid4                       = Macro("FocusRaid4", "/focus raid4"),
+  FocusRaid5                       = Macro("FocusRaid5", "/focus raid5"),
+  FocusRaid6                       = Macro("FocusRaid6", "/focus raid6"),
+  FocusRaid7                       = Macro("FocusRaid7", "/focus raid7"),
+  FocusRaid8                       = Macro("FocusRaid8", "/focus raid8"),
+  FocusRaid9                       = Macro("FocusRaid9", "/focus raid9"),
+  FocusRaid10                      = Macro("FocusRaid10", "/focus raid10"),
+  FocusRaid11                      = Macro("FocusRaid11", "/focus raid11"),
+  FocusRaid12                      = Macro("FocusRaid12", "/focus raid12"),
+  FocusRaid13                      = Macro("FocusRaid13", "/focus raid13"),
+  FocusRaid14                      = Macro("FocusRaid14", "/focus raid14"),
+  FocusRaid15                      = Macro("FocusRaid15", "/focus raid15"),
+  FocusRaid16                      = Macro("FocusRaid16", "/focus raid16"),
+  FocusRaid17                      = Macro("FocusRaid17", "/focus raid17"),
+  FocusRaid18                      = Macro("FocusRaid18", "/focus raid18"),
+  FocusRaid19                      = Macro("FocusRaid19", "/focus raid19"),
+  FocusRaid20                      = Macro("FocusRaid20", "/focus raid20"),
+  FocusRaid21                      = Macro("FocusRaid21", "/focus raid21"),
+  FocusRaid22                      = Macro("FocusRaid22", "/focus raid22"),
+  FocusRaid23                      = Macro("FocusRaid23", "/focus raid23"),
+  FocusRaid24                      = Macro("FocusRaid24", "/focus raid24"),
+  FocusRaid25                      = Macro("FocusRaid25", "/focus raid25"),
+  FocusRaid26                      = Macro("FocusRaid26", "/focus raid26"),
+  FocusRaid27                      = Macro("FocusRaid27", "/focus raid27"),
+  FocusRaid28                      = Macro("FocusRaid28", "/focus raid28"),
+  FocusRaid29                      = Macro("FocusRaid29", "/focus raid29"),
+  FocusRaid30                      = Macro("FocusRaid30", "/focus raid30"),
+  FocusRaid31                      = Macro("FocusRaid31", "/focus raid31"),
+  FocusRaid32                      = Macro("FocusRaid32", "/focus raid32"),
+  FocusRaid33                      = Macro("FocusRaid33", "/focus raid33"),
+  FocusRaid34                      = Macro("FocusRaid34", "/focus raid34"),
+  FocusRaid35                      = Macro("FocusRaid35", "/focus raid35"),
+  FocusRaid36                      = Macro("FocusRaid36", "/focus raid36"),
+  FocusRaid37                      = Macro("FocusRaid37", "/focus raid37"),
+  FocusRaid38                      = Macro("FocusRaid38", "/focus raid38"),
+  FocusRaid39                      = Macro("FocusRaid39", "/focus raid39"),
+  FocusRaid40                      = Macro("FocusRaid40", "/focus raid40"),
+})

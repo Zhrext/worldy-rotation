@@ -14,6 +14,7 @@ local CreatePanelOption = GUI.CreatePanelOption;
 -- Lua
 local mathmax = math.max;
 local mathmin = math.min;
+local tableinsert = table.insert;
 local tonumber = tonumber;
 local tostring = tostring;
 local type = type;
@@ -223,7 +224,10 @@ function WR.ToggleFrame:Init ()
   self:AddButton("A", 3, "AoE", "aoe");
 end
 -- Add a button
+WR.Toggles = {};
 function WR.ToggleFrame:AddButton (Text, i, Tooltip, CmdArg)
+  WR.Toggles[CmdArg] = i;
+  
   local ButtonFrame = CreateFrame("Button", "$parentButton"..tostring(i), self);
   ButtonFrame:SetFrameStrata(self:GetFrameStrata());
   ButtonFrame:SetFrameLevel(self:GetFrameLevel() - 1);
@@ -319,7 +323,7 @@ local EnabledRotation = {
   --  [102]   = "WorldyRotation_Druid",         -- Balance
   --  [103]   = "WorldyRotation_Druid",         -- Feral
   --  [104]   = "WorldyRotation_Druid",         -- Guardian
-  --  [105]   = "WorldyRotation_Druid",         -- Restoration
+    [105]   = "WorldyRotation_Druid",         -- Restoration
   ---- Hunter
     [253]   = "WorldyRotation_Hunter",        -- Beast Mastery
     [254]   = "WorldyRotation_Hunter",        -- Marksmanship

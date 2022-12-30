@@ -66,7 +66,7 @@
         CreatePanelOption("Slider", Panel, Setting, {1, 5, 1}, "Group: " .. Name, "Set the AoE group count of " .. Name .. ".");
       end,
       AoERaid = function(Panel, Setting, Name)
-        CreatePanelOption("Slider", Panel, Setting, {1, 5, 1}, "Raid: " .. Name, "Set the AoE raid count of " .. Name .. ".");
+        CreatePanelOption("Slider", Panel, Setting, {1, 20, 1}, "Raid: " .. Name, "Set the AoE raid count of " .. Name .. ".");
       end,
     };
     function WR.GUI.CreateARPanelOption (Type, Panel, Setting, ...)
