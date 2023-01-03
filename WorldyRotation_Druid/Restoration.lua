@@ -138,11 +138,11 @@ end
 
 local function Trinkets()
   local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
-  if Trinket1ToUse and Player:BuffUp(S.HeartOfTheWild) or Player:BuffUp(S.IncarnationBuff) or BossFightRemains < 30 then
+  if Trinket1ToUse and (Player:BuffUp(S.HeartOfTheWild) or Player:BuffUp(S.IncarnationBuff) or Player:BloodlustUp() or BossFightRemains < 60) then
     if Press(M.Trinket1, nil, nil, true) then return "trinket1 trinkets 2"; end
   end
   local Trinket2ToUse = Player:GetUseableTrinkets(OnUseExcludes, 14)
-  if Trinket2ToUse and Player:BuffUp(S.HeartOfTheWild) or Player:BuffUp(S.IncarnationBuff) or BossFightRemains < 30 then
+  if Trinket2ToUse and (Player:BuffUp(S.HeartOfTheWild) or Player:BuffUp(S.IncarnationBuff) or Player:BloodlustUp() or BossFightRemains < 60) then
     if Press(M.Trinket2, nil, nil, true) then return "trinket2 trinkets 4"; end
   end
 end
@@ -167,17 +167,21 @@ local function Cat()
     if Press(S.ConvokeTheSpirits, not Target:IsInRange(30)) then return "convoke_the_spirits cat 18"; end
   end
   -- sunfire,target_if=(refreshable&target.time_to_die>5)&!prev_gcd.1.cat_form
-  if S.Sunfire:IsReady() and (not Player:PrevGCD(1, S.CatForm)) and Target:TimeToDie() > 5 then
+  if S.Sunfire:IsReady() and (Player:BuffDown(S.CatForm)) and Target:TimeToDie() > 5 and (Target:DebuffUp(S.Rip) or Player:Energy() < 30) then
     if Everyone.CastCycle(S.Sunfire, Enemies8ySplash, EvaluateCycleCatSunfire, not Target:IsSpellInRange(S.Sunfire), nil, nil, M.SunfireMouseover) then return "sunfire cat 20"; end
   end
   -- moonfire,target_if=(refreshable&time_to_die>12&(((spell_targets.swipe_cat<=4+4*covenant.necrolord|energy<50)&!buff.heart_of_the_wild.up)|((spell_targets.swipe_cat<=4|energy<50)&buff.heart_of_the_wild.up))&!ticking|(prev_gcd.1.sunfire&remains<duration*0.8&spell_targets.sunfire=1))&!prev_gcd.1.cat_form
-  if S.Moonfire:IsReady() and (not Player:PrevGCD(1, S.CatForm)) and Target:TimeToDie() > 5  then
+  if S.Moonfire:IsReady() and (Player:BuffDown(S.CatForm)) and Target:TimeToDie() > 5 and (Target:DebuffUp(S.Rip) or Player:Energy() < 30) then
     if Everyone.CastCycle(S.Moonfire, Enemies8ySplash, EvaluateCycleCatMoonfire, not Target:IsSpellInRange(S.Moonfire), nil, nil, M.MoonfireMouseover) then return "moonfire cat 22"; end
   end
   -- sunfire,if=prev_gcd.1.moonfire&remains<duration*0.8
-  -- Manually added !prev_gcd.2.sunfire to stop the sunfire -> moonfire -> sunfire loop
-  if S.Sunfire:IsReady() and ((not Player:PrevGCD(2, S.Sunfire)) and Player:PrevGCD(1, S.Moonfire) and (Target:DebuffUp(S.SunfireDebuff) and Target:DebuffRemains(S.SunfireDebuff) < 5 or Target:DebuffDown(S.SunfireDebuff))) and Target:TimeToDie() > 5  then
+  -- Manually added
+  if S.Sunfire:IsReady() and Target:DebuffDown(S.SunfireDebuff) and Target:TimeToDie() > 5  then
     if Press(S.Sunfire, not Target:IsSpellInRange(S.Sunfire)) then return "sunfire cat 24"; end
+  end
+  -- Manually added
+  if S.Moonfire:IsReady() and Player:BuffDown(S.CatForm) and Target:DebuffDown(S.MoonfireDebuff) and Target:TimeToDie() > 5  then
+    if Press(S.Moonfire, not Target:IsSpellInRange(S.Moonfire)) then return "moonfire cat 24"; end
   end
   -- starsurge,if=!buff.cat_form.up
   if S.Starsurge:IsReady() and (Player:BuffDown(S.CatForm)) then
@@ -191,10 +195,6 @@ local function Cat()
   if S.CatForm:IsReady() and (Player:BuffDown(S.CatForm) and Player:Energy() > 50) then
     if Press(S.CatForm) then return "cat_form cat 28"; end
   end
-  -- wrath,if=!buff.cat_form.up
-  if S.Wrath:IsReady() and (Player:BuffDown(S.CatForm)) then
-    if Press(S.Wrath, not Target:IsSpellInRange(S.Wrath)) then return "wrath cat 30"; end
-  end
   -- ferocious_bite,if=(combo_points>3&target.1.time_to_die<3|combo_points=5&energy>=50&dot.rip.remains>10)&spell_targets.swipe_cat<4
   if S.FerociousBite:IsReady() and ((Player:ComboPoints() > 3 and Target:TimeToDie() < 10) or (Player:ComboPoints() == 5 and Player:Energy() >= 50 and Target:DebuffRemains(S.Rip) > 10) and EnemiesCount8ySplash < 4) then
     if Press(S.FerociousBite, not Target:IsInMeleeRange(5)) then return "ferocious_bite cat 32"; end
@@ -206,6 +206,9 @@ local function Cat()
   -- rake,target_if=refreshable&time_to_die>10&(combo_points<5|remains<1)&spell_targets.swipe_cat<5
   if S.Rake:IsReady() and (EnemiesCount8ySplash < 5) and EvaluateCycleCatRake(Target) then
     if Press(S.Rake, not Target:IsInMeleeRange(5)) then return "rake cat 36"; end
+  end
+  if S.Thrash:IsReady() and EnemiesCount8ySplash >= 2 and Target:DebuffRefreshable(S.ThrashDebuff) then
+    if Press(S.Thrash, not Target:IsInMeleeRange(8)) then return "thrash cat"; end
   end
   -- swipe_cat,if=spell_targets.swipe_cat>=2
   if S.Swipe:IsReady() and (EnemiesCount8ySplash >= 2) then
@@ -318,11 +321,11 @@ end
 local function Ramp()
   if not Focus or not Focus:Exists() or Focus:IsDeadOrGhost() or not Focus:IsInRange(40) then return; end
   -- rejuvenation_swiftmend
-  if S.Swiftmend:IsReady() and Player:BuffStack(S.Reforestation) < 2 and not SwiftmendCheck(Focus) then
+  if S.Swiftmend:IsReady() and Player:BuffStack(S.Reforestation) < 2 and not EvaluateSwiftmend(Focus) and Player:BuffDown(S.SoulOfTheForestBuff) then
     if Press(M.RejuvenationFocus) then return "rejuvenation ramp"; end
   end
   -- swiftmend
-  if S.Swiftmend:IsReady() and Player:BuffStack(S.Reforestation) < 2 and SwiftmendCheck(Focus) then
+  if S.Swiftmend:IsReady() and Player:BuffStack(S.Reforestation) < 2 and EvaluateSwiftmend(Focus) then
     if Press(M.SwiftmendFocus) then return "swiftmend ramp"; end
   end
   -- wildgrowth
@@ -348,7 +351,7 @@ local function Healing()
   -- trinkets
   local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
   -- natures_vigil
-  if HotsCount() > 4 and S.NaturesVigil:IsReady() then
+  if Player:AffectingCombat() and HotsCount() > 3 and S.NaturesVigil:IsReady() then
     if Press(S.NaturesVigil, nil, nil, true) then return "natures_vigil healing"; end
   end
   -- wildgrowth_sotf
@@ -356,11 +359,11 @@ local function Healing()
     if Press(M.WildgrowthFocus, nil, true) then return "wildgrowth_sotf healing"; end
   end
   -- flourish,if=flourish.buff.down
-  if S.Flourish:IsReady() and Player:BuffDown(S.Flourish) and HotsCount() > 4 and Everyone.AreUnitsBelowHealthPercentage(Settings.Restoration.HealingOne, "Flourish") then
+  if Player:AffectingCombat() and S.Flourish:IsReady() and Player:BuffDown(S.Flourish) and HotsCount() > 4 and Everyone.AreUnitsBelowHealthPercentage(Settings.Restoration.HealingOne, "Flourish") then
     if Press(S.Flourish, nil, nil, true) then return "flourish healing"; end
   end
   -- tranquility
-  if S.Tranquility:IsReady() and Everyone.AreUnitsBelowHealthPercentage(Settings.Restoration.HealingTwo, "Tranquility") then
+  if Player:AffectingCombat() and S.Tranquility:IsReady() and Everyone.AreUnitsBelowHealthPercentage(Settings.Restoration.HealingTwo, "Tranquility") then
     if Press(S.Tranquility, nil, true) then return "tranquility healing"; end
   end
   -- swiftmend
@@ -368,16 +371,20 @@ local function Healing()
     if Press(M.SwiftmendFocus) then return "swiftmend healing"; end
   end
   -- tranquility_tree
-  if S.Tranquility:IsReady() and Player:BuffUp(S.IncarnationBuff) and Everyone.AreUnitsBelowHealthPercentage(Settings.Restoration.HealingTwo, "TranquilityTree") then
+  if Player:AffectingCombat() and S.Tranquility:IsReady() and Player:BuffUp(S.IncarnationBuff) and Everyone.AreUnitsBelowHealthPercentage(Settings.Restoration.HealingTwo, "TranquilityTree") then
     if Press(S.Tranquility, nil, true) then return "tranquility_tree healing"; end
   end
   -- convoke_the_spirits_hp
-  if S.ConvokeTheSpirits:IsReady() and Everyone.AreUnitsBelowHealthPercentage(Settings.Restoration.HealingOne, "ConvokeTheSpirits") then
+  if Player:AffectingCombat() and S.ConvokeTheSpirits:IsReady() and Everyone.AreUnitsBelowHealthPercentage(Settings.Restoration.HealingOne, "ConvokeTheSpirits") then
     if Press(S.ConvokeTheSpirits) then return "convoke_the_spirits healing"; end
   end
   -- cenarion_ward
   if S.CenarionWard:IsReady() and Focus:HealthPercentage() <= Settings.Restoration.HealingOne.HP.CenarionWard then
     if Press(M.CenarionWardFocus) then return "cenarion_ward healing"; end
+  end
+  -- swiftmend_reforestation
+  if S.Swiftmend:IsReady() and EvaluateSwiftmend(Focus) and (S.Reforestation:IsAvailable() or Player:BuffStack(S.Reforestation) < 2) and Focus:HealthPercentage() <= Settings.Restoration.HealingTwo.HP.SwiftmendReforestation then
+    if Press(M.SwiftmendFocus) then return "swiftmend_reforestation healing"; end
   end
   -- regrowth_swiftness
   if Player:BuffUp(S.NaturesSwiftness) and S.Regrowth:IsCastable() then
@@ -396,23 +403,19 @@ local function Healing()
     if Press(M.AdaptiveSwarmFocus) then return "adaptive_swarm healing"; end
   end
   -- lifebloom
-  if Player:AffectingCombat() and Everyone.UnitGroupRole(Focus) == "TANK" and Everyone.FriendlyUnitsWithBuffCount(S.Lifebloom, true) < 1 and Focus:HealthPercentage() <= Settings.Restoration.HealingOne.HP.LifebloomTank and S.Lifebloom:IsReady() and Focus:BuffRefreshable(S.Lifebloom) then
+  if Player:AffectingCombat() and Everyone.UnitGroupRole(Focus) == "TANK" and Everyone.FriendlyUnitsWithBuffCount(S.Lifebloom, true) < 1 and (Focus:HealthPercentage() <= Settings.Restoration.HealingOne.HP.LifebloomTank - (num(Player:BuffUp(S.CatForm)) * 15)) and S.Lifebloom:IsCastable() and Focus:BuffRefreshable(S.Lifebloom) then
     if Press(M.LifebloomFocus) then return "lifebloom healing"; end
   end
   -- lifebloom,if=unit.hp&undergrowth.available|!tank.lifebloom.ticking
-  if Player:AffectingCombat() and (Everyone.UnitGroupRole(Focus) == "HEALER" or Everyone.UnitGroupRole(Focus) == "DAMAGER" or Everyone.UnitGroupRole(Focus) == "NONE") and Everyone.FriendlyUnitsWithBuffCount(S.Lifebloom, nil, true) < 1 and (S.Undergrowth:IsAvailable() or Everyone.IsSoloMode()) and Focus:HealthPercentage() <= Settings.Restoration.HealingOne.HP.Lifebloom and S.Lifebloom:IsCastable() and Focus:BuffRefreshable(S.Lifebloom) then
+  if Player:AffectingCombat() and (Everyone.UnitGroupRole(Focus) == "HEALER" or Everyone.UnitGroupRole(Focus) == "DAMAGER" or Everyone.UnitGroupRole(Focus) == "NONE") and Everyone.FriendlyUnitsWithBuffCount(S.Lifebloom, nil, true) < 1 and (S.Undergrowth:IsAvailable() or Everyone.IsSoloMode()) and (Focus:HealthPercentage() <= Settings.Restoration.HealingOne.HP.Lifebloom - (num(Player:BuffUp(S.CatForm)) * 15)) and S.Lifebloom:IsCastable() and Focus:BuffRefreshable(S.Lifebloom) then
     if Press(M.LifebloomFocus) then return "lifebloom healing"; end
   end
   -- efflorescence,if=unit.hp
   if Player:AffectingCombat() and Settings.Restoration.HealingOne.Enabled.Efflorescence and Focus:HealthPercentage() <= Settings.Restoration.HealingOne.HP.Efflorescence and S.Efflorescence:TimeSinceLastCast() > 30 and Focus:GUID() == Mouseover:GUID() then
     if Press(M.EfflorescenceCursor) then return "efflorescence healing"; end
   end
-  -- swiftmend_reforestation
-  if S.Swiftmend:IsReady() and EvaluateSwiftmend(Focus) and Player:BuffStack(S.Reforestation) < 2 and Focus:HealthPercentage() <= Settings.Restoration.HealingTwo.HP.SwiftmendReforestation then
-    if Press(M.SwiftmendFocus) then return "swiftmend_reforestation healing"; end
-  end
   -- wildgrowth
-  if S.Wildgrowth:IsReady() and Everyone.AreUnitsBelowHealthPercentage(Settings.Restoration.HealingTwo, "Wildgrowth") then
+  if S.Wildgrowth:IsReady() and Everyone.AreUnitsBelowHealthPercentage(Settings.Restoration.HealingTwo, "Wildgrowth") and (not S.Swiftmend:IsAvailable() or not S.Swiftmend:IsReady()) then
     if Press(M.WildgrowthFocus, nil, true) then return "wildgrowth healing"; end
   end
   -- regrowth_hp

@@ -295,7 +295,7 @@ local function St()
     if Cast(S.RapidFire, nil, nil, not TargetInRange40y) then return "rapid_fire st 22"; end
   end
   -- trueshot,if=!raid_event.adds.exists|!raid_event.adds.up&(raid_event.adds.duration+raid_event.adds.in<25|raid_event.adds.in>60)|raid_event.adds.up&raid_event.adds.remains>10|active_enemies>1|fight_remains<25
-  if S.Trueshot:IsReady() and CDsON() then
+  if S.Trueshot:IsReady() and CDsON() and not Player:IsChanneling(S.RapidFire) then
     if Press(S.Trueshot, not TargetInRange40y, nil, true) then return "trueshot st 24"; end
   end
   -- multishot,if=buff.bombardment.up&buff.trick_shots.down&active_enemies>1|talent.salvo&buff.salvo.down&!talent.volley
@@ -387,7 +387,7 @@ local function Trickshots()
     if Cast(M.VolleyCursor, Settings.Marksmanship.GCDasOffGCD.Volley)  then return "volley trickshots 20"; end
   end
   -- trueshot
-  if S.Trueshot:IsReady() and CDsON() then
+  if S.Trueshot:IsReady() and CDsON() and not Player:IsChanneling(S.RapidFire) then
     if Press(S.Trueshot, not TargetInRange40y, false, true) then return "trueshot trickshots 22"; end
   end
   -- rapid_fire,if=buff.trick_shots.remains>=execute_time&(talent.surging_shots|buff.double_tap.up&talent.streamline&!ca_active)
@@ -505,7 +505,7 @@ local function APL()
   Enemies40y = Player:GetEnemiesInRange(S.AimedShot.MaximumRange)
   Enemies10ySplash = Target:GetEnemiesInSplashRange(10)
   if AoEON() then
-    EnemiesCount10ySplash = #Enemies10ySplash
+    EnemiesCount10ySplash = Target:GetEnemiesInSplashRangeCount(10)
   else
     EnemiesCount10ySplash = 1
   end
