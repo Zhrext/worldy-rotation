@@ -163,15 +163,15 @@ local function Cat()
     if Press(S.AdaptiveSwarm, not Target:IsSpellInRange(S.AdaptiveSwarm)) then return "adaptive_swarm cat"; end
   end
   -- convoke_the_spirits,if=(buff.heart_of_the_wild.up|cooldown.heart_of_the_wild.remains>60-30*runeforge.celestial_spirits|!talent.heart_of_the_wild.enabled)&buff.cat_form.up&energy<50&(combo_points<5&dot.rip.remains>5|spell_targets.swipe_cat>1)
-  if Settings.Restoration.Damage.ConvokeTheSpirits and S.ConvokeTheSpirits:IsCastable() and CDsON() and ((Player:BuffUp(S.HeartOfTheWild) or S.HeartOfTheWild:CooldownRemains() > 60 or not S.HeartOfTheWild:IsAvailable()) and Player:BuffUp(S.CatForm) and Player:Energy() < 50 and (Player:ComboPoints() < 5 and Target:DebuffRemains(S.Rip) > 5 or EnemiesCount8ySplash > 1)) then
+  if Settings.Restoration.Damage.Enabled.ConvokeTheSpirits and S.ConvokeTheSpirits:IsCastable() and CDsON() and ((Player:BuffUp(S.HeartOfTheWild) or S.HeartOfTheWild:CooldownRemains() > 60 or not S.HeartOfTheWild:IsAvailable()) and Player:BuffUp(S.CatForm) and Player:Energy() < 50 and (Player:ComboPoints() < 5 and Target:DebuffRemains(S.Rip) > 5 or EnemiesCount8ySplash > 1)) then
     if Press(S.ConvokeTheSpirits, not Target:IsInRange(30)) then return "convoke_the_spirits cat 18"; end
   end
   -- sunfire,target_if=(refreshable&target.time_to_die>5)&!prev_gcd.1.cat_form
-  if S.Sunfire:IsReady() and (Player:BuffDown(S.CatForm)) and Target:TimeToDie() > 5 and (Target:DebuffUp(S.Rip) or Player:Energy() < 30) then
+  if S.Sunfire:IsReady() and Player:BuffDown(S.CatForm) and Target:TimeToDie() > 5 and ((not S.Rip:IsAvailable() or Target:DebuffUp(S.Rip)) or Player:Energy() < 30) then
     if Everyone.CastCycle(S.Sunfire, Enemies8ySplash, EvaluateCycleCatSunfire, not Target:IsSpellInRange(S.Sunfire), nil, nil, M.SunfireMouseover) then return "sunfire cat 20"; end
   end
   -- moonfire,target_if=(refreshable&time_to_die>12&(((spell_targets.swipe_cat<=4+4*covenant.necrolord|energy<50)&!buff.heart_of_the_wild.up)|((spell_targets.swipe_cat<=4|energy<50)&buff.heart_of_the_wild.up))&!ticking|(prev_gcd.1.sunfire&remains<duration*0.8&spell_targets.sunfire=1))&!prev_gcd.1.cat_form
-  if S.Moonfire:IsReady() and (Player:BuffDown(S.CatForm)) and Target:TimeToDie() > 5 and (Target:DebuffUp(S.Rip) or Player:Energy() < 30) then
+  if S.Moonfire:IsReady() and Player:BuffDown(S.CatForm) and Target:TimeToDie() > 5 and ((not S.Rip:IsAvailable() or Target:DebuffUp(S.Rip)) or Player:Energy() < 30) then
     if Everyone.CastCycle(S.Moonfire, Enemies8ySplash, EvaluateCycleCatMoonfire, not Target:IsSpellInRange(S.Moonfire), nil, nil, M.MoonfireMouseover) then return "moonfire cat 22"; end
   end
   -- sunfire,if=prev_gcd.1.moonfire&remains<duration*0.8
@@ -196,11 +196,11 @@ local function Cat()
     if Press(S.CatForm) then return "cat_form cat 28"; end
   end
   -- ferocious_bite,if=(combo_points>3&target.1.time_to_die<3|combo_points=5&energy>=50&dot.rip.remains>10)&spell_targets.swipe_cat<4
-  if S.FerociousBite:IsReady() and ((Player:ComboPoints() > 3 and Target:TimeToDie() < 10) or (Player:ComboPoints() == 5 and Player:Energy() >= 50 and Target:DebuffRemains(S.Rip) > 10) and EnemiesCount8ySplash < 4) then
+  if S.FerociousBite:IsReady() and ((Player:ComboPoints() > 3 and Target:TimeToDie() < 10) or (Player:ComboPoints() == 5 and Player:Energy() >= 50 and (not S.Rip:IsAvailable() or Target:DebuffRemains(S.Rip) > 10)) and EnemiesCount8ySplash < 4) then
     if Press(S.FerociousBite, not Target:IsInMeleeRange(5)) then return "ferocious_bite cat 32"; end
   end
   -- rip,target_if=((refreshable|energy>90&remains<=10)&(combo_points=5&time_to_die>remains+24|(remains+combo_points*4<time_to_die&remains+4+combo_points*4>time_to_die))|!ticking&combo_points>2+spell_targets.swipe_cat*2)&spell_targets.swipe_cat<11
-  if S.Rip:IsReady() and (EnemiesCount8ySplash < 11) and EvaluateCycleCatRip(Target) then
+  if S.Rip:IsAvailable() and S.Rip:IsReady() and (EnemiesCount8ySplash < 11) and EvaluateCycleCatRip(Target) then
     if Press(S.Rip, not Target:IsInMeleeRange(5)) then return "rip cat 34"; end
   end
   -- rake,target_if=refreshable&time_to_die>10&(combo_points<5|remains<1)&spell_targets.swipe_cat<5
@@ -234,7 +234,7 @@ local function Owl()
     if Press(S.MoonkinForm) then return "moonkin_form owl 4"; end
   end
   -- convoke_the_spirits,if=(buff.heart_of_the_wild.up|cooldown.heart_of_the_wild.remains>60-30*runeforge.celestial_spirits|!talent.heart_of_the_wild.enabled)&(buff.eclipse_solar.remains>4|buff.eclipse_lunar.remains>4)&(!equipped.soulleting_ruby|cooldown.soulleting_ruby.remains<114-60*runeforge.celestial_spirits&!cooldown.soulleting_ruby.ready)
-  if Settings.Restoration.Damage.ConvokeTheSpirits and S.ConvokeTheSpirits:IsCastable() and CDsON() and ((Player:BuffUp(S.HeartOfTheWild) or S.HeartOfTheWild:CooldownRemains() > 60 or not S.HeartOfTheWild:IsAvailable()) and (Player:BuffRemains(S.EclipseSolar) > 4 or Player:BuffRemains(S.EclipseLunar) > 4)) then
+  if Settings.Restoration.Damage.Enabled.ConvokeTheSpirits and S.ConvokeTheSpirits:IsCastable() and CDsON() and ((Player:BuffUp(S.HeartOfTheWild) or S.HeartOfTheWild:CooldownRemains() > 60 or not S.HeartOfTheWild:IsAvailable()) and (Player:BuffRemains(S.EclipseSolar) > 4 or Player:BuffRemains(S.EclipseLunar) > 4)) then
     if Press(S.ConvokeTheSpirits, not Target:IsInRange(35)) then return "convoke_the_spirits owl 6"; end
   end
   -- starsurge,if=spell_targets.starfire<6|!eclipse.in_lunar&spell_targets.starfire<8
@@ -285,6 +285,10 @@ local function Damage()
   -- starsurge,if=!buff.cat_form.up
   if S.Starsurge:IsReady() and (Player:BuffDown(S.CatForm)) then
     if Press(S.Starsurge, not Target:IsSpellInRange(S.Starsurge)) then return "starsurge main 28"; end
+  end
+  -- starfire
+  if S.Starfire:IsReady() and EnemiesCount8ySplash > 2 then
+    if Press(S.Starfire, not Target:IsSpellInRange(S.Starfire), true) then return "starfire owl 16"; end
   end
   -- wrath
   if S.Wrath:IsReady() and (Player:BuffDown(S.CatForm) or not Target:IsInMeleeRange(8)) then
@@ -351,7 +355,7 @@ local function Healing()
   -- trinkets
   local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
   -- natures_vigil
-  if Player:AffectingCombat() and HotsCount() > 3 and S.NaturesVigil:IsReady() then
+  if Settings.Restoration.Damage.Enabled.NaturesVigil and Player:AffectingCombat() and HotsCount() > 3 and S.NaturesVigil:IsReady() then
     if Press(S.NaturesVigil, nil, nil, true) then return "natures_vigil healing"; end
   end
   -- wildgrowth_sotf

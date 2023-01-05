@@ -18,10 +18,12 @@ local Item       = HL.Item
 local Action     = HL.Action
 -- WorldyRotation
 local WR         = WorldyRotation
+local Bind       = WR.Bind
 local Macro      = WR.Macro
 local AoEON      = WR.AoEON
 local CDsON      = WR.CDsON
 local Cast       = WR.Cast
+local Press      = WR.Press
 -- Lua
 local mathmax    = math.max
 
@@ -172,34 +174,34 @@ local function Precombat()
   end
   -- misdirection
   if Focus:Exists() and S.Misdirection:IsReady() then
-    if WR.Press(M.MisdirectionFocus) then return "misdirection precombat 0"; end
+    if Press(M.MisdirectionFocus) then return "misdirection precombat 0"; end
   end
   -- steel_trap,precast_time=1.5,if=!talent.wailing_arrow&talent.steel_trap
   if S.SteelTrap:IsCastable() and ((not S.WailingArrow:IsAvailable()) and S.SteelTrap:IsAvailable()) then
-    if Cast(S.SteelTrap, Settings.Commons2.GCDasOffGCD.SteelTrap) then return "steel_trap precombat 2"; end
+    if Press(S.SteelTrap) then return "steel_trap precombat 2"; end
   end
   -- Manually added opener abilities
   -- Barbed Shot
   if S.BarbedShot:IsCastable() and S.BarbedShot:Charges() >= 2 then
-    if Cast(S.BarbedShot) then return "barbed_shot precombat 8"; end
+    if Press(S.BarbedShot) then return "barbed_shot precombat 8"; end
   end
   -- Kill Shot
   if S.KillShot:IsReady() then
-    if Cast(S.KillShot) then return "kill_shot precombat 10"; end
+    if Press(S.KillShot) then return "kill_shot precombat 10"; end
   end
   -- Kill Command
   if S.KillCommand:IsReady() and TargetInRangePet30y then
-    if Cast(S.KillCommand) then return "kill_command precombat 12"; end
+    if Press(S.KillCommand) then return "kill_command precombat 12"; end
   end
   if PetEnemiesMixedyCount > 1 then
     -- Multi Shot
     if S.MultiShot:IsReady()  then
-      if Cast(S.MultiShot) then return "multishot precombat 14"; end
+      if Press(S.MultiShot) then return "multishot precombat 14"; end
     end
   else
     -- Cobra Shot
     if S.CobraShot:IsReady()  then
-      if Cast(S.CobraShot) then return "cobra_shot precombat 16"; end
+      if Press(S.CobraShot) then return "cobra_shot precombat 16"; end
     end
   end
 end
@@ -207,29 +209,22 @@ end
 local function CDs()
   -- berserking,if=!talent.bestial_wrath|buff.bestial_wrath.up|fight_remains<16
   if S.Berserking:IsCastable() and ((not S.BestialWrath:IsAvailable()) or Player:BuffUp(S.BestialWrathBuff) or FightRemains < 16) then
-    if Cast(S.Berserking, Settings.Commons.GCDasOffGCD.Racials) then return "berserking cds 2"; end
+    if Press(S.Berserking, nil, nil, true) then return "berserking cds 2"; end
   end
   -- use_items,slots=trinket1,if=buff.call_of_the_wild.up|!talent.call_of_the_wild&(buff.bestial_wrath.up&(buff.bloodlust.up|target.health.pct<20))|fight_remains<31
   -- use_items,slots=trinket2,if=buff.call_of_the_wild.up|!talent.call_of_the_wild&(buff.bestial_wrath.up&(buff.bloodlust.up|target.health.pct<20))|fight_remains<31
   -- Moved to Trinkets() so trinkets aren't relying on CDsON
   -- blood_fury,if=buff.call_of_the_wild.up|!talent.call_of_the_wild&(buff.bestial_wrath.up&(buff.bloodlust.up|target.health.pct<20))|fight_remains<16
   if S.BloodFury:IsCastable() and (Player:BuffUp(S.CalloftheWildBuff) or (not S.CalloftheWild:IsAvailable()) and (Player:BuffUp(S.BestialWrathBuff) and (Player:BloodlustUp() or Target:HealthPercentage() < 20)) or FightRemains < 16) then
-    if Cast(S.BloodFury, Settings.Commons.GCDasOffGCD.Racials) then return "blood_fury cds 8"; end
+    if Press(S.BloodFury, nil, nil, true) then return "blood_fury cds 8"; end
   end
   -- ancestral_call,if=buff.call_of_the_wild.up|!talent.call_of_the_wild&(buff.bestial_wrath.up&(buff.bloodlust.up|target.health.pct<20))|fight_remains<16
   if S.AncestralCall:IsCastable() and (Player:BuffUp(S.CalloftheWildBuff) or (not S.CalloftheWild:IsAvailable()) and (Player:BuffUp(S.BestialWrathBuff) and (Player:BloodlustUp() or Target:HealthPercentage() < 20)) or FightRemains < 16) then
-    if Cast(S.AncestralCall, Settings.Commons.GCDasOffGCD.Racials) then return "ancestral_call cds 10"; end
+    if Press(S.AncestralCall) then return "ancestral_call cds 10"; end
   end
   -- fireblood,if=buff.call_of_the_wild.up|!talent.call_of_the_wild&(buff.bestial_wrath.up&(buff.bloodlust.up|target.health.pct<20))|fight_remains<10
   if S.Fireblood:IsCastable() and (Player:BuffUp(S.CalloftheWildBuff) or (not S.CalloftheWild:IsAvailable()) and (Player:BuffUp(S.BestialWrathBuff) and (Player:BloodlustUp() or Target:HealthPercentage() < 20)) or FightRemains < 10) then
-    if Cast(S.Fireblood, Settings.Commons.GCDasOffGCD.Racials) then return "fireblood cds 12"; end
-  end
-  -- potion,if=buff.call_of_the_wild.up|!talent.call_of_the_wild&(buff.bestial_wrath.up&(buff.bloodlust.up|target.health.pct<20))|fight_remains<31
-  if Settings.Commons.Enabled.Potions and (Player:BuffUp(S.CalloftheWildBuff) or (not S.CalloftheWild:IsAvailable()) and (Player:BuffUp(S.BestialWrathBuff) and (Player:BloodlustUp() or Target:HealthPercentage() < 20)) or FightRemains < 31) then
-    local PotionSelected = Everyone.PotionSelected()
-    if PotionSelected and PotionSelected:IsReady() then
-      if Cast(PotionSelected, nil, Settings.Commons.DisplayStyle.Potions) then return "potion cds 14"; end
-    end
+    if Press(S.Fireblood) then return "fireblood cds 12"; end
   end
 end
 
@@ -237,12 +232,12 @@ local function Trinkets()
   -- use_items,slots=trinket1,if=buff.call_of_the_wild.up|!talent.call_of_the_wild&(buff.bestial_wrath.up&(buff.bloodlust.up|target.health.pct<20))|fight_remains<31
   local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
   if Trinket1ToUse and (Player:BuffUp(S.CalloftheWildBuff) or (not S.CalloftheWild:IsAvailable()) and (Player:BuffUp(S.BestialWrathBuff) and (Player:BloodlustUp() or Target:HealthPercentage() < 20)) or FightRemains < 31) then
-    if WR.Press(M.Trinket1, nil, nil, true) then return "trinket1 trinket 2"; end
+    if Press(M.Trinket1, nil, nil, true) then return "trinket1 trinket 2"; end
   end
   -- use_items,slots=trinket2,if=buff.call_of_the_wild.up|!talent.call_of_the_wild&(buff.bestial_wrath.up&(buff.bloodlust.up|target.health.pct<20))|fight_remains<31
   local Trinket2ToUse = Player:GetUseableTrinkets(OnUseExcludes, 14)
   if Trinket2ToUse and (Player:BuffUp(S.CalloftheWildBuff) or (not S.CalloftheWild:IsAvailable()) and (Player:BuffUp(S.BestialWrathBuff) and (Player:BloodlustUp() or Target:HealthPercentage() < 20)) or FightRemains < 31) then
-    if WR.Press(M.Trinket2, nil, nil, true) then return "trinket2 trinket 4"; end
+    if Press(M.Trinket2, nil, nil, true) then return "trinket2 trinket 4"; end
   end
   -- use_item,name=manic_grieftorch,if=pet.main.buff.frenzy.remains>execute_time
     if I.ManicGrieftorch:IsEquippedAndReady() and (Pet:BuffRemains(S.FrenzyPetBuff) > Spell(377463):ExecuteTime()) then
@@ -305,43 +300,43 @@ local function Cleave()
   end
   -- multishot,if=gcd-pet.main.buff.beast_cleave.remains>0.25
   if S.MultiShot:IsReady() and (GCDMax - Pet:BuffRemains(S.BeastCleavePetBuff) > 0.25) then
-    if Cast(S.MultiShot, nil, nil, not Target:IsSpellInRange(S.MultiShot)) then return "multishot cleave 6"; end
+    if Press(S.MultiShot, not Target:IsSpellInRange(S.MultiShot)) then return "multishot cleave 6"; end
   end
   -- kill_command,if=full_recharge_time<gcd&talent.alpha_predator&talent.kill_cleave
   if S.KillCommand:IsReady() and (S.KillCommand:FullRechargeTime() < GCDMax and S.AlphaPredator:IsAvailable() and S.KillCleave:IsAvailable()) then
-    if Cast(S.KillCommand, nil, nil, not Target:IsInRange(50)) then return "kill_command cleave 8"; end
+    if Press(S.KillCommand, not Target:IsInRange(50)) then return "kill_command cleave 8"; end
   end
   -- call_of_the_wild
   if S.CalloftheWild:IsCastable() and CDsON() then
-    if Cast(S.CalloftheWild, Settings.BeastMastery.GCDasOffGCD.CallOfTheWild) then return "call_of_the_wild cleave 10"; end
+    if Press(S.CalloftheWild) then return "call_of_the_wild cleave 10"; end
   end
   -- explosive_shot
   if S.ExplosiveShot:IsReady() then
-    if Cast(S.ExplosiveShot, nil, nil, not Target:IsSpellInRange(S.ExplosiveShot)) then return "explosive_shot cleave 12"; end
+    if Press(S.ExplosiveShot, not Target:IsSpellInRange(S.ExplosiveShot)) then return "explosive_shot cleave 12"; end
   end
   -- stampede,if=buff.bestial_wrath.up|target.time_to_die<15
   if S.Stampede:IsCastable() and CDsON() and (Player:BuffUp(S.BestialWrathBuff) or FightRemains < 15) then
-    if Cast(S.Stampede, Settings.Commons2.GCDasOffGCD.Stampede, nil, not Target:IsSpellInRange(S.Stampede)) then return "stampede cleave 14"; end
+    if Press(S.Stampede, not Target:IsSpellInRange(S.Stampede)) then return "stampede cleave 14"; end
   end
   -- bloodshed
   if S.Bloodshed:IsCastable() then
-    if Cast(S.Bloodshed, nil, nil, not Target:IsSpellInRange(S.Bloodshed)) then return "bloodshed cleave 16"; end
+    if Press(S.Bloodshed, not Target:IsSpellInRange(S.Bloodshed)) then return "bloodshed cleave 16"; end
   end
   -- death_chakram
   if S.DeathChakram:IsCastable() then
-    if Cast(S.DeathChakram, nil, nil, not Target:IsSpellInRange(S.DeathChakram)) then return "death_chakram cleave 18"; end
+    if Press(S.DeathChakram, not Target:IsSpellInRange(S.DeathChakram)) then return "death_chakram cleave 18"; end
   end
   -- bestial_wrath
   if S.BestialWrath:IsCastable() and CDsON() then
-    if Cast(S.BestialWrath, Settings.BeastMastery.GCDasOffGCD.BestialWrath) then return "bestial_wrath cleave 20"; end
+    if Press(S.BestialWrath) then return "bestial_wrath cleave 20"; end
   end
   -- steel_trap
   if S.SteelTrap:IsCastable() then
-    if Cast(S.SteelTrap, Settings.Commons2.GCDasOffGCD.SteelTrap) then return "steel_trap cleave 22"; end
+    if Press(S.SteelTrap) then return "steel_trap cleave 22"; end
   end
   -- a_murder_of_crows
   if S.AMurderofCrows:IsReady() then
-    if Cast(S.AMurderofCrows, Settings.BeastMastery.GCDasOffGCD.AMurderOfCrows, nil, not Target:IsSpellInRange(S.AMurderofCrows)) then return "a_murder_of_crows cleave 24"; end
+    if Press(S.AMurderofCrows, not Target:IsSpellInRange(S.AMurderofCrows)) then return "a_murder_of_crows cleave 24"; end
   end
   -- barbed_shot,target_if=max:debuff.latent_poison.stack,if=debuff.latent_poison.stack>9&(talent.wild_instincts&buff.call_of_the_wild.up|fight_remains<9|talent.wild_call&charges_fractional>1.2)
   if S.BarbedShot:IsCastable() then
@@ -353,11 +348,11 @@ local function Cleave()
   end
   -- kill_command
   if S.KillCommand:IsReady() then
-    if Cast(S.KillCommand, nil, nil, not Target:IsInRange(50)) then return "kill_command cleave 30"; end
+    if Press(S.KillCommand, not Target:IsInRange(50)) then return "kill_command cleave 30"; end
   end
   -- dire_beast
   if S.DireBeast:IsCastable() then
-    if Cast(S.DireBeast, Settings.BeastMastery.GCDasOffGCD.DireBeast, nil, not Target:IsSpellInRange(S.DireBeast)) then return "dire_beast cleave 32"; end
+    if Press(S.DireBeast, not Target:IsSpellInRange(S.DireBeast)) then return "dire_beast cleave 32"; end
   end
   -- serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>duration
   if S.SerpentSting:IsReady() then
@@ -365,35 +360,35 @@ local function Cleave()
   end
   -- barrage,if=pet.main.buff.frenzy.remains>execute_time
   if S.Barrage:IsReady() and (Pet:BuffRemains(S.FrenzyPetBuff) > S.Barrage:ExecuteTime()) then
-    if Cast(S.Barrage, nil, nil, not Target:IsSpellInRange(S.Barrage)) then return "barrage cleave 36"; end
+    if Press(S.Barrage, not Target:IsSpellInRange(S.Barrage)) then return "barrage cleave 36"; end
   end
   -- kill_shot
   if S.KillShot:IsReady() then
-    if Cast(S.KillShot, nil, nil, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot cleave 38"; end
+    if Press(S.KillShot, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot cleave 38"; end
   end
   -- kill_shot_mouseover
   if Mouseover:Exists() and S.KillShot:IsCastable() and Mouseover:HealthPercentage() <= 20  then
-    if WR.Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover cleave 38"; end
+    if Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover cleave 38"; end
   end
   -- aspect_of_the_wild
   if S.AspectoftheWild:IsCastable() and CDsON() then
-    if Cast(S.AspectoftheWild, Settings.BeastMastery.OffGCDasOffGCD.AspectOfTheWild) then return "aspect_of_the_wild cleave 40"; end
+    if Press(S.AspectoftheWild) then return "aspect_of_the_wild cleave 40"; end
   end
   -- cobra_shot,if=focus.time_to_max<gcd*2|buff.aspect_of_the_wild.up&focus.time_to_max<gcd*4
   if S.CobraShot:IsReady() and (Player:FocusTimeToMax() < GCDMax * 2 or Player:BuffUp(S.AspectoftheWildBuff) and Player:FocusTimeToMax() < GCDMax * 4) then
-    if Cast(S.CobraShot, nil, nil, not Target:IsSpellInRange(S.CobraShot)) then return "cobra_shot cleave 42"; end
+    if Press(S.CobraShot, not Target:IsSpellInRange(S.CobraShot)) then return "cobra_shot cleave 42"; end
   end
   -- wailing_arrow,if=pet.main.buff.frenzy.remains>execute_time|fight_remains<5
   if S.WailingArrow:IsReady() and (Pet:BuffRemains(S.FrenzyPetBuff) > S.WailingArrow:ExecuteTime() or FightRemains < 5) then
-    if WR.Press(S.WailingArrow, not Target:IsSpellInRange(S.WailingArrow), true) then return "wailing_arrow cleave 44"; end
+    if Press(S.WailingArrow, not Target:IsSpellInRange(S.WailingArrow), true) then return "wailing_arrow cleave 44"; end
   end
   -- bag_of_tricks,if=buff.bestial_wrath.down|target.time_to_die<5
   if S.BagofTricks:IsCastable() and CDsON() and (Player:BuffDown(S.BestialWrathBuff) or FightRemains < 5) then
-    if Cast(S.BagofTricks, Settings.Commons.GCDasOffGCD.Racials) then return "bag_of_tricks cleave 46"; end
+    if Press(S.BagofTricks) then return "bag_of_tricks cleave 46"; end
   end
   -- arcane_torrent,if=(focus+focus.regen+30)<focus.max
   if S.ArcaneTorrent:IsCastable() and CDsON() and ((Player:Focus() + Player:FocusRegen() + 30) < Player:FocusMax()) then
-    if Cast(S.ArcaneTorrent, Settings.Commons.GCDasOffGCD.Racials) then return "arcane_torrent cleave 48"; end
+    if Press(S.ArcaneTorrent) then return "arcane_torrent cleave 48"; end
   end
 end
 
@@ -404,43 +399,43 @@ local function ST()
   end
   -- kill_command,if=full_recharge_time<gcd&talent.alpha_predator
   if S.KillCommand:IsReady() and (S.KillCommand:FullRechargeTime() < GCDMax and S.AlphaPredator:IsAvailable()) then
-    if Cast(S.KillCommand, nil, nil, not Target:IsInRange(50)) then return "kill_command st 4"; end
+    if Press(S.KillCommand, not Target:IsInRange(50)) then return "kill_command st 4"; end
   end
   -- call_of_the_wild
   if S.CalloftheWild:IsCastable() and CDsON() then
-    if Cast(S.CalloftheWild, Settings.BeastMastery.GCDasOffGCD.CallOfTheWild) then return "call_of_the_wild st 6"; end
+    if Press(S.CalloftheWild) then return "call_of_the_wild st 6"; end
   end
   -- death_chakram
   if S.DeathChakram:IsCastable() then
-    if Cast(S.DeathChakram, nil, nil, not Target:IsSpellInRange(S.DeathChakram)) then return "death_chakram st 8"; end
+    if Press(S.DeathChakram, not Target:IsSpellInRange(S.DeathChakram)) then return "death_chakram st 8"; end
   end
   -- bloodshed
   if S.Bloodshed:IsCastable() then
-    if Cast(S.Bloodshed, Settings.Commons.GCDasOffGCD.Bloodshed, nil, not Target:IsSpellInRange(S.Bloodshed)) then return "bloodshed st 10"; end
+    if Press(S.Bloodshed, not Target:IsSpellInRange(S.Bloodshed)) then return "bloodshed st 10"; end
   end
   -- stampede
   if S.Stampede:IsCastable() and CDsON() then
-    if Cast(S.Stampede, Settings.Commons2.GCDasOffGCD.Stampede, nil, not Target:IsSpellInRange(S.Stampede)) then return "stampede st 12"; end
+    if Press(S.Stampede, not Target:IsSpellInRange(S.Stampede)) then return "stampede st 12"; end
   end
   -- a_murder_of_crows
   if S.AMurderofCrows:IsCastable() then
-    if Cast(S.AMurderofCrows, Settings.BeastMastery.GCDasOffGCD.AMurderOfCrows, nil, not Target:IsSpellInRange(S.AMurderofCrows)) then return "a_murder_of_crows st 14"; end
+    if Press(S.AMurderofCrows, not Target:IsSpellInRange(S.AMurderofCrows)) then return "a_murder_of_crows st 14"; end
   end
   -- steel_trap
   if S.SteelTrap:IsCastable() then
-    if Cast(S.SteelTrap, Settings.Commons2.GCDasOffGCD.SteelTrap) then return "steel_trap st 16"; end
+    if Press(S.SteelTrap) then return "steel_trap st 16"; end
   end
   -- explosive_shot
   if S.ExplosiveShot:IsReady() then
-    if Cast(S.ExplosiveShot, nil, nil, not Target:IsSpellInRange(S.ExplosiveShot)) then return "explosive_shot st 18"; end
+    if Press(S.ExplosiveShot, not Target:IsSpellInRange(S.ExplosiveShot)) then return "explosive_shot st 18"; end
   end
   -- bestial_wrath
   if S.BestialWrath:IsCastable() and CDsON() then
-    if Cast(S.BestialWrath, Settings.BeastMastery.GCDasOffGCD.BestialWrath) then return "bestial_wrath st 20"; end
+    if Press(S.BestialWrath) then return "bestial_wrath st 20"; end
   end
   -- kill_command
   if S.KillCommand:IsReady() then
-    if Cast(S.KillCommand, nil, nil, not Target:IsInRange(50)) then return "kill_command st 22"; end
+    if Press(S.KillCommand, not Target:IsInRange(50)) then return "kill_command st 22"; end
   end
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=talent.wild_instincts&buff.call_of_the_wild.up|talent.wild_call&charges_fractional>1.4|full_recharge_time<gcd&cooldown.bestial_wrath.remains|talent.scent_of_blood&(cooldown.bestial_wrath.remains<12+gcd|full_recharge_time+gcd<8&cooldown.bestial_wrath.remains<24+(8-gcd)+full_recharge_time)|fight_remains<9
   if S.BarbedShot:IsCastable() then
@@ -448,7 +443,7 @@ local function ST()
   end
   -- dire_beast
   if S.DireBeast:IsCastable() then
-    if Cast(S.DireBeast, Settings.BeastMastery.GCDasOffGCD.DireBeast, nil, not Target:IsSpellInRange(S.DireBeast)) then return "dire_beast st 26"; end
+    if Press(S.DireBeast, not Target:IsSpellInRange(S.DireBeast)) then return "dire_beast st 26"; end
   end
   -- serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>duration
   if S.SerpentSting:IsReady() then
@@ -456,32 +451,32 @@ local function ST()
   end
   -- kill_shot
   if S.KillShot:IsReady() then
-    if Cast(S.KillShot, nil, nil, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot st 30"; end
+    if Press(S.KillShot, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot st 30"; end
   end
   -- aspect_of_the_wild
   if S.AspectoftheWild:IsCastable() and CDsON() then
-    if Cast(S.AspectoftheWild, Settings.BeastMastery.OffGCDasOffGCD.AspectOfTheWild) then return "aspect_of_the_wild st 32"; end
+    if Press(S.AspectoftheWild) then return "aspect_of_the_wild st 32"; end
   end
   -- cobra_shot
   if S.CobraShot:IsReady() then
-    if Cast(S.CobraShot, nil, nil, not Target:IsSpellInRange(S.CobraShot)) then return "cobra_shot st 34"; end
+    if Press(S.CobraShot, not Target:IsSpellInRange(S.CobraShot)) then return "cobra_shot st 34"; end
   end
   -- wailing_arrow,if=pet.main.buff.frenzy.remains>execute_time|target.time_to_die<5
   if S.WailingArrow:IsReady() and (Pet:BuffRemains(S.FrenzyPetBuff) > S.WailingArrow:ExecuteTime() or FightRemains < 5) then
-    if WR.Press(S.WailingArrow, not Target:IsSpellInRange(S.WailingArrow), true) then return "wailing_arrow st 36"; end
+    if Press(S.WailingArrow, not Target:IsSpellInRange(S.WailingArrow), true) then return "wailing_arrow st 36"; end
   end
   if CDsON() then
     -- bag_of_tricks,if=buff.bestial_wrath.down|target.time_to_die<5
     if S.BagofTricks:IsCastable() and (Player:BuffDown(S.BestialWrathBuff) or FightRemains < 5) then
-      if Cast(S.BagofTricks, Settings.Commons.GCDasOffGCD.Racials) then return "bag_of_tricks st 38"; end
+      if Press(S.BagofTricks) then return "bag_of_tricks st 38"; end
     end
     -- arcane_pulse,if=buff.bestial_wrath.down|target.time_to_die<5
     if S.ArcanePulse:IsCastable() and (Player:BuffDown(S.BestialWrathBuff) or FightRemains < 5) then
-      if Cast(S.ArcanePulse, Settings.Commons.GCDasOffGCD.Racials) then return "arcane_pulse st 40"; end
+      if Press(S.ArcanePulse) then return "arcane_pulse st 40"; end
     end
     -- arcane_torrent,if=(focus+focus.regen+15)<focus.max
     if S.ArcaneTorrent:IsCastable() and ((Player:Focus() + Player:FocusRegen() + 15) < Player:FocusMax()) then
-      if Cast(S.ArcaneTorrent, Settings.Commons.GCDasOffGCD.Racials) then return "arcane_torrent st 42"; end
+      if Press(S.ArcaneTorrent) then return "arcane_torrent st 42"; end
     end
   end
 end
@@ -508,10 +503,10 @@ local function APL()
   end
 
   -- Enemies Update
-  local PetCleaveAbility = (S.BloodBolt:IsPetKnown() and S.BloodBolt)
-    or (S.Bite:IsPetKnown() and S.Bite)
-    or (S.Claw:IsPetKnown() and S.Claw)
-    or (S.Smack:IsPetKnown() and S.Smack)
+  local PetCleaveAbility = (S.BloodBolt:IsPetKnown() and Action.FindBySpellID(S.BloodBolt:ID()) and S.BloodBolt)
+    or (S.Bite:IsPetKnown() and Action.FindBySpellID(S.Bite:ID()) and S.Bite)
+    or (S.Claw:IsPetKnown() and Action.FindBySpellID(S.Claw:ID()) and S.Claw)
+    or (S.Smack:IsPetKnown() and Action.FindBySpellID(S.Smack:ID()) and S.Smack)
     or nil
   local PetRangeAbility = (S.Growl:IsPetKnown() and Action.FindBySpellID(S.Growl:ID()) and S.Growl) or nil
   if AoEON() then
@@ -530,21 +525,21 @@ local function APL()
   -- Defensives
   -- Exhilaration
   if S.Exhilaration:IsCastable() and Player:HealthPercentage() <= Settings.Commons2.ExhilarationHP then
-    if Cast(S.Exhilaration, Settings.Commons2.GCDasOffGCD.Exhilaration) then return "Exhilaration"; end
+    if Press(S.Exhilaration) then return "Exhilaration"; end
   end
   -- healthstone
   if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
-    if WR.Press(M.Healthstone, nil, nil, true) then return "healthstone defensive 3"; end
+    if Press(M.Healthstone, nil, nil, true) then return "healthstone defensive 3"; end
   end
   -- Pet Management
   if S.SummonPet:IsCastable() then
-    if Cast(SummonPetSpells[Settings.Commons2.SummonPetSlot], Settings.Commons2.GCDasOffGCD.SummonPet) then return "Summon Pet"; end
+    if Press(SummonPetSpells[Settings.Commons2.SummonPetSlot]) then return "Summon Pet"; end
   end
   if Pet:IsDeadOrGhost() and S.RevivePet:IsCastable() then
-    if Cast(S.RevivePet, Settings.Commons2.GCDasOffGCD.RevivePet) then return "Revive Pet"; end
+    if Press(S.RevivePet) then return "Revive Pet"; end
   end
   if (not Pet:IsDeadOrGhost()) and S.MendPet:IsCastable() and Pet:HealthPercentage() <= Settings.Commons2.MendPetHighHP then
-    if Cast(S.MendPet) then return "Mend Pet High Priority"; end
+    if Press(S.MendPet) then return "Mend Pet High Priority"; end
   end
 
   if Everyone.TargetIsValid() then
@@ -587,76 +582,69 @@ local function APL()
     end
     -- Manually added pet healing
     if not Pet:IsDeadOrGhost() and S.MendPet:IsCastable() and Pet:HealthPercentage() <= Settings.Commons2.MendPetLowHP then
-      if Cast(S.MendPet) then return "Mend Pet Low Priority (w/ Target)"; end
+      if Press(S.MendPet) then return "Mend Pet Low Priority (w/ Target)"; end
     end
     -- Pool Focus if nothing else to do
-    if Cast(S.PoolFocus) then return "Pooling Focus"; end
+    if Press(S.PoolFocus) then return "Pooling Focus"; end
   end
 
   -- Note: We have to put it again in case we don't have a target but our pet is dying.
   if not Pet:IsDeadOrGhost() and S.MendPet:IsCastable() and Pet:HealthPercentage() <= Settings.Commons2.MendPetLowHP then
-    if Cast(S.MendPet) then return "Mend Pet Low Priority (w/o Target)"; end
+    if Press(S.MendPet) then return "Mend Pet Low Priority (w/o Target)"; end
   end
 end
 
 local function AutoBind()
   -- Spell Binds
-  WR.Bind(S.AMurderofCrows)
-  WR.Bind(S.AspectoftheWild)  
-  WR.Bind(S.ArcaneTorrent)
-  WR.Bind(S.ArcanePulse)
-  WR.Bind(S.BagofTricks)
-  WR.Bind(S.BarbedShot)
-  WR.Bind(S.Barrage)
-  WR.Bind(S.BestialWrath)
-  WR.Bind(S.BloodFury)
-  WR.Bind(S.Bloodshed)
-  WR.Bind(S.CobraShot)
-  WR.Bind(S.CounterShot)
-  WR.Bind(S.DeathChakram)
-  WR.Bind(S.DireBeast)
-  WR.Bind(S.Exhilaration)
-  WR.Bind(S.ExplosiveShot)
-  WR.Bind(S.Flare)
-  WR.Bind(S.Intimidation)
-  WR.Bind(S.KillCommand)
-  WR.Bind(S.KillShot)
-  WR.Bind(S.MendPet)
-  WR.Bind(S.MultiShot)
-  WR.Bind(S.RevivePet)
-  WR.Bind(S.SerpentSting)
-  WR.Bind(S.Stampede)
-  WR.Bind(S.SteelTrap)
-  WR.Bind(S.TarTrap)
-  WR.Bind(S.TranquilizingShot)
-  WR.Bind(S.WailingArrow)
-  WR.Bind(S.SummonPet)
-  WR.Bind(S.SummonPet2)
-  WR.Bind(S.SummonPet3)
-  WR.Bind(S.SummonPet4)
-  WR.Bind(S.SummonPet5)
-  
-  -- Pet Spells
-  WR.Bind(S.BloodBolt)
-  WR.Bind(S.Bite)
-  WR.Bind(S.Claw)
-  WR.Bind(S.Growl)
-  WR.Bind(S.Smack)
+  Bind(S.AMurderofCrows)
+  Bind(S.AspectoftheWild)  
+  Bind(S.ArcaneTorrent)
+  Bind(S.ArcanePulse)
+  Bind(S.BagofTricks)
+  Bind(S.BarbedShot)
+  Bind(S.Barrage)
+  Bind(S.BestialWrath)
+  Bind(S.BloodFury)
+  Bind(S.Bloodshed)
+  Bind(S.CobraShot)
+  Bind(S.CounterShot)
+  Bind(S.DeathChakram)
+  Bind(S.DireBeast)
+  Bind(S.Exhilaration)
+  Bind(S.ExplosiveShot)
+  Bind(S.Flare)
+  Bind(S.Intimidation)
+  Bind(S.KillCommand)
+  Bind(S.KillShot)
+  Bind(S.MendPet)
+  Bind(S.MultiShot)
+  Bind(S.RevivePet)
+  Bind(S.SerpentSting)
+  Bind(S.Stampede)
+  Bind(S.SteelTrap)
+  Bind(S.TarTrap)
+  Bind(S.TranquilizingShot)
+  Bind(S.WailingArrow)
+  Bind(S.SummonPet)
+  Bind(S.SummonPet2)
+  Bind(S.SummonPet3)
+  Bind(S.SummonPet4)
+  Bind(S.SummonPet5)
   
   -- Bind Items
-  WR.Bind(M.Trinket1)
-  WR.Bind(M.Trinket2)
-  WR.Bind(M.Healthstone)
+  Bind(M.Trinket1)
+  Bind(M.Trinket2)
+  Bind(M.Healthstone)
   
   -- Macros
-  WR.Bind(M.BarbedShotMouseover)
-  WR.Bind(M.BindingShotCursor)
-  WR.Bind(M.CobraShotMouseover)
-  WR.Bind(M.CounterShotMouseover)
-  WR.Bind(M.IntimidationMouseover)
-  WR.Bind(M.KillShotMouseover)
-  WR.Bind(M.SerpentStingMouseover)
-  WR.Bind(M.MisdirectionFocus)
+  Bind(M.BarbedShotMouseover)
+  Bind(M.BindingShotCursor)
+  Bind(M.CobraShotMouseover)
+  Bind(M.CounterShotMouseover)
+  Bind(M.IntimidationMouseover)
+  Bind(M.KillShotMouseover)
+  Bind(M.SerpentStingMouseover)
+  Bind(M.MisdirectionFocus)
 end
 
 local function OnInit ()

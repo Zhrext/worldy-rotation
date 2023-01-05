@@ -31,6 +31,7 @@ WR.GUISettings.APL.Druid = {
     Damage = {
       Enabled = {
         ConvokeTheSpirits = true,
+        NaturesVigil = true,
       },
     },
     HealingOne = {
