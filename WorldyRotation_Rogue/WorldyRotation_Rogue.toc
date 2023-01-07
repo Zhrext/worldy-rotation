@@ -1,7 +1,7 @@
 ## Interface: 100002
 
 ## Title: Worldy|cFFA330C9Rotation|r [|cFFFFF569Rogue|r]
-## Author: Worldy
+## Author: Gabbz
 ## Notes: Worldy Rotation - Rogue Module.
 
 ## DefaultState: Enabled
