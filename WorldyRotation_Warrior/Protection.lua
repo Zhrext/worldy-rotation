@@ -11,13 +11,15 @@ local Player     = Unit.Player
 local Target     = Unit.Target
 local Spell      = HL.Spell
 local Item       = HL.Item
-local Utils      = HL.Utils
 -- WorldyRotation
 local WR         = WorldyRotation
 local Cast       = WR.Cast
+local Macro       = WR.Macro
 local AoEON      = WR.AoEON
 local CDsON      = WR.CDsON
-local Macro      = WR.Macro
+-- Num/Bool Helper Functions
+local num        = WR.Commons.Everyone.num
+local bool       = WR.Commons.Everyone.bool
 -- lua
 local mathfloor  = math.floor
 
@@ -49,24 +51,10 @@ local Settings = {
   Protection = WR.GUISettings.APL.Warrior.Protection
 }
 
--- Legendaries
-local ReprisalEquipped = Player:HasLegendaryEquipped(193)
-local GloryEquipped = Player:HasLegendaryEquipped(214)
-
--- Event Registrations
-HL:RegisterForEvent(function()
-  ReprisalEquipped = Player:HasLegendaryEquipped(193)
-  GloryEquipped = Player:HasLegendaryEquipped(214)
-end, "PLAYER_EQUIPMENT_CHANGED")
-
--- Player Covenant
--- 0: none, 1: Kyrian, 2: Venthyr, 3: Night Fae, 4: Necrolord
-local CovenantID = Player:CovenantID()
-
--- Update CovenantID if we change Covenants
-HL:RegisterForEvent(function()
-  CovenantID = Player:CovenantID()
-end, "COVENANT_CHOSEN")
+-- Stuns
+local StunInterrupts = {
+  {S.IntimidatingShout, "Cast Intimidating Shout (Interrupt)", function () return true; end},
+}
 
 local function IsCurrentlyTanking()
   return Player:IsTankingAoE(16) or Player:IsTanking(Target) or Target:IsDummy()
@@ -75,7 +63,8 @@ end
 local function IgnorePainWillNotCap()
   if Player:BuffUp(S.IgnorePain) then
     local absorb = Player:AttackPowerDamageMod() * 3.5 * (1 + Player:VersatilityDmgPct() / 100)
-    local _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, IPAmount = Player:AuraInfo(S.IgnorePain, nil, true)
+    local spellTable = Player:AuraInfo(S.IgnorePain, nil, true)
+    local IPAmount = spellTable.points[1]
     --return IPAmount < (0.5 * mathfloor(absorb * 1.3))
     -- Ignore Pain appears to cap at 2 times its absorb value now
     return IPAmount < absorb
@@ -84,8 +73,18 @@ local function IgnorePainWillNotCap()
   end
 end
 
+local function IgnorePainValue()
+  if Player:BuffUp(S.IgnorePain) then
+    local IPBuffInfo = Player:BuffInfo(S.IgnorePain, nil, true)
+    return IPBuffInfo.points[1]
+  else
+    return 0
+  end
+end
+
 local function ShouldPressShieldBlock()
-  return IsCurrentlyTanking() and S.ShieldBlock:IsReady() and ((Player:BuffDown(S.ShieldBlockBuff) or Player:BuffRemains(S.ShieldBlockBuff) < S.ShieldSlam:CooldownRemains()) and Player:BuffDown(S.LastStandBuff))
+  -- shield_block,if=(buff.shield_block.down|buff.shield_block.remains<cooldown.shield_slam.remains)&target.health.pct>20
+  return IsCurrentlyTanking() and S.ShieldBlock:IsReady() and ((Player:BuffDown(S.ShieldBlockBuff) or Player:BuffRemains(S.ShieldBlockBuff) < S.ShieldSlam:CooldownRemains()) and Player:BuffDown(S.LastStandBuff) and Target:HealthPercentage() > 20)
 end
 
 -- A bit of logic to decide whether to pre-cast-rage-dump on ignore pain.
@@ -94,18 +93,18 @@ local function SuggestRageDump(RageFromSpell)
   local RageMax = Settings.Protection.RageCapValue
   -- If the setting value is lower than 35, it's not possible to cast Ignore Pain, so just return false
   if (RageMax < 35 or Player:Rage() < 35) then return false end
-  local ShouldPreRageDump = false
+  local shouldPreRageDump = false
   -- Make sure we have enough Rage to cast IP, that it's not on CD, and that we shouldn't use Shield Block
   local AbleToCastIP = (Player:Rage() >= 35 and not ShouldPressShieldBlock())
   if AbleToCastIP and (Player:Rage() + RageFromSpell >= RageMax or S.DemoralizingShout:IsReady()) then
     -- should pre-dump rage into IP if rage + RageFromSpell >= RageMax or Demo Shout is ready
-    ShouldPreRageDump = true
+      shouldPreRageDump = true
   end
-  if ShouldPreRageDump then
+  if shouldPreRageDump then
     if IgnorePainWillNotCap() then
-      if Cast(S.IgnorePain) then return "ignore_pain rage capped"; end
+      if Cast(S.IgnorePain, nil, Settings.Protection.DisplayStyle.Defensive) then return "ignore_pain rage capped"; end
     else
-      if Cast(S.Revenge, not TargetInMeleeRange) then return "revenge rage capped"; end
+      if Cast(S.Revenge, nil, nil, not TargetInMeleeRange) then return "revenge rage capped"; end
     end
   end
 end
@@ -115,124 +114,211 @@ local function Precombat()
   -- food
   -- augmentation
   -- snapshot_stats
-  -- fleshcraft
-  -- Note: Manually moved this above conquerors_banner so we don't waste 3s of the banner buff
-  if S.Fleshcraft:IsCastable() then
-    if Cast(S.Fleshcraft) then return "fleshcraft precombat"; end
-  end
-  -- conquerors_banner
-  if S.ConquerorsBanner:IsCastable() then
-    if Cast(S.ConquerorsBanner) then return "conquerors_banner precombat"; end
-  end
+  -- Manually added: Group buff check
+  --if S.BattleShout:IsCastable() and (Player:BuffDown(S.BattleShoutBuff, true) or Everyone.GroupBuffMissing(S.BattleShoutBuff)) then
+  --  if Cast(S.BattleShout, Settings.Commons.GCDasOffGCD.BattleShout) then return "battle_shout precombat 2"; end
+  --end
   -- Manually added opener
   if Target:IsInMeleeRange(12) then
     if S.ThunderClap:IsCastable() then
       if Cast(S.ThunderClap) then return "thunder_clap precombat"; end
     end
   else
-    if Settings.Commons.Enabled.Charge and S.Charge:IsCastable() and not Target:IsInRange(8) then
-      if Cast(S.Charge, not Target:IsSpellInRange(S.Charge)) then return "charge precombat"; end
+    if S.ShieldCharge:IsCastable() and Target:IsInMeleeRange(5) then
+      if Cast(S.ShieldCharge, nil, nil, not Target:IsSpellInRange(S.ShieldCharge)) then return "shield_charge precombat"; end
+    end
+    if S.Charge:IsCastable() and not Target:IsInRange(8) then
+      --if Cast(S.Charge, nil, nil, not Target:IsSpellInRange(S.Charge)) then return "charge precombat"; end
     end
   end
 end
 
 local function Defensive()
   if ShouldPressShieldBlock() then
-    if Cast(S.ShieldBlock) then return "shield_block defensive" end
+    if Cast(S.ShieldBlock, nil, Settings.Protection.DisplayStyle.Defensive) then return "shield_block defensive"; end
   end
-  if S.LastStand:IsCastable() and (Player:BuffDown(S.ShieldBlockBuff) and S.ShieldBlock:Recharge() > 1) then
-    if Cast(S.LastStand) then return "last_stand defensive" end
+  -- shield_wall,if=!buff.last_stand.up&!buff.rallying_cry.up
+  if Player:HealthPercentage() < 20 and S.ShieldWall:IsCastable() and (Player:BuffDown(S.LastStandBuff) and Player:BuffDown(S.RallyingCryBuff)) then
+    if Cast(S.ShieldWall, nil, Settings.Protection.DisplayStyle.Defensive) then return "shield_wall defensive"; end
   end
-  if Player:HealthPercentage() < Settings.Commons.HP.VictoryRushHP then
+  -- last_stand,if=!buff.shield_wall.up&!buff.rallying_cry.up
+  if Player:HealthPercentage() < 15 and S.LastStand:IsCastable() and (Player:BuffDown(S.ShieldBlockBuff) and S.ShieldBlock:Recharge() > 1) then
+    if Cast(S.LastStand, nil, Settings.Protection.DisplayStyle.Defensive) then return "last_stand defensive"; end
+  end
+  -- rallying_cry,if=!buff.last_stand.up&!buff.shield_wall.up
+  if Player:HealthPercentage() < 10 and S.RallyingCry:IsCastable() and (Player:BuffDown(S.LastStandBuff) and Player:BuffDown(S.ShieldWallBuff)) then
+    if Cast(S.RallyingCry, nil, Settings.Protection.DisplayStyle.Defensive) then return "rallying_cry defensive"; end
+  end
+  -- demoralizing_shout,if=!buff.last_stand.up&!buff.shield_wall.up&!buff.rallying_cry.up
+  if S.DemoralizingShout:IsCastable() and (Player:BuffDown(S.LastStandBuff) and Player:BuffDown(S.ShieldWallBuff) and Player:BuffDown(S.RallyingCryBuff)) then
+    if Cast(S.DemoralizingShout, nil, Settings.Protection.DisplayStyle.Defensive) then return "demoralizing_shout defensive"; end
+  end
+  -- Manually added: VR/IV
+  if Player:HealthPercentage() < Settings.Commons.VictoryRushHP then
     if S.VictoryRush:IsReady() then
-      if Cast(S.VictoryRush) then return "victory_rush defensive" end
+      if Cast(S.VictoryRush) then return "victory_rush defensive"; end
     end
     if S.ImpendingVictory:IsReady() then
-      if Cast(S.ImpendingVictory) then return "impending_victory defensive" end
+      if Cast(S.ImpendingVictory) then return "impending_victory defensive"; end
     end
-  end
-  -- healthstone
-  if Player:HealthPercentage() <= Settings.Commons.HP.Healthstone and I.Healthstone:IsReady() then
-    if Cast(M.Healthstone, nil, nil, true) then return "healthstone defensive 3"; end
-  end
-  -- phial_of_serenity
-  if Player:HealthPercentage() <= Settings.Commons.HP.PhialOfSerenity and I.PhialofSerenity:IsReady() then
-    if Cast(M.PhialofSerenity, nil, nil, true) then return "phial_of_serenity defensive 4"; end
   end
 end
 
 local function Aoe()
-  -- ravager
-  if S.Ravager:IsCastable() then
-    SuggestRageDump(10)
-    if Cast(M.RavagerPlayer, not TargetInMeleeRange) then return "ravager aoe 2"; end
+  -- ignore_pain,if=rage.deficit>=35&buff.ignore_pain.value<health.max*0.3
+  if S.IgnorePain:IsReady() and (Player:RageDeficit() >= 35 and IgnorePainValue() < Player:MaxHealth() * 0.3) then
+    if Cast(S.IgnorePain, nil, Settings.Protection.DisplayStyle.Defensive) then return "ignore_pain aoe 2"; end
   end
-  -- dragon_roar
-  if S.DragonRoar:IsCastable() then
+  -- spear_of_bastion
+  if S.SpearofBastion:IsCastable() then
     SuggestRageDump(20)
-    if Cast(S.DragonRoar, not Target:IsInMeleeRange(12)) then return "dragon_roar aoe 4"; end
+    if Cast(S.SpearofBastion, nil, Settings.Commons.DisplayStyle.Signature) then return "spear_of_bastion aoe 4"; end
   end
-  -- thunder_clap,if=buff.outburst.up
-  if S.ThunderClap:IsCastable() and (Player:BuffUp(S.OutburstBuff)) then
-    SuggestRageDump(5)
-    if Cast(S.ThunderClap, not Target:IsInMeleeRange(12)) then return "thunder_clap aoe 6"; end
+  -- thunderous_roar
+  if S.ThunderousRoar:IsCastable() then
+    SuggestRageDump(10)
+    if Cast(S.ThunderousRoar, Settings.Protection.GCDasOffGCD.ThunderousRoar, nil, not Target:IsInMeleeRange(12)) then return "thunderous_roar aoe 6"; end
   end
-  -- revenge
-  -- Manually added: Reserve 30 Rage for ShieldBlock
-  if S.Revenge:IsReady() and (Player:Rage() >= 50 and not ShouldPressShieldBlock()) then
-    if Cast(S.Revenge, not TargetInMeleeRange) then return "revenge aoe 8"; end
+  -- ravager
+  if S.Ravager:IsCastable() and EnemiesCount8 > 4 then
+    SuggestRageDump(10)
+    if Cast(M.Ravager) then return "ravager aoe 8"; end
+  end
+  -- shockwave
+  --if S.Shockwave:IsCastable() and Settings.Protection.GCDasOffGCD.Shockwave then
+  --  SuggestRageDump(10)
+  --  if Cast(S.Shockwave, Settings.Protection.GCDasOffGCD.Shockwave, nil, not Target:IsInMeleeRange(10)) then return "shockwave aoe 10"; end
+  --end
+  -- shield_charge
+  if S.ShieldCharge:IsCastable() and Target:IsInMeleeRange(5) then
+    --Only if Target is in melee
+    if Cast(S.ShieldCharge, nil, nil, not Target:IsSpellInRange(S.ShieldCharge)) then return "shield_charge aoe 12"; end
+  end
+  -- revenge,if=rage.deficit>30
+  if S.Revenge:IsReady() and (not ShouldPressShieldBlock()) and (Player:RageDeficit() > 30) then
+    if Cast(S.Revenge, nil, nil, not TargetInMeleeRange) then return "revenge aoe 14"; end
   end
   -- thunder_clap
   if S.ThunderClap:IsCastable() then
     SuggestRageDump(5)
-    if Cast(S.ThunderClap, not Target:IsInMeleeRange(12)) then return "thunder_clap aoe 6"; end
+    if Cast(S.ThunderClap, nil, nil, not Target:IsInMeleeRange(12)) then return "thunder_clap aoe 16"; end
+  end
+  -- titanic_throw
+  if S.TitanicThrow:IsCastable() then
+    if Cast(S.TitanicThrow, nil, nil, not Target:IsInRange(30)) then return "titanic_throw aoe 18"; end
+  end
+  -- rend,if=!talent.thunderclap&!talent.blood_and_thunder
+  if S.Rend:IsReady() and (not ShouldPressShieldBlock()) and ((not S.ThunderClap:IsAvailable()) and not S.BloodandThunder:IsAvailable()) then
+    if Cast(S.Rend, nil, nil, not TargetInMeleeRange) then return "rend aoe 20"; end
   end
   -- shield_slam
   if S.ShieldSlam:IsCastable() then
-    SuggestRageDump(15)
-    if Cast(S.ShieldSlam, not TargetInMeleeRange) then return "shield_slam aoe 10"; end
+    SuggestRageDump(20)
+    if Cast(S.ShieldSlam, nil, nil, not TargetInMeleeRange) then return "shield_slam aoe 22"; end
+  end
+  -- execute
+  if S.Execute:IsReady() and not ShouldPressShieldBlock() then
+    if Cast(S.Execute, nil, nil, not TargetInMeleeRange) then return "execute aoe 24"; end
+  end
+  -- devastate
+  if S.Devastate:IsCastable() then
+    if Cast(S.Devastate, nil, nil, not TargetInMeleeRange) then return "devastate aoe 26"; end
+  end
+  -- impending_victory
+  if S.ImpendingVictory:IsReady() then
+    if Cast(S.ImpendingVictory, nil, nil, not TargetInMeleeRange) then return "impending_victory aoe 28"; end
+  end
+  -- storm_bolt
+  if S.StormBolt:IsCastable() then
+    if Cast(S.StormBolt, nil, nil, not Target:IsInRange(20)) then return "storm_bolt aoe 30"; end
   end
 end
 
 local function Generic()
+  -- ignore_pain,if=(rage.deficit>=35&buff.ignore_pain.value<health.max*0.3*0.5)|buff.ignore_pain.remains<gcd
+  if S.IgnorePain:IsReady() and ((Player:RageDeficit() >= 35 and IgnorePainValue() < Player:MaxHealth() * 0.3 * 0.5) or Player:BuffRemains(S.IgnorePain) < Player:GCD()) then
+    if Cast(S.IgnorePain, nil, Settings.Protection.DisplayStyle.Defensive) then return "ignore_pain generic 2"; end
+  end
   -- ravager
-  if S.Ravager:IsCastable() then
+  if S.Ravager:IsCastable() and EnemiesCount8 > 4 then
     SuggestRageDump(10)
-    if Cast(M.RavagerPlayer, not TargetInMeleeRange) then return "ravager generic 2"; end
+    if Cast(M.Ravager) then return "ravager generic 4"; end
   end
-  -- dragon_roar
-  if S.DragonRoar:IsCastable() then
+  -- thunderous_roar
+  if S.ThunderousRoar:IsCastable() then
+    SuggestRageDump(10)
+    if Cast(S.ThunderousRoar, Settings.Protection.GCDasOffGCD.ThunderousRoar, nil, not Target:IsInMeleeRange(12)) then return "thunderous_roar generic 6"; end
+  end
+  -- spear_of_bastion
+  if S.SpearofBastion:IsCastable() then
     SuggestRageDump(20)
-    if Cast(S.DragonRoar, not Target:IsInMeleeRange(12)) then return "dragon_roar generic 4"; end
+    if Cast(S.SpearofBastion, nil, Settings.Commons.DisplayStyle.Signature, not Target:IsInRange(25)) then return "spear_of_bastion generic 8"; end
   end
-  if (not ShouldPressShieldBlock()) then
-    -- execute
-    if S.Execute:IsReady() then
-      if Cast(S.Execute, not TargetInMeleeRange) then return "execute generic 6"; end
-    end
-    -- condemn
-    if S.Condemn:IsReady() then
-      if Cast(S.Condemn, not TargetInMeleeRange) then return "condemn generic 8"; end
-    end
+  -- shield_charge
+  if S.ShieldCharge:IsCastable() and Target:IsInMeleeRange(5) then
+    if Cast(S.ShieldCharge, nil, nil, not Target:IsSpellInRange(S.ShieldCharge)) then return "shield_charge generic 10"; end
+  end
+  -- shockwave
+  --if S.Shockwave:IsCastable() then
+  --  SuggestRageDump(10)
+  --  if Cast(S.Shockwave, Settings.Protection.GCDasOffGCD.Shockwave, nil, not Target:IsInMeleeRange(10)) then return "shockwave generic 12"; end
+  --end
+  -- execute
+  if S.Execute:IsReady() and not ShouldPressShieldBlock() then
+    if Cast(S.Execute, nil, nil, not TargetInMeleeRange) then return "execute generic 14"; end
   end
   -- shield_slam
   if S.ShieldSlam:IsCastable() then
-    SuggestRageDump(15)
-    if Cast(S.ShieldSlam, not TargetInMeleeRange) then return "shield_slam generic 10"; end
+    SuggestRageDump(20)
+    if Cast(S.ShieldSlam, nil, nil, not TargetInMeleeRange) then return "shield_slam generic 16"; end
   end
-  -- thunder_clap,if=buff.outburst.down
-  if S.ThunderClap:IsCastable() and (Player:BuffDown(S.OutburstBuff)) then
+  -- thunder_clap,if=active_enemies>=2|(talent.rend&talent.blood_and_thunder)
+  if S.ThunderClap:IsCastable() and (EnemiesCount8 >= 2 or (S.Rend:IsAvailable() and S.BloodandThunder:IsAvailable())) then
     SuggestRageDump(5)
-    if Cast(S.ThunderClap, not Target:IsInMeleeRange(12)) then return "thunder_clap generic 20"; end
+    if Cast(S.ThunderClap, nil, nil, not Target:IsInMeleeRange(8)) then return "thunder_clap generic 18"; end
   end
-  -- revenge
-  -- Manually added: Reserve 30 Rage for ShieldBlock
-  if S.Revenge:IsReady() and (Player:Rage() >= 50 and not ShouldPressShieldBlock()) then
-    if Cast(S.Revenge, not TargetInMeleeRange) then return "revenge generic 22"; end
+  if (not ShouldPressShieldBlock()) then
+    -- rend,if=!talent.thunderclap&!talent.blood_and_thunder
+    if S.Rend:IsReady() and ((not S.ThunderClap:IsAvailable()) and not S.BloodandThunder:IsAvailable()) then
+      if Cast(S.Rend, nil, nil, not TargetInMeleeRange) then return "rend generic 20"; end
+    end
+    -- revenge,if=rage.deficit>30&active_enemies>=2
+    if S.Revenge:IsReady() and (Player:RageDeficit() > 30 and EnemiesCount8 >= 2) then
+      if Cast(S.Revenge, nil, nil, not TargetInMeleeRange) then return "revenge generic 22"; end
+    end
+  end
+  -- titanic_throw,if=active_enemies>=2
+  if S.TitanicThrow:IsCastable() and (EnemiesCount8 >= 2) then
+    if Cast(S.TitanicThrow, nil, nil, not Target:IsInRange(30)) then return "titanic_throw generic 24"; end
   end
   -- devastate
   if S.Devastate:IsCastable() then
-    if Cast(S.Devastate, not TargetInMeleeRange) then return "devastate generic 24"; end
+    if Cast(S.Devastate, nil, nil, not TargetInMeleeRange) then return "devastate generic 26"; end
+  end
+  -- heroic_throw
+  if S.HeroicThrow:IsCastable() then
+    if Cast(S.HeroicThrow, nil, nil, not Target:IsInRange(30)) then return "heroic_throw generic 28"; end
+  end
+  -- titanic_throw
+  if S.TitanicThrow:IsCastable() then
+    if Cast(S.TitanicThrow, nil, nil, not Target:IsInRange(30)) then return "titanic_throw generic 30"; end
+  end
+  -- thunder_clap
+  if S.ThunderClap:IsCastable() then
+    SuggestRageDump(5)
+    if Cast(S.ThunderClap, nil, nil, not Target:IsInMeleeRange(8)) then return "thunder_clap generic 32"; end
+  end
+  -- revenge,if=rage.deficit>30
+  if S.Revenge:IsReady() and (not ShouldPressShieldBlock()) and (Player:RageDeficit() > 30) then
+    if Cast(S.Revenge, nil, nil, not TargetInMeleeRange) then return "revenge generic 34"; end
+  end
+  -- impending_victory
+  if S.ImpendingVictory:IsReady() then
+    if Cast(S.ImpendingVictory, nil, nil, not TargetInMeleeRange) then return "impending_victory generic 36"; end
+  end
+  -- storm_bolt
+  if S.StormBolt:IsCastable() then
+    if Cast(S.StormBolt, nil, nil, not Target:IsInRange(20)) then return "storm_bolt generic 38"; end
   end
 end
 
@@ -248,169 +334,132 @@ local function APL()
   -- Range check
   TargetInMeleeRange = Target:IsInMeleeRange(5)
 
-  if Everyone.TargetIsValid() then
+  if Everyone.TargetIsValid() and Player:AffectingCombat() then
     -- call precombat
     if not Player:AffectingCombat() then
-      local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
+      --local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
     end
     -- Check defensives if tanking
     if IsCurrentlyTanking() then
       local ShouldReturn = Defensive(); if ShouldReturn then return ShouldReturn; end
     end
     -- Interrupt
-    local ShouldReturn = Everyone.Interrupt(S.Pummel, 5, true); if ShouldReturn then return ShouldReturn; end
-    local ShouldReturn = Everyone.InterruptWithStun(S.IntimidatingShout, 5); if ShouldReturn then return ShouldReturn; end
+    --local ShouldReturn = Everyone.Interrupt(5, S.Pummel, Settings.Commons.OffGCDasOffGCD.Pummel, StunInterrupts); if ShouldReturn then return ShouldReturn; end
     -- auto_attack
+    -- shield_charge,if=time=0
     -- charge,if=time=0
-    -- Note: Handled in Precombat
-    -- heroic_charge,if=buff.revenge.down&(rage<60|rage<44&buff.last_stand.up)
-    --if (not Settings.Protection.Enabled.DisableHeroicCharge) and S.HeroicLeap:IsCastable() and S.Charge:IsCastable() and (Player:BuffDown(S.RevengeBuff) and (Player:Rage() < 60 or Player:Rage() < 44 and Player:BuffUp(S.LastStandBuff))) then
-    --  if Cast(S.HeroicLeap, S.Charge) then return "heroic_leap/charge main 2"; end
-    --end
-    -- intervene,if=buff.revenge.down&(rage<80|rage<77&buff.last_stand.up)&runeforge.reprisal
-    --if (not Settings.Protection.Enabled.DisableIntervene) and S.Intervene:IsCastable() and (Player:BuffDown(S.RevengeBuff) and (Player:Rage() < 80 or Player:Rage() < 77 and Player:BuffUp(S.LastStandBuff)) and ReprisalEquipped) then
-    --  if Cast(S.Intervene) then return "intervene main 4"; end
-    --end
-    -- use_items,if=cooldown.avatar.remains<=gcd|buff.avatar.up
-    if Settings.General.Enabled.Trinkets and (S.Avatar:CooldownRemains() <= Player:GCD() or Player:BuffUp(S.AvatarBuff)) then
+    -- Note: Above 2 lines handled in Precombat
+    -- use_items,if=talent.avatar&(cooldown.avatar.remains<=gcd|buff.avatar.up)|!talent.avatar
+    if Settings.Commons.Enabled.Trinkets and (S.Avatar:IsAvailable() and (S.Avatar:CooldownRemains() <= Player:GCD() or Player:BuffUp(S.AvatarBuff)) or not S.Avatar:IsAvailable()) then
       local TrinketToUse = Player:GetUseableTrinkets(OnUseExcludes)
+      -- Todo: Add in logic when to use worn trinkets
       if TrinketToUse then
-        if Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 13) then
-          if Cast(M.Trinket1) then return "use_trinket " .. TrinketToUse:Name() .. " damage 1"; end
-        elseif Utils.ValueIsInArray(TrinketToUse:SlotIDs(), 14) then
-          if Cast(M.Trinket2) then return "use_trinket " .. TrinketToUse:Name() .. " damage 2"; end
-        end
+        --if Cast(TrinketToUse, nil, Settings.Commons.DisplayStyle.Trinkets) then return "Generic use_items for " .. TrinketToUse:Name(); end
       end
     end
-    if (CDsON() and Player:BuffUp(S.AvatarBuff)) then
-      -- blood_fury,if=buff.avatar.up
+    if CDsON() and (Player:BuffUp(S.AvatarBuff) or not S.Avatar:IsAvailable()) then
+      -- blood_fury,if=buff.avatar.up|!talent.avatar
       if S.BloodFury:IsCastable() then
-        if Cast(S.BloodFury) then return "blood_fury racial"; end
+        if Cast(S.BloodFury, Settings.Commons.GCDasOffGCD.Racials) then return "blood_fury main 2"; end
       end
-      -- berserking,if=buff.avatar.up
+      -- berserking,if=buff.avatar.up|!talent.avatar
       if S.Berserking:IsCastable() then
-        if Cast(S.Berserking) then return "berserking racial"; end
+        if Cast(S.Berserking, Settings.Commons.GCDasOffGCD.Racials) then return "berserking main 4"; end
       end
-      -- fireblood,if=buff.avatar.up
+      -- fireblood,if=buff.avatar.up|!talent.avatar
       if S.Fireblood:IsCastable() then
-        if Cast(S.Fireblood) then return "fireblood racial"; end
+        if Cast(S.Fireblood, Settings.Commons.GCDasOffGCD.Racials) then return "fireblood main 6"; end
       end
-      -- ancestral_call,if=buff.avatar.up
+      -- ancestral_call,if=buff.avatar.up|!talent.avatar
       if S.AncestralCall:IsCastable() then
-        if Cast(S.AncestralCall) then return "ancestral_call racial"; end
+        if Cast(S.AncestralCall, Settings.Commons.GCDasOffGCD.Racials) then return "ancestral_call main 8"; end
       end
     end
-    -- thunder_clap,if=buff.outburst.up&((buff.seeing_red.stack>6&cooldown.shield_slam.remains>2))
-    if S.ThunderClap:IsCastable() and (Player:BuffUp(S.OutburstBuff) and (Player:BuffStack(S.SeeingRedBuff) > 6 and S.ShieldSlam:CooldownRemains() > 2)) then
-      if Cast(S.ThunderClap, not Target:IsInMeleeRange(8)) then return "thunder_clap main 6"; end
-    end
-    -- avatar,if=buff.outburst.down
-    if S.Avatar:IsCastable() and (Player:BuffDown(S.OutburstBuff)) then
-      if Cast(S.Avatar, nil, nil, true) then return "avatar main 8"; end
-    end
-    -- potion
-    if Settings.General.Enabled.Potions and I.PotionofSpectralStrength:IsReady() and (Player:BloodlustUp() or Target:TimeToDie() <= 30) then
-      if Cast(M.PotionofSpectralStrength, nil, nil, true) then return "potion main 6"; end
-    end
-    if CDsON() then
-      -- conquerors_banner
-      if S.ConquerorsBanner:IsCastable() then
-        if Cast(S.ConquerorsBanner) then return "conquerors_banner main 12"; end
-      end
-      -- ancient_aftershock
-      if S.AncientAftershock:IsCastable() then
-        if Cast(S.AncientAftershock, not TargetInMeleeRange) then return "ancient_aftershock main 14"; end
-      end
-      -- spear_of_bastion
-      if S.SpearofBastion:IsCastable() then
-        if Cast(M.SpearofBastionPlayer, not TargetInMeleeRange) then return "spear_of_bastion main 16"; end
+    -- potion,if=buff.avatar.up|target.time_to_die<25
+    if Settings.Commons.Enabled.Potions and (Player:BuffUp(S.AvatarBuff) or Target:TimeToDie() < 25) then
+      local PotionSelected = Everyone.PotionSelected()
+      if PotionSelected and PotionSelected:IsReady() then
+        if Cast(PotionSelected, nil, Settings.Commons.DisplayStyle.Potions) then return "potion main 10"; end
       end
     end
     -- revenge,if=buff.revenge.up&(target.health.pct>20|spell_targets.thunder_clap>3)&cooldown.shield_slam.remains
     if S.Revenge:IsReady() and (Player:BuffUp(S.RevengeBuff) and (Target:HealthPercentage() > 20 or EnemiesCount8 > 3) and S.ShieldSlam:CooldownRemains() > 0) then
-      if Cast(S.Revenge, not TargetInMeleeRange) then return "revenge main 18"; end
+      if Cast(S.Revenge, nil, nil, not TargetInMeleeRange) then return "revenge main 12"; end
     end
-    -- ignore_pain,if=target.health.pct>=20&(target.health.pct>=80&!covenant.venthyr)&(rage>=85&cooldown.shield_slam.ready&buff.shield_block.up|rage>=60&cooldown.demoralizing_shout.ready&talent.booming_voice.enabled|rage>=70&cooldown.avatar.ready|rage>=40&cooldown.demoralizing_shout.ready&talent.booming_voice.enabled&buff.last_stand.up|rage>=55&cooldown.avatar.ready&buff.last_stand.up|rage>=80|rage>=55&cooldown.shield_slam.ready&buff.outburst.up&buff.shield_block.up|rage>=30&cooldown.shield_slam.ready&buff.outburst.up&buff.last_stand.up&buff.shield_block.up),use_off_gcd=1
-    if S.IgnorePain:IsReady() and IgnorePainWillNotCap() and (Target:HealthPercentage() >= 20 and (Target:HealthPercentage() >= 80 and CovenantID ~= 2) and (Player:Rage() >= 85 and S.ShieldSlam:CooldownUp() and Player:BuffUp(S.ShieldBlockBuff) or Player:Rage() >= 60 and S.DemoralizingShout:CooldownUp() and S.BoomingVoice:IsAvailable() or Player:Rage() >= 70 and S.Avatar:CooldownUp() or Player:Rage() >= 40 and S.DemoralizingShout:CooldownUp() and S.BoomingVoice:IsAvailable() and Player:BuffUp(S.LastStandBuff) or Player:Rage() >= 55 and S.Avatar:CooldownUp() and Player:BuffUp(S.LastStandBuff) or Player:Rage() >= 80 or Player:Rage() >= 55 and S.ShieldSlam:CooldownUp() and Player:BuffUp(S.OutburstBuff) and Player:BuffUp(S.ShieldBlockBuff) or Player:Rage() >= 30 and S.ShieldSlam:CooldownUp() and Player:BuffUp(S.OutburstBuff) and Player:BuffUp(S.LastStandBuff) and Player:BuffUp(S.ShieldBlockBuff))) then
-      if Cast(S.IgnorePain) then return "ignore_pain main 20"; end
+    -- ignore_pain,if=target.health.pct>=20&(target.health.pct>=80&!covenant.venthyr)&(rage>=85&cooldown.shield_slam.ready&buff.shield_block.up|rage>=60&cooldown.demoralizing_shout.ready&talent.booming_voice.enabled|rage>=70&cooldown.avatar.ready|rage>=40&cooldown.demoralizing_shout.ready&talent.booming_voice.enabled&buff.last_stand.up|rage>=55&cooldown.avatar.ready&buff.last_stand.up|rage>=80|rage>=55&cooldown.shield_slam.ready&buff.violent_outburst.up&buff.shield_block.up|rage>=30&cooldown.shield_slam.ready&buff.violent_outburst.up&buff.last_stand.up&buff.shield_block.up),use_off_gcd=1
+    if S.IgnorePain:IsReady() and IgnorePainWillNotCap() and (Target:HealthPercentage() >= 20 and (Player:Rage() >= 85 and S.ShieldSlam:CooldownUp() and Player:BuffUp(S.ShieldBlockBuff) or Player:Rage() >= 60 and S.DemoralizingShout:CooldownUp() and S.BoomingVoice:IsAvailable() or Player:Rage() >= 70 and S.Avatar:CooldownUp() or Player:Rage() >= 40 and S.DemoralizingShout:CooldownUp() and S.BoomingVoice:IsAvailable() and Player:BuffUp(S.LastStandBuff) or Player:Rage() >= 55 and S.Avatar:CooldownUp() and Player:BuffUp(S.LastStandBuff) or Player:Rage() >= 80 or Player:Rage() >= 55 and S.ShieldSlam:CooldownUp() and Player:BuffUp(S.ViolentOutburstBuff) and Player:BuffUp(S.ShieldBlockBuff) or Player:Rage() >= 30 and S.ShieldSlam:CooldownUp() and Player:BuffUp(S.ViolentOutburstBuff) and Player:BuffUp(S.LastStandBuff) and Player:BuffUp(S.ShieldBlockBuff))) then
+      if Cast(S.IgnorePain, nil, Settings.Protection.DisplayStyle.Defensive) then return "ignore_pain main 14"; end
     end
     -- shield_block,if=(buff.shield_block.down|buff.shield_block.remains<cooldown.shield_slam.remains)&target.health.pct>20
     -- Note: Handled via Defensive()
-    -- last_stand,if=target.health.pct>=90|target.health.pct<=20
-    -- Note: Handled via Defensive()
-    -- demoralizing_shout,if=talent.booming_voice.enabled&rage<60
-    if S.DemoralizingShout:IsCastable() and (S.BoomingVoice:IsAvailable() and Player:Rage() < 60) then
-      SuggestRageDump(40)
-      if Cast(S.DemoralizingShout, not Target:IsInRange(10)) then return "demoralizing_shout main 22"; end
+    -- shield_slam,if=buff.violent_outburst.up&rage<=55
+    if S.ShieldSlam:IsCastable() and (Player:BuffUp(S.ViolentOutburstBuff) and Player:Rage() <= 55) then
+      SuggestRageDump(20)
+      if Cast(S.ShieldSlam, nil, nil, not TargetInMeleeRange) then return "shield_slam main 16"; end
     end
-    -- shield_slam,if=buff.outburst.up&rage<=55
-    if S.ShieldSlam:IsCastable() and (Player:BuffUp(S.OutburstBuff) and Player:Rage() <= 55) then
-      if Cast(S.ShieldSlam, not TargetInMeleeRange) then return "shield_slam main 24"; end
-    end
-    -- run_action_list,name=aoe,if=spell_targets.thunder_clap>3
-    if (EnemiesCount8 > 3) then
-      local ShouldReturn = Aoe(); if ShouldReturn then return ShouldReturn; end
-    end
-    -- call_action_list,name=generic
-    local ShouldReturn = Generic(); if ShouldReturn then return ShouldReturn; end
-    if CDsON() and Settings.General.Enabled.Racials then
+    if (CDsON()) then
       -- bag_of_tricks
       if S.BagofTricks:IsCastable() then
-        if Cast(S.BagofTricks, not Target:IsInRange(40)) then return "bag_of_tricks racial"; end
+        if Cast(S.BagofTricks, Settings.Commons.GCDasOffGCD.Racials, nil, not Target:IsInRange(40)) then return "bag_of_tricks racial"; end
       end
       -- arcane_torrent,if=rage<80
       if S.ArcaneTorrent:IsCastable() and (Player:Rage() < 80) then
-        if Cast(S.ArcaneTorrent, not Target:IsInRange(8)) then return "arcane_torrent racial"; end
+        if Cast(S.ArcaneTorrent, Settings.Commons.GCDasOffGCD.Racials, nil, not Target:IsInRange(8)) then return "arcane_torrent racial"; end
       end
       -- lights_judgment
       if S.LightsJudgment:IsCastable() then
-        if Cast(S.LightsJudgment, not Target:IsInRange(40)) then return "lights_judgment racial"; end
+        if Cast(S.LightsJudgment, Settings.Commons.GCDasOffGCD.Racials, nil, not Target:IsInRange(40)) then return "lights_judgment racial"; end
       end
     end
+    -- Note: Above 4 lines handled in Defensive()
+    -- berserker_rage
+    --Todo: What does BerserkerRage do?
+    -- spell_reflection
+    -- Todo: List of spells to reflect
+    -- avatar
+    if CDsON() and S.Avatar:IsCastable() and Target:IsInMeleeRange(8) then
+      if Cast(S.Avatar, Settings.Protection.GCDasOffGCD.Avatar) then return "avatar main 18"; end
+    end
+    -- run_action_list,name=aoe,if=spell_targets.thunder_clap>3
+    if EnemiesCount8 > 3 then
+      local ShouldReturn = Aoe(); if ShouldReturn then return ShouldReturn; end
+      --if WR.CastAnnotated(S.Pool, false, "WAIT") then return "Pool for Aoe()"; end
+    end
+    -- call_action_list,name=generic
+    local ShouldReturn = Generic(); if ShouldReturn then return ShouldReturn; end
     -- If nothing else to do, show the Pool icon
-    if Cast(S.Pool) then return "Wait/Pool Resources"; end
+    --if WR.CastAnnotated(S.Pool, false, "WAIT") then return "Wait/Pool Resources"; end
   end
 end
 
 local function AutoBind()
-  -- Racials
-  WR.Bind(S.AncestralCall)
-  WR.Bind(S.ArcaneTorrent)
-  WR.Bind(S.BagofTricks)
-  WR.Bind(S.Berserking)
-  WR.Bind(S.BloodFury)
-  WR.Bind(S.Fireblood)
-  WR.Bind(S.LightsJudgment)
-  -- Bind Spells
-  WR.Bind(S.Avatar)
-  WR.Bind(S.BattleShout)
-  WR.Bind(S.Charge)
-  WR.Bind(S.DemoralizingShout)
-  WR.Bind(S.Devastate)
-  WR.Bind(S.Execute)
-  WR.Bind(S.HeroicLeap)
+  -- Spell Binds
   WR.Bind(S.IgnorePain)
-  WR.Bind(S.IntimidatingShout)
-  WR.Bind(S.LastStand)
-  WR.Bind(S.Pummel)
-  WR.Bind(S.Revenge)
   WR.Bind(S.ShieldBlock)
   WR.Bind(S.ShieldSlam)
   WR.Bind(S.ThunderClap)
-  WR.Bind(S.VictoryRush)
-  -- Bind Items
-  WR.Bind(M.Trinket1)
-  WR.Bind(M.Trinket2)
-  WR.Bind(M.Healthstone)
-  WR.Bind(M.PotionofSpectralStrength)
-  WR.Bind(M.PhialofSerenity)
-  -- Bind Macros
-  WR.Bind(M.RavagerPlayer)
-  WR.Bind(M.SpearofBastionPlayer)
+  WR.Bind(S.Rend)
+  WR.Bind(S.Revenge)
+  WR.Bind(S.Execute)
+  WR.Bind(S.ThunderousRoar)
+  WR.Bind(S.ShieldCharge)
+  WR.Bind(S.Shockwave)
+  WR.Bind(S.ImpendingVictory)
+  WR.Bind(S.HeroicThrow)
+  WR.Bind(S.StormBolt)
+  WR.Bind(S.IntimidatingShout)
+  WR.Bind(S.ShieldWall)
+  WR.Bind(S.RallyingCry)
+  WR.Bind(S.DemoralizingShout)
+  WR.Bind(S.Slam)
+  WR.Bind(S.Avatar)
+  WR.Bind(S.Charge)
+  WR.Bind(M.Ravager)
+  
 end
 
-local function Init()
-  WR.Print("Protection Warrior by Worldy")
+local function Init ()
+  WR.Print("Prot Warrior by Worldy")
   AutoBind()
 end
 
