@@ -599,6 +599,15 @@ do
         timer.time = GetTime() + duration;
         tableinsert(Commons.Timers, timer);
       end
+      local stopTimerCallback = function(...)
+        local _, _, spellId = ...;
+        for i = 0, #Commons.Timers do
+          if Commons.Timers[i] ~= nil and Commons.Timers[i].id == spellId then
+            Commons.Timers[i] = nil;
+            return;
+          end
+        end
+      end
       local cleanupTimersCallback = function(...)
         for i = 0, #Commons.Timers do
           Commons.Timers[i] = nil;
@@ -606,6 +615,7 @@ do
       end
       local callback = {};
       BigWigsLoader.RegisterMessage(callback, "BigWigs_StartBar", startTimerCallback);
+      BigWigsLoader.RegisterMessage(callback, "BigWigs_StopBar", stopTimerCallback);
       BigWigsLoader.RegisterMessage(callback, "BigWigs_StopBars", cleanupTimersCallback);
       BigWigsLoader.RegisterMessage(callback, "BigWigs_OnBossDisable", cleanupTimersCallback);
       BigWigsLoader.RegisterMessage(callback, "BigWigs_OnPluginDisable", cleanupTimersCallback);
