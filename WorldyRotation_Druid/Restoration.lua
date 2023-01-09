@@ -325,11 +325,11 @@ end
 local function Ramp()
   if not Focus or not Focus:Exists() or Focus:IsDeadOrGhost() or not Focus:IsInRange(40) then return; end
   -- rejuvenation_swiftmend
-  if S.Swiftmend:IsReady() and Player:BuffStack(S.Reforestation) < 2 and not EvaluateSwiftmend(Focus) and Player:BuffDown(S.SoulOfTheForestBuff) then
+  if S.Swiftmend:IsReady() and not EvaluateSwiftmend(Focus) and Player:BuffDown(S.SoulOfTheForestBuff) then
     if Press(M.RejuvenationFocus) then return "rejuvenation ramp"; end
   end
   -- swiftmend
-  if S.Swiftmend:IsReady() and Player:BuffStack(S.Reforestation) < 2 and EvaluateSwiftmend(Focus) then
+  if S.Swiftmend:IsReady() and EvaluateSwiftmend(Focus) then
     if Press(M.SwiftmendFocus) then return "swiftmend ramp"; end
   end
   -- wildgrowth
@@ -358,6 +358,10 @@ local function Healing()
   if Settings.Restoration.Damage.Enabled.NaturesVigil and Player:AffectingCombat() and HotsCount() > 3 and S.NaturesVigil:IsReady() then
     if Press(S.NaturesVigil, nil, nil, true) then return "natures_vigil healing"; end
   end
+  -- swiftmend
+  if S.Swiftmend:IsReady() and Player:BuffDown(S.SoulOfTheForestBuff) and EvaluateSwiftmend(Focus) and Focus:HealthPercentage() <= Settings.Restoration.HealingTwo.HP.Swiftmend then
+    if Press(M.SwiftmendFocus) then return "swiftmend healing"; end
+  end
   -- wildgrowth_sotf
   if Player:BuffUp(S.SoulOfTheForestBuff) and S.Wildgrowth:IsReady() and Everyone.AreUnitsBelowHealthPercentage(Settings.Restoration.HealingTwo, "WildgrowthSotF") then
     if Press(M.WildgrowthFocus, nil, true) then return "wildgrowth_sotf healing"; end
@@ -370,10 +374,6 @@ local function Healing()
   if Player:AffectingCombat() and S.Tranquility:IsReady() and Everyone.AreUnitsBelowHealthPercentage(Settings.Restoration.HealingTwo, "Tranquility") then
     if Press(S.Tranquility, nil, true) then return "tranquility healing"; end
   end
-  -- swiftmend
-  if S.Swiftmend:IsReady() and EvaluateSwiftmend(Focus) and Focus:HealthPercentage() <= Settings.Restoration.HealingTwo.HP.Swiftmend then
-    if Press(M.SwiftmendFocus) then return "swiftmend healing"; end
-  end
   -- tranquility_tree
   if Player:AffectingCombat() and S.Tranquility:IsReady() and Player:BuffUp(S.IncarnationBuff) and Everyone.AreUnitsBelowHealthPercentage(Settings.Restoration.HealingTwo, "TranquilityTree") then
     if Press(S.Tranquility, nil, true) then return "tranquility_tree healing"; end
@@ -385,10 +385,6 @@ local function Healing()
   -- cenarion_ward
   if S.CenarionWard:IsReady() and Focus:HealthPercentage() <= Settings.Restoration.HealingOne.HP.CenarionWard then
     if Press(M.CenarionWardFocus) then return "cenarion_ward healing"; end
-  end
-  -- swiftmend_reforestation
-  if S.Swiftmend:IsReady() and EvaluateSwiftmend(Focus) and (S.Reforestation:IsAvailable() or Player:BuffStack(S.Reforestation) < 2) and Focus:HealthPercentage() <= Settings.Restoration.HealingTwo.HP.SwiftmendReforestation then
-    if Press(M.SwiftmendFocus) then return "swiftmend_reforestation healing"; end
   end
   -- regrowth_swiftness
   if Player:BuffUp(S.NaturesSwiftness) and S.Regrowth:IsCastable() then
@@ -411,7 +407,7 @@ local function Healing()
     if Press(M.LifebloomFocus) then return "lifebloom healing"; end
   end
   -- lifebloom,if=unit.hp&undergrowth.available|!tank.lifebloom.ticking
-  if Player:AffectingCombat() and (Everyone.UnitGroupRole(Focus) == "HEALER" or Everyone.UnitGroupRole(Focus) == "DAMAGER" or Everyone.UnitGroupRole(Focus) == "NONE") and Everyone.FriendlyUnitsWithBuffCount(S.Lifebloom, nil, true) < 1 and (S.Undergrowth:IsAvailable() or Everyone.IsSoloMode()) and (Focus:HealthPercentage() <= Settings.Restoration.HealingOne.HP.Lifebloom - (num(Player:BuffUp(S.CatForm)) * 15)) and S.Lifebloom:IsCastable() and Focus:BuffRefreshable(S.Lifebloom) then
+  if Player:AffectingCombat() and Everyone.UnitGroupRole(Focus) ~= "TANK" and Everyone.FriendlyUnitsWithBuffCount(S.Lifebloom, nil, true) < 1 and (S.Undergrowth:IsAvailable() or Everyone.IsSoloMode()) and (Focus:HealthPercentage() <= Settings.Restoration.HealingOne.HP.Lifebloom - (num(Player:BuffUp(S.CatForm)) * 15)) and S.Lifebloom:IsCastable() and Focus:BuffRefreshable(S.Lifebloom) then
     if Press(M.LifebloomFocus) then return "lifebloom healing"; end
   end
   -- efflorescence,if=unit.hp
@@ -468,15 +464,6 @@ local function OutOfCombat()
   if Settings.Commons.Enabled.OutOfCombatHealing then
     local ShouldReturn = Healing(); if ShouldReturn then return ShouldReturn; end
   end
-  -- revive
-  if Target and Target:Exists() and Target:IsAPlayer() and Target:IsDeadOrGhost() and not Player:CanAttack(Target) then
-    local DeadFriendlyUnitsCount = Everyone.DeadFriendlyUnitsCount()
-    if DeadFriendlyUnitsCount > 1 then
-      if Press(S.Revitalize, nil, true) then return "revitalize outofcombat 2"; end
-    else
-      if Press(S.Revive, not Target:IsInRange(40), true) then return "revive outofcombat 4"; end
-    end
-  end
   -- mark_of_the_wild
   if Settings.Commons.Enabled.MarkOfTheWild and S.MarkOfTheWild:IsCastable() and (Player:BuffDown(S.MarkOfTheWild, true) or Everyone.GroupBuffMissing(S.MarkOfTheWild)) then
     if Press(M.MarkOfTheWildPlayer) then return "mark_of_the_wild outofcombat 6"; end
@@ -510,7 +497,23 @@ local function APL()
     end
   end
   
-  if Player:AffectingCombat() then
+  -- revive
+  if Target and Target:Exists() and Target:IsAPlayer() and Target:IsDeadOrGhost() and not Player:CanAttack(Target) then
+    local DeadFriendlyUnitsCount = Everyone.DeadFriendlyUnitsCount()
+    if Player:AffectingCombat() then
+      if S.Rebirth:IsReady() then
+        if Press(S.Rebirth, nil, true) then return "rebirth"; end
+      end
+    else
+      if DeadFriendlyUnitsCount > 1 then
+        if Press(S.Revitalize, nil, true) then return "revitalize"; end
+      else
+        if Press(S.Revive, not Target:IsInRange(40), true) then return "revive"; end
+      end
+    end
+  end
+  
+  if Player:AffectingCombat() and not Player:IsChanneling() then
     -- Combat
     local ShouldReturn = Combat(); if ShouldReturn then return ShouldReturn; end
   else

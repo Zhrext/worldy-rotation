@@ -21,6 +21,9 @@ local type = type;
 -- File Locals
 local PrevResult, CurrResult;
 
+-- Commons
+local Everyone = WR.Commons.Everyone
+
 --- ============================ CONTENT ============================
 --- ======= BINDINGS =======
 BINDING_HEADER_WORLDYROTATION = "WorldyRotation";
@@ -417,6 +420,7 @@ function WR.PulseInit ()
         end
         LatestSpecIDChecked = SpecID;
       end
+      Everyone.InitTimers();
       if not HL.PulseInitialized then HL.PulseInitialized = true; end
     end
   end
@@ -429,6 +433,8 @@ function WR.Pulse ()
   if GetTime() > WR.Timer.Pulse then
     WR.Timer.Pulse = GetTime() + HL.Timer.PulseOffset;
 
+    Everyone.PulseTimers();
+    
     -- Check if the current spec is available (might not always be the case)
     -- Especially when switching from area (open world -> instance)
     local SpecID = Cache.Persistent.Player.Spec[1];

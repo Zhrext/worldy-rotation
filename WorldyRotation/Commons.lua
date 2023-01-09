@@ -567,3 +567,84 @@ function Commons.GroupBuffMissing(spell)
   end
   return false;
 end
+
+-- Timers
+do
+  Commons.Timers = {};
+  function Commons.InitTimers()
+    if IsAddOnLoaded("DBM-Core") then
+      -- Currently unsupported.
+    elseif IsAddOnLoaded("BigWigs") then
+      local startTimerCallback = function(...)
+        local _, _, spellId, _, duration, icon = ...;
+        if spellId == nil then
+          if icon == 134062 then
+            spellId = "Break";
+          elseif icon == 132337 then
+            spellId = "Pull";
+          else
+            return;
+          end
+        end
+        
+        for i = 0, #Commons.Timers do
+          if Commons.Timers[i] ~= nil and Commons.Timers[i].id == spellId then
+            Commons.Timers[i].time = GetTime() + duration;
+            return;
+          end
+        end
+        
+        local timer = {};
+        timer.id = spellId;
+        timer.time = GetTime() + duration;
+        tableinsert(Commons.Timers, timer);
+      end
+      local cleanupTimersCallback = function(...)
+        for i = 0, #Commons.Timers do
+          Commons.Timers[i] = nil;
+        end
+      end
+      local callback = {};
+      BigWigsLoader.RegisterMessage(callback, "BigWigs_StartBar", startTimerCallback);
+      BigWigsLoader.RegisterMessage(callback, "BigWigs_StopBars", cleanupTimersCallback);
+      BigWigsLoader.RegisterMessage(callback, "BigWigs_OnBossDisable", cleanupTimersCallback);
+      BigWigsLoader.RegisterMessage(callback, "BigWigs_OnPluginDisable", cleanupTimersCallback);
+    end
+  end
+  
+  function Commons.PulseTimers()
+    if IsAddOnLoaded("DBM-Core") then
+      -- Currently unsupported.
+    elseif IsAddOnLoaded("BigWigs") then
+      for i = 0, #Commons.Timers do
+        if Commons.Timers[i] ~= nil then
+          if Commons.Timers[i].time < GetTime() then
+            Commons.Timers[i] = nil;
+          end
+        end
+      end
+    end
+  end
+
+  function Commons.GetTimer(spellId)
+    for i = 0, #Commons.Timers do
+      if Commons.Timers[i] ~= nil and Commons.Timers[i].id == spellId then
+        local time = Commons.Timers[i].time - GetTime();
+        if time < 0 then
+          return nil;
+        else
+          return time;
+        end
+      end
+    end
+    return nil;
+  end
+
+  function Commons.GetPullTimer()
+    return Commons.GetTimer("Pull");
+  end
+  
+  function Commons.GetBreakTimer()
+    return Commons.GetTimer("Break");
+  end
+end
