@@ -342,7 +342,7 @@ local EnabledRotation = {
   --  [70]    = "WorldyRotation_Paladin",       -- Retribution
   -- Priest
   --  [256]   = "WorldyRotation_Priest",        -- Discipline
-      [257]   = "WorldyRotation_Priest",        -- Holy
+  --    [257]   = "WorldyRotation_Priest",        -- Holy
   --  [258]   = "WorldyRotation_Priest",        -- Shadow
   ---- Rogue
   --  [259]   = "WorldyRotation_Rogue",         -- Assassination
@@ -357,8 +357,8 @@ local EnabledRotation = {
   --  [266]   = "WorldyRotation_Warlock",       -- Demonology
   --  [267]   = "WorldyRotation_Warlock",       -- Destruction
   ---- Warrior
-  [71]    = "WorldyRotation_Warrior",       -- Arms
-  [72]    = "WorldyRotation_Warrior",       -- Fury
+  --[71]    = "WorldyRotation_Warrior",       -- Arms
+  --[72]    = "WorldyRotation_Warrior",       -- Fury
   [73]    = "WorldyRotation_Warrior"        -- Protection
 };
 local LatestSpecIDChecked = 0;

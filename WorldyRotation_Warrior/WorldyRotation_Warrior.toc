@@ -11,7 +11,5 @@
 Settings.lua
 Warrior.lua
 Events.lua
-Arms.lua
-Fury.lua
 Protection.lua
 Overrides.lua
