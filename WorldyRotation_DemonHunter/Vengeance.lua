@@ -320,7 +320,7 @@ local function FDSC()
   end
   -- variable,name=fiery_demise_with_soul_carver_in_progress,value=0,if=cooldown.soul_carver.remains&cooldown.fiery_brand.remains&cooldown.fel_devastation.remains
   -- Note: Added ChargesFractional check so we don't stay in the function and burn both charges of FB at once.
-  if (S.SoulCarver:CooldownDown() and (S.FieryBrand:CooldownDown() or S.DowninFlames:IsAvailable() and S.FieryBrand:ChargesFractional() < 1.65) and S.FelDevastation:CooldownDown()) then
+  if (S.SoulCarver:CooldownDown() and ((S.FieryBrand:CooldownDown() and Settings.Vengeance.Enabled.FieryBrandOffensively and CDsON()) or S.DowninFlames:IsAvailable() and S.FieryBrand:ChargesFractional() < 1.65) and S.FelDevastation:CooldownDown()) then
     VarFDSC = false
   end
   -- fracture,if=fury.deficit>=variable.fracture_fury_gain&!dot.fiery_brand.ticking
@@ -352,7 +352,7 @@ local function FDSC()
     if Press(S.SoulCarver, not IsInMeleeRange) then return "soul_carver fdsc 12"; end
   end
   -- fracture,if=soul_fragments<=3&dot.fiery_brand.remains>=5|dot.fiery_brand.remains<=5&fury<50
-  if S.Fracture:IsCastable() and (SoulFragments <= 3 and Target:DebuffRemains(S.FieryBrandDebuff) >= 5 or Target:DebuffRemains(S.FieryBrandDebuff) <= 5 and Player:Fury() < 50) then
+  if S.Fracture:IsCastable() and (SoulFragments <= 3 and (Target:DebuffRemains(S.FieryBrandDebuff) >= 5 or Target:DebuffRemains(S.FieryBrandDebuff) <= 5 or not Settings.Vengeance.Enabled.FieryBrandOffensively or not CDsON()) and Player:Fury() < 50) then
     if Press(S.Fracture, not IsInMeleeRange) then return "fracture fdsc 14"; end
   end
   -- sigil_of_flame,if=dot.fiery_brand.remains<=3&fury<50
