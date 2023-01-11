@@ -1,15 +1,16 @@
 ## Interface: 100002
 
-## Title: Worldy|cFFA330C9Rotation|r [|cFFC41F3BDeathKnight|r]
+## Title: Worldy|cFFA330C9Rotation|r [|cFFA330C9Demon Hunter|r]
 ## Author: Worldy
-## Notes: Worldy Rotation - DeathKnight Module.
+## Notes: Worldy Rotation - Demon Hunter Module.
 
 ## DefaultState: Enabled
 ## LoadOnDemand: 1
 ## Dependencies: WorldyRotation
 
 Settings.lua
-DeathKnight.lua
+DemonHunter.lua
 Events.lua
-Blood.lua
+Havoc.lua
+Vengeance.lua
 Overrides.lua

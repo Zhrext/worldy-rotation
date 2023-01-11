@@ -316,12 +316,12 @@ end
 --- ======= MAIN =======
 local EnabledRotation = {
   ---- Death Knight
-  [250]   = "WorldyRotation_DeathKnight",   -- Blood
+  -- [250]   = "WorldyRotation_DeathKnight",   -- Blood
   --  [251]   = "WorldyRotation_DeathKnight",   -- Frost
   --  [252]   = "WorldyRotation_DeathKnight",   -- Unholy
   ---- Demon Hunter
-  --  [577]   = "WorldyRotation_DemonHunter",   -- Havoc
-  --  [581]   = "WorldyRotation_DemonHunter",   -- Vengeance
+  [577]   = "WorldyRotation_DemonHunter",   -- Havoc
+  [581]   = "WorldyRotation_DemonHunter",   -- Vengeance
   ---- Druid
   --  [102]   = "WorldyRotation_Druid",         -- Balance
   --  [103]   = "WorldyRotation_Druid",         -- Feral
