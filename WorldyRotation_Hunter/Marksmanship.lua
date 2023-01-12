@@ -45,19 +45,6 @@ local SummonPetSpells = { S.SummonPet, S.SummonPet2, S.SummonPet3, S.SummonPet4,
 
 -- Create table to exclude above trinkets from On Use function
 local OnUseExcludes = {
-  I.DMDDance:ID(),
-  I.DMDDanceBox:ID(),
-  I.DMDInferno:ID(),
-  I.DMDInfernoBox:ID(),
-  I.DMDRime:ID(),
-  I.DMDRimeBox:ID(),
-  I.DMDWatcher:ID(),
-  I.DMDWatcherBox:ID(),
-  I.DecorationofFlame:ID(),
-  I.GlobeofJaggedIce:ID(),
-  I.ManicGrieftorch:ID(),
-  I.StormeatersBoon:ID(),
-  I.WindscarWhetstone:ID(),
 }
 
 -- Trinket Item Objects
@@ -67,6 +54,7 @@ local trinket2 = (equip[14]) and Item(equip[14]) or Item(0)
 
 -- Rotation Var
 local SteadyShotTracker = { LastCast = 0, Count = 0 }
+local VarTrueshotReady
 local BossFightRemains = 11111
 local FightRemains = 11111
 
@@ -192,8 +180,8 @@ local function Precombat()
   if Focus:Exists() and S.Misdirection:IsReady() then
     if WR.Press(M.MisdirectionFocus) then return "misdirection precombat 0"; end
   end
-  -- summon_pet,if=talent.kill_command|talent.beast_master
-  if S.SummonPet:IsCastable() and (S.KillCommand:IsAvailable() or S.BeastMaster:IsAvailable()) then
+  -- summon_pet,if=!talent.lone_wolf
+  if S.SummonPet:IsCastable() and (not S.LoneWolf:IsAvailable()) then
     if Cast(SummonPetSpells[Settings.Commons2.SummonPetSlot], Settings.Commons2.GCDasOffGCD.SummonPet) then return "Summon Pet"; end
   end
   -- snapshot_stats
@@ -217,7 +205,7 @@ end
 
 local function Cds()
   -- berserking,if=fight_remains<13
-  if S.Berserking:IsReady() and (FightRemains < 13) then
+  if S.Berserking:IsReady() and (Player:BuffUp(S.TrueshotBuff) or FightRemains < 13) then
     if Cast(S.Berserking, Settings.Commons.OffGCDasOffGCD.Racials) then return "berserking cds 2"; end
   end
   -- blood_fury,if=buff.trueshot.up|cooldown.trueshot.remains>30|fight_remains<16
@@ -259,7 +247,7 @@ local function St()
     if Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover cleave 38"; end
   end
   -- steel_trap
-  if Settings.Commons.UseSteelTrap and S.SteelTrap:IsCastable() and Target:GUID() == Mouseover:GUID() then
+  if Settings.Commons.UseSteelTrap and S.SteelTrap:IsCastable() and Target:GUID() == Mouseover:GUID() and (Player:BuffDown(S.TrueshotBuff)) then
     if Press(M.SteelTrapCursor, not Target:IsInRange(40)) then return "steel_trap st 6"; end
   end
   -- serpent_sting,target_if=min:dot.serpent_sting.remains,if=refreshable&!talent.serpentstalkers_trickery&buff.trueshot.down
@@ -291,11 +279,11 @@ local function St()
     if Cast(M.VolleyCursor, Settings.Marksmanship.GCDasOffGCD.Volley, nil, not TargetInRange40y)  then return "volley st 20"; end
   end
   -- rapid_fire,if=talent.surging_shots|buff.double_tap.up&talent.streamline&!ca_active
-  if S.RapidFire:IsCastable() and (S.SurgingShots:IsAvailable() or Player:BuffUp(S.DoubleTapBuff) and S.Streamline:IsAvailable() and Target:HealthPercentage() < 70) then
+  if S.RapidFire:IsCastable() and (S.SurgingShots:IsAvailable() or Player:BuffUp(S.DoubleTapBuff) and S.Streamline:IsAvailable()) then
     if Cast(S.RapidFire, nil, nil, not TargetInRange40y) then return "rapid_fire st 22"; end
   end
   -- trueshot,if=!raid_event.adds.exists|!raid_event.adds.up&(raid_event.adds.duration+raid_event.adds.in<25|raid_event.adds.in>60)|raid_event.adds.up&raid_event.adds.remains>10|active_enemies>1|fight_remains<25
-  if S.Trueshot:IsReady() and CDsON() and not Player:IsChanneling(S.RapidFire) then
+  if S.Trueshot:IsReady() and CDsON() and not Player:IsChanneling(S.RapidFire) and (VarTrueshotReady) then
     if Press(S.Trueshot, not TargetInRange40y, nil, true) then return "trueshot st 24"; end
   end
   -- multishot,if=buff.bombardment.up&buff.trick_shots.down&active_enemies>1|talent.salvo&buff.salvo.down&!talent.volley
@@ -322,6 +310,10 @@ local function St()
   -- wailing_arrow,if=buff.trueshot.down
   if S.WailingArrow:IsReady() and (Player:BuffDown(S.TrueshotBuff)) then
     if Press(S.WailingArrow, not TargetInRange40y, true) then return "wailing_arrow st 36"; end
+  end
+  -- kill_command,if=buff.trueshot.down
+  if S.KillCommand:IsCastable() and (Player:BuffDown(S.TrueshotBuff)) then
+    if Cast(S.KillCommand, nil, nil, not Target:IsInRange(50)) then return "kill_command st 37"; end
   end
   -- chimaera_shot,if=buff.precise_shots.up|focus>cost+action.aimed_shot.cost
   if S.ChimaeraShot:IsReady() and (Player:BuffUp(S.PreciseShotsBuff) or Player:FocusP() > S.ChimaeraShot:Cost() + S.AimedShot:Cost()) then
@@ -355,7 +347,7 @@ local function Trickshots()
     if Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover cleave 38"; end
   end
   -- double_tap,if=cooldown.rapid_fire.remains<gcd|ca_active|!talent.streamline
-  if S.DoubleTap:IsReady() and (S.RapidFire:CooldownRemains() < Player:GCD() or Target:HealthPercentage() > 70 or not S.Streamline:IsAvailable()) and CDsON() then
+  if S.DoubleTap:IsReady() and (S.RapidFire:CooldownRemains() < Player:GCD() or not S.Streamline:IsAvailable()) and CDsON() then
     if Cast(S.DoubleTap, Settings.Marksmanship.GCDasOffGCD.DoubleTap) then return "double_tap trickshots 6"; end
   end
   -- explosive_shot
@@ -391,7 +383,7 @@ local function Trickshots()
     if Press(S.Trueshot, not TargetInRange40y, false, true) then return "trueshot trickshots 22"; end
   end
   -- rapid_fire,if=buff.trick_shots.remains>=execute_time&(talent.surging_shots|buff.double_tap.up&talent.streamline&!ca_active)
-  if S.RapidFire:IsCastable() and (Player:BuffRemains(S.TrickShotsBuff) >= S.RapidFire:ExecuteTime() and (S.SurgingShots:IsAvailable() or Player:BuffUp(S.DoubleTapBuff) and S.Streamline:IsAvailable() and Target:HealthPercentage() < 70)) then
+  if S.RapidFire:IsCastable() and (Player:BuffRemains(S.TrickShotsBuff) >= S.RapidFire:ExecuteTime() and (S.SurgingShots:IsAvailable() or Player:BuffUp(S.DoubleTapBuff) and S.Streamline:IsAvailable())) then
     if Cast(S.RapidFire, nil, nil, not TargetInRange40y) then return "rapid_fire trickshots 24"; end
   end
   -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=talent.serpentstalkers_trickery&(buff.trick_shots.remains>=execute_time&(buff.precise_shots.down|buff.trueshot.up|full_recharge_time<cast_time+gcd))
@@ -442,61 +434,13 @@ end
 
 local function Trinkets()
   local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
-  if Trinket1ToUse and Player:BuffUp(S.TrueshotBuff) then
-    if WR.Press(M.Trinket1, nil, nil, true) then return "trinket1 trinket 2"; end
+  if Trinket1ToUse and (Player:BuffUp(S.TrueshotBuff) or FightRemains < 13) then
+    if Press(M.Trinket1, nil, nil, true) then return "trinket1 trinket 2"; end
   end
   local Trinket2ToUse = Player:GetUseableTrinkets(OnUseExcludes, 14)
-  if Trinket2ToUse and Player:BuffUp(S.TrueshotBuff) then
-    if WR.Press(M.Trinket2, nil, nil, true) then return "trinket2 trinket 4"; end
+  if Trinket2ToUse and (Player:BuffUp(S.TrueshotBuff) or FightRemains < 13) then
+    if Press(M.Trinket2, nil, nil, true) then return "trinket2 trinket 4"; end
   end
-  -- use_item,name=manic_grieftorch,if=pet.main.buff.frenzy.remains>execute_time
-    if I.ManicGrieftorch:IsEquippedAndReady() then
-      if Cast(I.ManicGrieftorch, nil, Settings.Commons.DisplayStyle.Trinkets) then return "manic_grieftorch trinkets 6"; end
-    end
-    -- use_item,name=darkmoon_deck_box_rime
-    if I.DMDRime:IsEquippedAndReady() then
-      if Cast(I.DMDRime, nil, Settings.Commons.DisplayStyle.Trinkets) then return "darkmoon_deck_box_rime trinkets 8"; end
-    end
-    if I.DMDRimeBox:IsEquippedAndReady() then
-      if Cast(I.DMDRimeBox, nil, Settings.Commons.DisplayStyle.Trinkets) then return "darkmoon_deck_box_rime trinkets 10"; end
-    end
-    -- use_item,name=darkmoon_deck_box_inferno
-    if I.DMDInferno:IsEquippedAndReady() then
-      if Cast(I.DMDInferno, nil, Settings.Commons.DisplayStyle.Trinkets) then return "darkmoon_deck_box_inferno trinkets 12"; end
-    end
-    if I.DMDInfernoBox:IsEquippedAndReady() then
-      if Cast(I.DMDInfernoBox, nil, Settings.Commons.DisplayStyle.Trinkets) then return "darkmoon_deck_box_inferno trinkets 14"; end
-    end
-    -- use_item,name=darkmoon_deck_box_dance
-    if I.DMDDance:IsEquippedAndReady() then
-      if Cast(I.DMDDance, nil, Settings.Commons.DisplayStyle.Trinkets) then return "darkmoon_deck_box_dance trinkets 16"; end
-    end
-    if I.DMDDanceBox:IsEquippedAndReady() then
-      if Cast(I.DMDDanceBox, nil, Settings.Commons.DisplayStyle.Trinkets) then return "darkmoon_deck_box_dance trinkets 18"; end
-    end
-    -- use_item,name=darkmoon_deck_box_watcher
-    if I.DMDWatcher:IsEquippedAndReady() then
-      if Cast(I.DMDWatcher, nil, Settings.Commons.DisplayStyle.Trinkets) then return "darkmoon_deck_box_watcher trinkets 20"; end
-    end
-    if I.DMDWatcherBox:IsEquippedAndReady() then
-      if Cast(I.DMDWatcherBox, nil, Settings.Commons.DisplayStyle.Trinkets) then return "darkmoon_deck_box_watcher trinkets 22"; end
-    end
-    -- use_item,name=decoration_of_flame
-    if I.DecorationofFlame:IsEquippedAndReady() then
-      if Cast(I.DecorationofFlame, nil, Settings.Commons.DisplayStyle.Trinkets) then return "decoration_of_flame trinkets 24"; end
-    end
-    -- use_item,name=stormeaters_boon
-    if I.StormeatersBoon:IsEquippedAndReady() then
-      if Cast(I.StormeatersBoon, nil, Settings.Commons.DisplayStyle.Trinkets) then return "stormeaters_boon trinkets 26"; end
-    end
-    -- use_item,name=windscar_whetstone
-    if I.WindscarWhetstone:IsEquippedAndReady() then
-      if Cast(I.WindscarWhetstone, nil, Settings.Commons.DisplayStyle.Trinkets) then return "windscar_whetstone trinkets 28"; end
-    end
-    -- use_item,name=globe_of_jagged_ice
-    if I.GlobeofJaggedIce:IsEquippedAndReady() then
-      if Cast(I.GlobeofJaggedIce, nil, Settings.Commons.DisplayStyle.Trinkets) then return "globe_of_jagged_ice trinkets 30"; end
-    end
 end
 
 --- ======= ACTION LISTS =======
@@ -549,6 +493,8 @@ local function APL()
       if Press(S.TranquilizingShot, not TargetInRange40y) then return "dispel"; end
     end
     -- auto_shot
+    -- variable,name=trueshot_ready,value=cooldown.trueshot.ready&(!raid_event.adds.exists&(!talent.bullseye|fight_remains>cooldown.trueshot.duration_guess+buff.trueshot.duration%2|buff.bullseye.stack=buff.bullseye.max_stack)&(!trinket.1.has_use_buff|trinket.1.cooldown.remains>30|trinket.1.cooldown.ready)&(!trinket.2.has_use_buff|trinket.2.cooldown.remains>30|trinket.2.cooldown.ready)|raid_event.adds.exists&(!raid_event.adds.up&(raid_event.adds.duration+raid_event.adds.in<25|raid_event.adds.in>60)|raid_event.adds.up&raid_event.adds.remains>10)|active_enemies>1|fight_remains<25)
+    VarTrueshotReady = S.Trueshot:CooldownUp()
     -- trinkets
     if Settings.Commons.Enabled.Trinkets and CDsON() then
       local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end

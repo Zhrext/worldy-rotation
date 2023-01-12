@@ -7,9 +7,11 @@ local DBC           = HeroDBC.DBC
 -- HeroLib
 local HL            = HeroLib
 local Cache         = HeroCache
+local Utils         = HL.Utils;
 local Unit          = HL.Unit
 local Player        = Unit.Player
 local Target        = Unit.Target
+local Mouseover     = Unit.MouseOver
 local Pet           = Unit.Pet
 local Spell         = HL.Spell
 local Item          = HL.Item
@@ -73,6 +75,15 @@ local VarFDNoSC = false
 local VarFractureFuryInMeta = (Player:HasTier(29, 2)) and 54 or 45
 local VarFractureFuryNotInMeta = (Player:HasTier(29, 2)) and 30 or 25
 local VarFractureFuryGain = 0
+local FodderToTheFlamesDeamonIds = {
+  169421,
+  169425,
+  168932,
+  169426,
+  169429,
+  169428,
+  169430
+};
 
 HL:RegisterForEvent(function()
   VarDGBHighRoll = false
@@ -206,7 +217,7 @@ local function HuntRamp()
     VarHuntRamp = false
   end
   -- fracture,if=fury.deficit>=variable.fracture_fury_gain&debuff.frailty.stack<=5
-  if S.Fracture:IsCastable() and (Player:FuryDeficit() >= VarFractureFuryGain and Target:DebuffStack(S.FrailtyDebuff) <= 5) then
+  if S.Fracture:IsCastable() and (Player:FuryDeficit() >= VarFractureFuryGain and Target:DebuffStack(S.FrailtyDebuff) <= 2) then
     if Press(S.Fracture, not IsInMeleeRange) then return "fracture ramph 2"; end
   end
   -- sigil_of_flame,if=fury.deficit>=30
@@ -231,7 +242,7 @@ local function HuntRamp()
   end
   -- the_hunt
   if S.TheHunt:IsCastable() then
-    if Press(S.TheHunt, not Target:IsInRange(50)) then return "the_hunt ramph 12"; end
+    if Press(S.TheHunt, not Target:IsInRange(8)) then return "the_hunt ramph 12"; end
   end
 end
 
@@ -245,7 +256,7 @@ local function EDRamp()
     VarEDRamp = false
   end
   -- fracture,if=fury.deficit>=variable.fracture_fury_gain&debuff.frailty.stack<=5
-  if S.Fracture:IsCastable() and (Player:FuryDeficit() >= VarFractureFuryGain and Target:DebuffStack(S.FrailtyDebuff) <= 5) then
+  if S.Fracture:IsCastable() and (Player:FuryDeficit() >= VarFractureFuryGain and Target:DebuffStack(S.FrailtyDebuff) <= 3) then
     if Press(S.Fracture, not IsInMeleeRange) then return "fracture ramped 2"; end
   end
   -- sigil_of_flame,if=fury.deficit>=30
@@ -284,7 +295,7 @@ local function SCRamp()
     VarSCRamp = false
   end
   -- fracture,if=fury.deficit>=variable.fracture_fury_gain&debuff.frailty.stack<=5
-  if S.Fracture:IsCastable() and (Player:FuryDeficit() >= VarFractureFuryGain and Target:DebuffStack(S.FrailtyDebuff) <= 5) then
+  if S.Fracture:IsCastable() and (Player:FuryDeficit() >= VarFractureFuryGain and Target:DebuffStack(S.FrailtyDebuff) <= 3) then
     if Press(S.Fracture, not IsInMeleeRange) then return "fracture rampsc 2"; end
   end
   -- sigil_of_flame,if=fury.deficit>=30
@@ -433,6 +444,11 @@ local function APL()
   IsTanking = Player:IsTankingAoE(8) or Player:IsTanking(Target)
 
   if Everyone.TargetIsValid() then
+    -- FodderToTheFlames
+    if S.ThrowGlaive:IsCastable() and Utils.ValueIsInArray(FodderToTheFlamesDeamonIds, Target:NPCID()) then
+      if Press(S.ThrowGlaive, not Target:IsSpellInRange(S.ThrowGlaive)) then return "fodder to the flames"; end
+    end
+  
     -- Check DGB CDR value
     if (S.DarkglareBoon:IsAvailable() and Player:PrevGCD(1, S.FelDevastation) and (DemonHunter.DGBCDRLastUpdate == 0 or GetTime() - DemonHunter.DGBCDRLastUpdate < 5)) then
       if DemonHunter.DGBCDR >= 18 then
@@ -485,7 +501,7 @@ local function APL()
     -- variable,name=fracture_fury_gain,op=setif,value=variable.fracture_fury_gain_in_meta,value_else=variable.fracture_fury_gain_not_in_meta,condition=buff.metamorphosis.up
     -- Note: Moved to top of APL()
     -- run_action_list,name=the_hunt_ramp,if=variable.the_hunt_ramp_in_progress|talent.the_hunt.enabled&cooldown.the_hunt.remains<5&!dot.fiery_brand.ticking
-    if (VarHuntRamp or S.TheHunt:IsAvailable() and S.TheHunt:CooldownRemains() < 5 and Target:DebuffDown(S.FieryBrandDebuff)) then
+    if CDsON() and (VarHuntRamp or S.TheHunt:IsAvailable() and S.TheHunt:CooldownRemains() < 5 and (Target:DebuffDown(S.FieryBrandDebuff) and Settings.Vengeance.Enabled.FieryBrandOffensively)) then
       local ShouldReturn = HuntRamp(); if ShouldReturn then return ShouldReturn; end
       if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for HuntRamp()"; end
     end

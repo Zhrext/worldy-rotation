@@ -128,7 +128,7 @@ local function Precombat()
     VarTrinketSyncSlot = 2
   end
   -- arcane_torrent
-  if CDsON() and S.ArcaneTorrent:IsCastable() and CDsON() then
+  if CDsON() and S.ArcaneTorrent:IsCastable() then
     if Press(S.ArcaneTorrent, not Target:IsInRange(8)) then return "arcane_torrent precombat 2"; end
   end
   -- use_item,name=algethar_puzzle_box
