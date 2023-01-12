@@ -499,7 +499,7 @@ local function APL()
     end
     -- Dispels
     if Settings.General.Enabled.DispelDebuffs and not Player:IsCasting() and not Player:IsChanneling() and (Everyone.UnitHasEnrageBuff(Target) or Everyone.UnitHasMagicBuff(Target)) then
-      if WR.Press(S.TranquilizingShot, not TargetInRange40y) then return "dispel"; end
+      if Press(S.TranquilizingShot, not TargetInRange40y) then return "dispel"; end
     end
     -- auto_shot
     -- call_action_list,name=cds
@@ -542,6 +542,7 @@ local function AutoBind()
   Bind(S.BagofTricks)
   Bind(S.BarbedShot)
   Bind(S.Barrage)
+  Bind(S.Berserking)
   Bind(S.BestialWrath)
   Bind(S.BloodFury)
   Bind(S.Bloodshed)

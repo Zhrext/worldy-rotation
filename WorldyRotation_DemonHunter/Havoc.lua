@@ -371,6 +371,7 @@ local function AutoBind()
   -- Macros
   Bind(M.MetamorphosisPlayer)
   Bind(M.SigilOfFlamePlayer)
+  Bind(M.SigilOfMiseryPlayer)
 end
 
 local function Init()

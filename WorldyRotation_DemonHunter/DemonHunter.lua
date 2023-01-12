@@ -75,6 +75,7 @@ Spell.DemonHunter.Havoc = MergeTableByKey(Spell.DemonHunter.Commons, {
   Momentum                              = Spell(206476),
   Ragefire                              = Spell(388107),
   SerratedGlaive                        = Spell(390154),
+  SigilOfMisery                         = Spell(389813),
   Soulrend                              = Spell(388106),
   TacticalRetreat                       = Spell(389688),
   TrailofRuin                           = Spell(258881),
@@ -158,6 +159,7 @@ Macro.DemonHunter.Commons = {
 
 Macro.DemonHunter.Havoc = MergeTableByKey(Macro.DemonHunter.Commons, {
   MetamorphosisPlayer              = Macro("MetamorphosisPlayer", "/cast [@player] " .. Spell.DemonHunter.Havoc.Metamorphosis:Name()),
+  SigilOfMiseryPlayer              = Macro("SigilOfMiseryPlayer", "/cast [@player] " .. Spell.DemonHunter.Havoc.SigilOfMisery:Name()),
 })
 
 Macro.DemonHunter.Vengeance = MergeTableByKey(Macro.DemonHunter.Commons, {
