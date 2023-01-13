@@ -22,6 +22,17 @@ WR.GUISettings.APL.Druid = {
       MarkOfTheWild = true,
     },
   },
+  Balance = {
+    Enabled = {
+      MoonkinFormOOC = false,
+    },
+    Defensive = {
+      HP = {
+        Barkskin = 50,
+        NaturesVigil = 75,
+      },
+    },
+  },
   Restoration = {
     Defensive = {
       HP = {
@@ -89,6 +100,8 @@ WR.GUI.LoadSettingsRecursively(WR.GUISettings)
 -- Child Panels
 local ARPanel = WR.GUI.Panel
 local CP_Druid = CreateChildPanel(ARPanel, "Druid")
+local CP_Balance = CreateChildPanel(CP_Druid, "Balance")
+local CP_Balance_Defensive = CreateChildPanel(CP_Balance, "Defensive")
 local CP_Restoration = CreateChildPanel(CP_Druid, "Restoration")
 local CP_Restoration_Defensive = CreateChildPanel(CP_Restoration, "Defensive")
 local CP_Restoration_Damage = CreateChildPanel(CP_Restoration, "Damage")
@@ -97,6 +110,10 @@ local CP_Restoration_HealingTwo = CreateChildPanel(CP_Restoration, "HealingTwo")
 
 -- Druid
 CreateARPanelOptions(CP_Druid, "APL.Druid.Commons")
+
+-- Balance
+CreateARPanelOptions(CP_Balance, "APL.Druid.Balance")
+CreateARPanelOptions(CP_Balance_Defensive, "APL.Druid.Balance.Defensive")
 
 -- Restoration
 CreateARPanelOptions(CP_Restoration_Defensive, "APL.Druid.Restoration.Defensive")

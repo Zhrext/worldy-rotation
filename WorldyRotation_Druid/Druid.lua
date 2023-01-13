@@ -41,6 +41,7 @@ Spell.Druid.Commons = {
   Revive                                = Spell(50769),
   Shred                                 = Spell(5221),
   -- Talents
+  AstralCommunion                       = Spell(202359),
   ConvokeTheSpirits                     = Spell(391528),
   FrenziedRegeneration                  = Spell(22842),
   HeartOfTheWild                        = Spell(319454),
@@ -76,6 +77,72 @@ Spell.Druid.Commons = {
   -- Other
   Pool                                  = Spell(999910)
 }
+
+Spell.Druid.Balance = MergeTableByKey(Spell.Druid.Commons, {
+  -- Abilities
+  EclipseLunar                          = Spell(48518),
+  EclipseSolar                          = Spell(48517),
+  Wrath                                 = Spell(190984),
+  -- Talents
+  AetherialKindling                     = Spell(327541),
+  BalanceofAllThings                    = Spell(394048),
+  CelestialAlignment                    = MultiSpell(194223,383410), -- 194223 without Orbital Strike, 383410 with Orbital Strike
+  ElunesGuidance                        = Spell(393991),
+  ForceOfNature                         = Spell(205636),
+  FungalGrowth                          = Spell(392999),
+  FuryOfElune                           = Spell(202770),
+  Incarnation                           = MultiSpell(102560,390414), -- 102560 without Orbital Strike, 390414 with Orbital Strike
+  IncarnationTalent                     = Spell(394013),
+  NaturesBalance                        = Spell(202430),
+  OrbitBreaker                          = Spell(383197),
+  OrbitalStrike                         = Spell(390378),
+  PowerOfGoldrinn                       = Spell(394046),
+  PrimordialArcanicPulsar               = Spell(393960),
+  RattleTheStars                        = Spell(393954),
+  Solstice                              = Spell(343647),
+  SoulOfTheForest                       = Spell(114107),
+  Starfall                              = Spell(191034),
+  Starlord                              = Spell(202345),
+  Starweaver                            = Spell(393940),
+  StellarFlare                          = Spell(202347),
+  Swipe                                 = Spell(213764),
+  Typhoon                               = Spell(132469),
+  TwinMoons                             = Spell(279620),
+  UmbralEmbrace                         = Spell(393760),
+  WaningTwilight                        = Spell(393956),
+  WarriorOfElune                        = Spell(202425),
+  WildMushroom                          = Spell(88747),
+  -- New Moon Phases
+  FullMoon                              = Spell(274283),
+  HalfMoon                              = Spell(274282),
+  NewMoon                               = Spell(274281),
+  -- Buffs
+  BOATArcaneBuff                        = Spell(394050),
+  BOATNatureBuff                        = Spell(394049),
+  CABuff                                = Spell(383410),
+  IncarnationBuff                       = MultiSpell(102560,390414),
+  PAPBuff                               = Spell(393961),
+  RattledStarsBuff                      = Spell(393955),
+  SolsticeBuff                          = Spell(343648),
+  StarfallBuff                          = Spell(191034),
+  StarlordBuff                          = Spell(279709),
+  StarweaversWarp                       = Spell(393942),
+  StarweaversWeft                       = Spell(393944),
+  UmbralEmbraceBuff                     = Spell(393763),
+  WarriorOfEluneBuff                    = Spell(202425),
+  -- Debuffs
+  FungalGrowthDebuff                    = Spell(81281),
+  StellarFlareDebuff                    = Spell(202347),
+  -- Tier 29 Effects
+  GatheringStarstuff                    = Spell(394412),
+  TouchTheCosmos                        = Spell(394414),
+  -- Legendary Effects
+  BOATArcaneLegBuff                     = Spell(339946),
+  BOATNatureLegBuff                     = Spell(339943),
+  OnethsClearVisionBuff                 = Spell(339797),
+  OnethsPerceptionBuff                  = Spell(339800),
+  TimewornDreambinderBuff               = Spell(340049)
+})
 
 Spell.Druid.Restoration = MergeTableByKey(Spell.Druid.Commons, {
   -- Abilities
@@ -118,6 +185,9 @@ Item.Druid.Commons = {
   Healthstone                      = Item(5512),
 }
 
+Item.Druid.Balance = MergeTableByKey(Item.Druid.Commons, {
+})
+
 Item.Druid.Restoration = MergeTableByKey(Item.Druid.Commons, {
 })
 
@@ -137,7 +207,15 @@ Macro.Druid.Commons = {
   SwiftmendFocus                   = Macro("SwiftmendFocus", "/cast [@focus] " .. Spell.Druid.Commons.Swiftmend:Name()),
   WildgrowthFocus                  = Macro("WildgrowthFocus", "/cast [@focus] " .. Spell.Druid.Commons.Wildgrowth:Name()),
   UrsolsVortexCursor               = Macro("UrsolsVortexCursor", "/cast [@cursor] " .. Spell.Druid.Commons.UrsolsVortex:Name()),
+  -- Items
+  Trinket1                         = Macro("Trinket1", "/use 13"),
+  Trinket2                         = Macro("Trinket2", "/use 14"),
+  Healthstone                      = Macro("Healthstone", "/use item:5512"),
 }
+
+Macro.Druid.Balance = MergeTableByKey(Macro.Druid.Commons, {
+  StellarFlareMouseover            = Macro("StellarFlareMouseover", "/cast [@mouseover] " .. Spell.Druid.Balance.StellarFlare:Name()),
+})
 
 Macro.Druid.Restoration = MergeTableByKey(Macro.Druid.Commons, {
   -- Base Spells
@@ -148,10 +226,6 @@ Macro.Druid.Restoration = MergeTableByKey(Macro.Druid.Commons, {
   LifebloomFocus                   = Macro("LifebloomFocus", "/cast [@focus] " .. Spell.Druid.Restoration.Lifebloom:Name()),
   NaturesCureFocus                 = Macro("NaturesCureFocus", "/cast [@focus] " .. Spell.Druid.Restoration.NaturesCure:Name()),
   NaturesCureMouseover             = Macro("NaturesCureMouseover", "/cast [@mouseover] " .. Spell.Druid.Restoration.NaturesCure:Name()),
-  -- Items
-  Trinket1                         = Macro("Trinket1", "/use 13"),
-  Trinket2                         = Macro("Trinket2", "/use 14"),
-  Healthstone                      = Macro("Healthstone", "/use item:5512"),
   -- Focus
   FocusTarget                      = Macro("FocusTarget", "/focus target"),
   FocusPlayer                      = Macro("FocusPlayer", "/focus player"),

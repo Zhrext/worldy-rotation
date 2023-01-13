@@ -41,7 +41,7 @@ local M = Macro.DemonHunter.Havoc
 
 -- Create table to exclude above trinkets from On Use function
 local OnUseExcludes = {
-  -- I.TrinketName:ID(),
+  I.AlgetharPuzzleBox:ID(),
 }
 
 -- Trinket Item Objects
@@ -76,6 +76,15 @@ local VarTrinketSyncSlot = 0
 local VarUseEyeBeamFuryCondition = false
 local BossFightRemains = 11111
 local FightRemains = 11111
+local FodderToTheFlamesDeamonIds = {
+  169421,
+  169425,
+  168932,
+  169426,
+  169429,
+  169428,
+  169430
+}
 
 HL:RegisterForEvent(function()
   VarBladeDance = false
@@ -127,13 +136,13 @@ local function Precombat()
   if (trinket2:TrinketHasStatAnyDps() and ((not trinket1:TrinketHasStatAnyDps()) or trinket2:Cooldown() >= trinket1:Cooldown())) then
     VarTrinketSyncSlot = 2
   end
+  -- use_item,name=algethar_puzzle_box
+  if CDsON() and Settings.General.Enabled.Trinkets and I.AlgetharPuzzleBox:IsEquippedAndReady() then
+    if Press(I.AlgetharPuzzleBox, nil, true) then return "algethar_puzzle_box precombat 4"; end
+  end
   -- arcane_torrent
   if CDsON() and S.ArcaneTorrent:IsCastable() then
     if Press(S.ArcaneTorrent, not Target:IsInRange(8)) then return "arcane_torrent precombat 2"; end
-  end
-  -- use_item,name=algethar_puzzle_box
-  if CDsON() and Settings.General.Enabled.Trinkets and I.AlgetharPuzzleBox:IsEquippedAndReady() then
-    if Press(I.AlgetharPuzzleBox) then return "algethar_puzzle_box precombat 4"; end
   end
   -- sigil_of_flame
   if S.SigilOfFlame:IsCastable() then
@@ -144,7 +153,7 @@ local function Precombat()
     if Press(S.ImmolationAura, not Target:IsInMeleeRange(8)) then return "immolation_aura precombat 8"; end
   end
   -- Manually added: Fel Rush if out of range
-  if (not Target:IsInMeleeRange(5)) and S.FelRush:IsCastable() and Settings.Havoc.Enabled.FelRush then
+  if (not Target:IsInMeleeRange(5)) and S.FelRush:IsCastable() and Settings.Havoc.Enabled.FelRush and WR.Toggle(4) then
     if Press(S.FelRush, not Target:IsInRange(8)) then return "fel_rush precombat 10"; end
   end
   -- Manually added: Demon's Bite/Demon Blades if in melee range
@@ -173,9 +182,13 @@ local function Cooldown()
     if Trinket2ToUse and (VarTrinketSyncSlot == 2 and (Player:BuffUp(S.MetamorphosisBuff) or ((not S.Demonic:IsAvailable()) and S.Metamorphosis:CooldownRemains() > ((FightRemains > trinket2:Cooldown() / 2) and FightRemains or trinket2:Cooldown() / 2)) or FightRemains <= 20) or (VarTrinketSyncSlot == 1 and not trinket1:IsReady()) or VarTrinketSyncSlot == 0) then
       if Press(M.Trinket2, nil, nil, true) then return "trinket2 cooldown 16"; end
     end
+    -- use_item,name=algethar_puzzle_box
+    if CDsON() and I.AlgetharPuzzleBox:IsEquippedAndReady() then
+      if Press(I.AlgetharPuzzleBox, nil, true) then return "algethar_puzzle_box main 14"; end
+    end
   end
   -- the_hunt,if=(!talent.momentum|!buff.momentum.up)
-  if CDsON() and S.TheHunt:IsCastable() and ((not S.Momentum:IsAvailable()) or Player:BuffDown(S.MomentumBuff) or (not Settings.Havoc.Enabled.VengefulRetreat and not Settings.Havoc.Enabled.FelRush)) then
+  if CDsON() and S.TheHunt:IsCastable() and ((not S.Momentum:IsAvailable()) or Player:BuffDown(S.MomentumBuff) or (not Settings.Havoc.Enabled.VengefulRetreat and not Settings.Havoc.Enabled.FelRush)) and WR.Toggle(4) then
     if Press(S.TheHunt, not Target:IsSpellInRange(S.TheHunt)) then return "the_hunt cooldown 20"; end
   end
   -- elysian_decree,if=(active_enemies>desired_targets|raid_event.adds.in>30)
@@ -210,6 +223,10 @@ local function APL()
     if not Player:AffectingCombat() then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
     end
+    -- FodderToTheFlames
+    if S.ThrowGlaive:IsCastable() and Utils.ValueIsInArray(FodderToTheFlamesDeamonIds, Target:NPCID()) then
+      if Press(S.ThrowGlaive, not Target:IsSpellInRange(S.ThrowGlaive)) then return "fodder to the flames"; end
+    end
     -- auto_attack
     -- retarget_auto_attack,line_cd=1,target_if=min:debuff.burning_wound.remains,if=talent.burning_wound&talent.demon_blades&active_dot.burning_wound<(spell_targets>?3)
     -- variable,name=blade_dance,value=talent.first_blood|talent.trail_of_ruin|talent.chaos_theory&buff.chaos_theory.down|spell_targets.blade_dance1>1
@@ -219,12 +236,12 @@ local function APL()
     -- variable,name=pooling_for_eye_beam,value=talent.demonic&!talent.blind_fury&cooldown.eye_beam.remains<(gcd.max*2)&fury.deficit>20
     VarPoolingForEyeBeam = S.Demonic:IsAvailable() and (not S.BlindFury:IsAvailable()) and S.EyeBeam:CooldownRemains() < (Player:GCD() * 2) and Player:FuryDeficit() > 20
     -- variable,name=waiting_for_momentum,value=talent.momentum&!buff.momentum.up
-    VarWaitingForMomentum = S.Momentum:IsAvailable() and Player:BuffDown(S.MomentumBuff) and (Settings.Havoc.Enabled.FelRush or Settings.Havoc.Enabled.VengefulRetreat)
+    VarWaitingForMomentum = S.Momentum:IsAvailable() and Player:BuffDown(S.MomentumBuff) and (Settings.Havoc.Enabled.FelRush or Settings.Havoc.Enabled.VengefulRetreat) and WR.Toggle(4)
     -- Interrupts
     if not Player:IsCasting() and not Player:IsChanneling() then
       local ShouldReturn = Everyone.Interrupt(S.Disrupt, 10, true); if ShouldReturn then return ShouldReturn; end
-      ShouldReturn = Everyone.InterruptWithStun(S.FelEruption); if ShouldReturn then return ShouldReturn; end
-      ShouldReturn = Everyone.InterruptWithStun(S.ChaosNova); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.InterruptWithStun(S.FelEruption, 10); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.InterruptWithStun(S.ChaosNova, 8); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=cooldown,if=gcd.remains=0
     if CDsON() then
@@ -242,15 +259,15 @@ local function APL()
     -- pick_up_fragment,mode=nearest,if=talent.demonic_appetite&fury.deficit>=35&(!cooldown.eye_beam.ready|fury<30)
     -- TODO: Can't detect when orbs actually spawn, we could possibly show a suggested icon when we DON'T want to pick up souls so people can avoid moving?
     -- vengeful_retreat,use_off_gcd=1,if=talent.initiative&talent.essence_break&time>1&(cooldown.essence_break.remains>15|cooldown.essence_break.remains<gcd.max&(!talent.demonic|buff.metamorphosis.up|cooldown.eye_beam.remains>15+(10*talent.cycle_of_hatred)))
-    if Settings.Havoc.Enabled.VengefulRetreat and S.VengefulRetreat:IsCastable() and (S.Initiative:IsAvailable() and S.EssenceBreak:IsAvailable() and HL.CombatTime() > 1 and (S.EssenceBreak:CooldownRemains() > 15 or S.EssenceBreak:CooldownRemains() < Player:GCD() + 0.5 and ((not S.Demonic:IsAvailable()) or Player:BuffUp(S.MetamorphosisBuff) or S.EyeBeam:CooldownRemains() > 15 + (10 * num(S.CycleOfHatred:IsAvailable()))))) then
+    if Settings.Havoc.Enabled.VengefulRetreat and S.VengefulRetreat:IsCastable() and (S.Initiative:IsAvailable() and S.EssenceBreak:IsAvailable() and HL.CombatTime() > 1 and (S.EssenceBreak:CooldownRemains() > 15 or S.EssenceBreak:CooldownRemains() < Player:GCD() + 0.5 and ((not S.Demonic:IsAvailable()) or Player:BuffUp(S.MetamorphosisBuff) or S.EyeBeam:CooldownRemains() > 15 + (10 * num(S.CycleOfHatred:IsAvailable()))))) and WR.Toggle(4) then
       if Press(S.VengefulRetreat, not Target:IsInMeleeRange(8)) then return "vengeful_retreat main 4"; end
     end
     -- vengeful_retreat,use_off_gcd=1,if=talent.initiative&!talent.essence_break&time>1&!buff.momentum.up
-    if Settings.Havoc.Enabled.VengefulRetreat and S.VengefulRetreat:IsCastable() and (S.Initiative:IsAvailable() and (not S.EssenceBreak:IsAvailable()) and HL.CombatTime() > 1 and Player:BuffDown(S.MomentumBuff)) then
+    if Settings.Havoc.Enabled.VengefulRetreat and S.VengefulRetreat:IsCastable() and (S.Initiative:IsAvailable() and (not S.EssenceBreak:IsAvailable()) and HL.CombatTime() > 1 and Player:BuffDown(S.MomentumBuff)) and WR.Toggle(4) then
       if Press(S.VengefulRetreat, not Target:IsInMeleeRange(8)) then return "vengeful_retreat main 5"; end
     end
     -- fel_rush,if=(buff.unbound_chaos.up|variable.waiting_for_momentum&(!talent.unbound_chaos|!cooldown.immolation_aura.ready))&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if S.FelRush:IsCastable() and ((Player:BuffUp(S.UnboundChaosBuff) or VarWaitingForMomentum and ((not S.UnboundChaos:IsAvailable()) or S.ImmolationAura:CooldownDown())) and Settings.Havoc.Enabled.FelRush) then
+    if S.FelRush:IsCastable() and ((Player:BuffUp(S.UnboundChaosBuff) or VarWaitingForMomentum and ((not S.UnboundChaos:IsAvailable()) or S.ImmolationAura:CooldownDown())) and Settings.Havoc.Enabled.FelRush) and WR.Toggle(4) then
       if Press(S.FelRush, not Target:IsInMeleeRange(8)) then return "fel_rush main 6"; end
     end
     -- essence_break,if=(active_enemies>desired_targets|raid_event.adds.in>40)&!variable.waiting_for_momentum&fury>40&(cooldown.eye_beam.remains>8|buff.metamorphosis.up)&(!talent.tactical_retreat|buff.tactical_retreat.up)
@@ -294,7 +311,7 @@ local function APL()
       if Press(S.ImmolationAura, not IsInMeleeRange(8)) then return "immolation_aura main 26"; end
     end
     -- felblade,if=fury.deficit>=40
-    if S.Felblade:IsCastable() and (Player:FuryDeficit() >= 40) then
+    if S.Felblade:IsCastable() and (Player:FuryDeficit() >= 40) and WR.Toggle(4) then
       if Press(S.Felblade, not Target:IsSpellInRange(S.Felblade)) then return "felblade main 28"; end
     end
     -- chaos_strike,if=!variable.pooling_for_blade_dance&!variable.pooling_for_eye_beam
@@ -302,7 +319,7 @@ local function APL()
       if Press(S.ChaosStrike, not Target:IsSpellInRange(S.ChaosStrike)) then return "chaos_strike main 32"; end
     end
     -- fel_rush,if=!talent.momentum&talent.demon_blades&!cooldown.eye_beam.ready&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if S.FelRush:IsCastable() and ((not S.Momentum:IsAvailable()) and S.DemonBlades:IsAvailable() and S.EyeBeam:CooldownDown() and Settings.Havoc.Enabled.FelRush) then
+    if S.FelRush:IsCastable() and ((not S.Momentum:IsAvailable()) and S.DemonBlades:IsAvailable() and S.EyeBeam:CooldownDown() and Settings.Havoc.Enabled.FelRush) and WR.Toggle(4) then
       if Press(S.FelRush, not Target:IsInMeleeRange(8)) then return "fel_rush main 34"; end
     end
     -- demons_bite,target_if=min:debuff.burning_wound.remains,if=talent.burning_wound&debuff.burning_wound.remains<4&active_dot.burning_wound<(spell_targets>?3)
@@ -310,7 +327,7 @@ local function APL()
       if Everyone.CastTargetIf(S.DemonsBite, Enemies8y, "min", EvalutateTargetIfFilterDemonsBite, EvaluateTargetIfDemonsBite, not Target:IsSpellInRange(S.DemonsBite)) then return "demons_bite main 36"; end
     end
     -- fel_rush,if=!talent.momentum&!talent.demon_blades&spell_targets>1&(charges=2|(raid_event.movement.in>10&raid_event.adds.in>10))
-    if S.FelRush:IsCastable() and ((not S.Momentum:IsAvailable()) and (not S.DemonBlades:IsAvailable()) and EnemiesCount8 > 1 and Settings.Havoc.Enabled.FelRush) then
+    if S.FelRush:IsCastable() and ((not S.Momentum:IsAvailable()) and (not S.DemonBlades:IsAvailable()) and EnemiesCount8 > 1 and Settings.Havoc.Enabled.FelRush) and WR.Toggle(4) then
       if Press(S.FelRush, not Target:IsInMeleeRange(8)) then return "fel_rush main 38"; end
     end
     -- sigil_of_flame,if=raid_event.adds.in>15&fury.deficit>=30
@@ -322,11 +339,11 @@ local function APL()
       if Press(S.DemonsBite, not Target:IsSpellInRange(S.DemonsBite)) then return "demons_bite main 42"; end
     end
     -- fel_rush,if=movement.distance>15|(buff.out_of_range.up&!talent.momentum)
-    if S.FelRush:IsCastable() and ((not IsInMeleeRange()) and (not S.Momentum:IsAvailable()) and Settings.Havoc.Enabled.FelRush) then
+    if S.FelRush:IsCastable() and ((not IsInMeleeRange()) and (not S.Momentum:IsAvailable()) and Settings.Havoc.Enabled.FelRush) and WR.Toggle(4) then
       if Press(S.FelRush, not Target:IsInMeleeRange(8)) then return "fel_rush main 46"; end
     end
     -- vengeful_retreat,if=!talent.initiative&movement.distance>15
-    if Settings.Havoc.Enabled.VengefulRetreat and S.VengefulRetreat:IsCastable() and ((not S.Initiative:IsAvailable()) and (not IsInMeleeRange())) then
+    if Settings.Havoc.Enabled.VengefulRetreat and S.VengefulRetreat:IsCastable() and ((not S.Initiative:IsAvailable()) and (not IsInMeleeRange())) and WR.Toggle(4) then
       if Press(S.VengefulRetreat, not Target:IsInMeleeRange(8)) then return "vengeful_retreat main 48"; end
     end
     -- throw_glaive,if=(talent.demon_blades.enabled|buff.out_of_range.up)&!debuff.essence_break.up
@@ -364,6 +381,7 @@ local function AutoBind()
   Bind(S.VengefulRetreat)
   
   -- Bind Items
+  Bind(I.AlgetharPuzzleBox)
   Bind(M.Trinket1)
   Bind(M.Trinket2)
   Bind(M.Healthstone)
@@ -379,6 +397,7 @@ local function Init()
 
   WR.Print("Havoc Demon Hunter by Worldy.")
   AutoBind()
+  WR.ToggleFrame:AddButton("Ch", 4, "Charge", "charge")
 end
 
 WR.SetAPL(577, APL, Init)

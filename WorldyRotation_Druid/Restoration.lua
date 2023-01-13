@@ -153,7 +153,7 @@ local function Cat()
     if Press(S.Rake, not Target:IsInMeleeRange(10)) then return "rake cat 2"; end
   end
   -- use_items,if=!buff.prowl.up&!buff.shadowmeld.up
-  if (not Player:StealthUp(false, true)) then
+  if Settings.General.Enabled.Trinkets and (not Player:StealthUp(false, true)) then
       local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
   end
   -- auto_attack,if=!buff.prowl.up&!buff.shadowmeld.up
@@ -353,7 +353,9 @@ end
 local function Healing()
   if not Focus or not Focus:Exists() or Focus:IsDeadOrGhost() or not Focus:IsInRange(40) then return; end
   -- trinkets
-  local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
+  if Settings.General.Enabled.Trinkets then
+    local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
+  end
   -- natures_vigil
   if Settings.Restoration.Damage.Enabled.NaturesVigil and Player:AffectingCombat() and HotsCount() > 3 and S.NaturesVigil:IsReady() then
     if Press(S.NaturesVigil, nil, nil, true) then return "natures_vigil healing"; end
@@ -513,12 +515,14 @@ local function APL()
     end
   end
   
-  if Player:AffectingCombat() and not Player:IsChanneling() then
-    -- Combat
-    local ShouldReturn = Combat(); if ShouldReturn then return ShouldReturn; end
-  else
-    -- OutOfCombat
-    local ShouldReturn = OutOfCombat(); if ShouldReturn then return ShouldReturn; end
+  if not Player:IsChanneling() then
+    if Player:AffectingCombat() then
+      -- Combat
+      local ShouldReturn = Combat(); if ShouldReturn then return ShouldReturn; end
+    else
+      -- OutOfCombat
+      local ShouldReturn = OutOfCombat(); if ShouldReturn then return ShouldReturn; end
+    end
   end
 end
 

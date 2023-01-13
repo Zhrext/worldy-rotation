@@ -49,6 +49,7 @@ local M = Macro.DemonHunter.Vengeance
 -- Create table to exclude above trinkets from On Use function
 local OnUseExcludes = {
   -- I.TrinketName:ID(),
+  I.AlgetharPuzzleBox:ID(),
 }
 
 -- GUI Settings
@@ -83,7 +84,7 @@ local FodderToTheFlamesDeamonIds = {
   169429,
   169428,
   169430
-};
+}
 
 HL:RegisterForEvent(function()
   VarDGBHighRoll = false
@@ -162,6 +163,10 @@ local function Precombat()
   -- augmentation
   -- food
   -- snapshot_stats
+  -- use_item,name=algethar_puzzle_box
+  if CDsON() and Settings.General.Enabled.Trinkets and I.AlgetharPuzzleBox:IsEquippedAndReady() then
+    if Press(I.AlgetharPuzzleBox, nil, true) then return "algethar_puzzle_box precombat 4"; end
+  end
   -- variable,name=the_hunt_ramp_in_progress,value=0
   -- variable,name=elysian_decree_ramp_in_progress,value=0
   -- variable,name=soul_carver_ramp_in_progress,value=0
@@ -347,7 +352,7 @@ local function FDSC()
     if Press(S.ImmolationAura, not Target:IsInMeleeRange(8)) then return "immolation_aura fdsc 6"; end
   end
   -- fel_devastation,if=dot.fiery_brand.remains<=3
-  if S.FelDevastation:IsReady() and (Target:DebuffRemains(S.FieryBrandDebuff) <= 3 or not Settings.Vengeance.Enabled.FieryBrandOffensively or not CDsON()) then
+  if CDsON() and S.FelDevastation:IsReady() and (Target:DebuffRemains(S.FieryBrandDebuff) <= 3 or not Settings.Vengeance.Enabled.FieryBrandOffensively) then
     if Press(S.FelDevastation, not Target:IsInMeleeRange(8)) then return "fel_devastation fdsc 8"; end
   end
   -- spirit_bomb,if=((buff.metamorphosis.up&talent.fracture.enabled&soul_fragments>=3)|soul_fragments>=4)&dot.fiery_brand.remains>=4
@@ -415,7 +420,7 @@ local function FDNoSC()
     if Press(S.Fracture, not IsInMeleeRange) then return "fracture fdnosc 12"; end
   end
   -- fel_devastation,if=dot.fiery_brand.remains<=3
-  if S.FelDevastation:IsReady() and (Target:DebuffRemains(S.FieryBrandDebuff) <= 3 or not Settings.Vengeance.Enabled.FieryBrandOffensively or not CDsON()) then
+  if CDsON() and S.FelDevastation:IsReady() and (Target:DebuffRemains(S.FieryBrandDebuff) <= 3 or not Settings.Vengeance.Enabled.FieryBrandOffensively) then
     if Press(S.FelDevastation, not Target:IsInMeleeRange(8)) then return "fel_devastation fdnosc 14"; end
   end
   -- sigil_of_flame,if=dot.fiery_brand.remains<=3&fury<50
@@ -448,7 +453,6 @@ local function APL()
     if S.ThrowGlaive:IsCastable() and Utils.ValueIsInArray(FodderToTheFlamesDeamonIds, Target:NPCID()) then
       if Press(S.ThrowGlaive, not Target:IsSpellInRange(S.ThrowGlaive)) then return "fodder to the flames"; end
     end
-  
     -- Check DGB CDR value
     if (S.DarkglareBoon:IsAvailable() and Player:PrevGCD(1, S.FelDevastation) and (DemonHunter.DGBCDRLastUpdate == 0 or GetTime() - DemonHunter.DGBCDRLastUpdate < 5)) then
       if DemonHunter.DGBCDR >= 18 then
@@ -467,6 +471,7 @@ local function APL()
     -- disrupt (Interrupts)
     if not Player:IsCasting() and not Player:IsChanneling() then
       local ShouldReturn = Everyone.Interrupt(S.Disrupt, 10, true); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.InterruptWithStun(S.ChaosNova, 8); if ShouldReturn then return ShouldReturn; end
     end
     -- Manually added: Defensives
     if (IsTanking) then
@@ -496,6 +501,10 @@ local function APL()
       local Trinket2ToUse = Player:GetUseableTrinkets(OnUseExcludes, 14)
       if Trinket2ToUse then
         if Press(M.Trinket2, nil, nil, true) then return "trinket2 main 12"; end
+      end
+      -- use_item,name=algethar_puzzle_box
+      if CDsON() and I.AlgetharPuzzleBox:IsEquippedAndReady() then
+        if Press(I.AlgetharPuzzleBox, nil, true) then return "algethar_puzzle_box main 14"; end
       end
     end
     -- variable,name=fracture_fury_gain,op=setif,value=variable.fracture_fury_gain_in_meta,value_else=variable.fracture_fury_gain_not_in_meta,condition=buff.metamorphosis.up
@@ -530,7 +539,7 @@ local function APL()
       if Press(S.Metamorphosis) then return "metamorphosis main 14"; end
     end
     -- fel_devastation,if=!talent.down_in_flames.enabled
-    if S.FelDevastation:IsReady() and (not S.DowninFlames:IsAvailable()) then
+    if CDsON() and S.FelDevastation:IsReady() and (not S.DowninFlames:IsAvailable()) then
       if Press(S.FelDevastation, not Target:IsInMeleeRange(20)) then return "fel_devastation main 16"; end
     end
     -- spirit_bomb,if=((buff.metamorphosis.up&talent.fracture.enabled&soul_fragments>=3&spell_targets>1)|soul_fragments>=4&spell_targets>1)
@@ -583,6 +592,7 @@ local function AutoBind()
   -- Spell Binds
   Bind(S.BulkExtraction)
   Bind(S.DemonSpikes)
+  Bind(S.ChaosNova)
   Bind(S.Disrupt)
   Bind(S.Felblade)
   Bind(S.FelDevastation)
@@ -598,6 +608,7 @@ local function AutoBind()
   Bind(S.ThrowGlaive)
   
   -- Bind Items
+  Bind(I.AlgetharPuzzleBox)
   Bind(M.Trinket1)
   Bind(M.Trinket2)
   Bind(M.Healthstone)

@@ -11,5 +11,6 @@
 Settings.lua
 Druid.lua
 Events.lua
+Balance.lua
 Restoration.lua
 Overrides.lua
