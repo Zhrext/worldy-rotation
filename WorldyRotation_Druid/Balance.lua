@@ -503,7 +503,7 @@ local function APL()
   end
 
   if Everyone.TargetIsValid() or Player:AffectingCombat() then
-    Immovable = Player:BuffRemains(S.StarfallBuff) < 2
+    Immovable = true --Player:BuffDown(S.StarfallBuff) or Player:BuffRemains(S.StarfallBuff) < 2
     -- Calculate fight_remains
     BossFightRemains = HL.BossFightRemains(nil, true)
     FightRemains = BossFightRemains
