@@ -117,7 +117,7 @@ local function EvaluateCycleCatRip(TargetUnit)
 end
 
 local function EvaluateCycleCatRake(TargetUnit)
-  return (TargetUnit:DebuffRefreshable(S.RakeDebuff) and TargetUnit:TimeToDie() > 10 and (Player:ComboPoints() < 5 or TargetUnit:DebuffRemains(S.RakeDebuff)))
+  return ((TargetUnit:DebuffDown(S.RakeDebuff) or TargetUnit:DebuffRefreshable(S.RakeDebuff)) and TargetUnit:TimeToDie() > 10 and Player:ComboPoints() < 5)
 end
 
 local function EvaluateCycleCatRake2(TargetUnit)
@@ -192,31 +192,31 @@ local function Cat()
     if Press(S.HeartOfTheWild) then return "heart_of_the_wild cat 26"; end
   end
   -- cat_form,if=!buff.cat_form.up&energy>50
-  if S.CatForm:IsReady() and (Player:BuffDown(S.CatForm) and Player:Energy() > 50) then
+  if S.CatForm:IsReady() and (Player:BuffDown(S.CatForm) and Player:Energy() >= 30) then
     if Press(S.CatForm) then return "cat_form cat 28"; end
   end
-  -- ferocious_bite,if=(combo_points>3&target.1.time_to_die<3|combo_points=5&energy>=50&dot.rip.remains>10)&spell_targets.swipe_cat<4
-  if S.FerociousBite:IsReady() and ((Player:ComboPoints() > 3 and Target:TimeToDie() < 10) or (Player:ComboPoints() == 5 and Player:Energy() >= 50 and (not S.Rip:IsAvailable() or Target:DebuffRemains(S.Rip) > 10)) and EnemiesCount8ySplash < 4) then
+  -- ferocious_bite,if=(combo_points>3&target.1.time_to_die<3|combo_points=5&energy>=50&dot.rip.remains>10)
+  if S.FerociousBite:IsReady() and ((Player:ComboPoints() > 3 and Target:TimeToDie() < 10) or (Player:ComboPoints() == 5 and Player:Energy() >= 25 and (not S.Rip:IsAvailable() or Target:DebuffRemains(S.Rip) > 5))) then
     if Press(S.FerociousBite, not Target:IsInMeleeRange(5)) then return "ferocious_bite cat 32"; end
   end
   -- rip,target_if=((refreshable|energy>90&remains<=10)&(combo_points=5&time_to_die>remains+24|(remains+combo_points*4<time_to_die&remains+4+combo_points*4>time_to_die))|!ticking&combo_points>2+spell_targets.swipe_cat*2)&spell_targets.swipe_cat<11
   if S.Rip:IsAvailable() and S.Rip:IsReady() and (EnemiesCount8ySplash < 11) and EvaluateCycleCatRip(Target) then
     if Press(S.Rip, not Target:IsInMeleeRange(5)) then return "rip cat 34"; end
   end
-  -- rake,target_if=refreshable&time_to_die>10&(combo_points<5|remains<1)&spell_targets.swipe_cat<5
-  if S.Rake:IsReady() and (EnemiesCount8ySplash < 5) and EvaluateCycleCatRake(Target) then
-    if Press(S.Rake, not Target:IsInMeleeRange(5)) then return "rake cat 36"; end
-  end
   if S.Thrash:IsReady() and EnemiesCount8ySplash >= 2 and Target:DebuffRefreshable(S.ThrashDebuff) then
     if Press(S.Thrash, not Target:IsInMeleeRange(8)) then return "thrash cat"; end
   end
-  -- swipe_cat,if=spell_targets.swipe_cat>=2
-  if S.Swipe:IsReady() and (EnemiesCount8ySplash >= 2) then
-    if Press(S.Swipe, not Target:IsInMeleeRange(8)) then return "swipe cat 38"; end
+  -- rake,target_if=refreshable&time_to_die>10&(combo_points<5|remains<1)&spell_targets.swipe_cat<5
+  if S.Rake:IsReady() and EvaluateCycleCatRake(Target) then
+    if Press(S.Rake, not Target:IsInMeleeRange(5)) then return "rake cat 36"; end
   end
   -- rake,target_if=dot.adaptive_swarm_damage.ticking&runeforge.draught_of_deep_focus,if=(combo_points<5|energy>90)&runeforge.draught_of_deep_focus&dot.rake.pmultiplier<=persistent_multiplier
   if S.Rake:IsReady() and ((Player:ComboPoints() < 5 or Player:Energy() > 90) and Target:PMultiplier(S.Rake) <= Player:PMultiplier(S.Rake)) and EvaluateCycleCatRake2(Target) then
     if Press(S.Rake, not Target:IsInMeleeRange(5)) then return "rake cat 40"; end
+  end
+  -- swipe_cat,if=spell_targets.swipe_cat>=2
+  if S.Swipe:IsReady() and (EnemiesCount8ySplash >= 2) then
+    if Press(S.Swipe, not Target:IsInMeleeRange(8)) then return "swipe cat 38"; end
   end
   -- shred,if=combo_points<5|energy>90
   if S.Shred:IsReady() and (Player:ComboPoints() < 5 or Player:Energy() > 90) then
@@ -233,10 +233,6 @@ local function Owl()
   if S.MoonkinForm:IsReady() and (Player:BuffDown(S.MoonkinForm)) then
     if Press(S.MoonkinForm) then return "moonkin_form owl 4"; end
   end
-  -- convoke_the_spirits,if=(buff.heart_of_the_wild.up|cooldown.heart_of_the_wild.remains>60-30*runeforge.celestial_spirits|!talent.heart_of_the_wild.enabled)&(buff.eclipse_solar.remains>4|buff.eclipse_lunar.remains>4)&(!equipped.soulleting_ruby|cooldown.soulleting_ruby.remains<114-60*runeforge.celestial_spirits&!cooldown.soulleting_ruby.ready)
-  if Settings.Restoration.Damage.Enabled.ConvokeTheSpirits and S.ConvokeTheSpirits:IsCastable() and CDsON() and ((Player:BuffUp(S.HeartOfTheWild) or S.HeartOfTheWild:CooldownRemains() > 60 or not S.HeartOfTheWild:IsAvailable()) and (Player:BuffRemains(S.EclipseSolar) > 4 or Player:BuffRemains(S.EclipseLunar) > 4)) then
-    if Press(S.ConvokeTheSpirits, not Target:IsInRange(35)) then return "convoke_the_spirits owl 6"; end
-  end
   -- starsurge,if=spell_targets.starfire<6|!eclipse.in_lunar&spell_targets.starfire<8
   if S.Starsurge:IsReady() and (EnemiesCount8ySplash < 6 or (not EclipseInLunar) and EnemiesCount8ySplash < 8) then
     if Press(S.Starsurge, not Target:IsSpellInRange(S.Starsurge)) then return "starsurge owl 8"; end
@@ -250,7 +246,7 @@ local function Owl()
     if Everyone.CastCycle(S.Sunfire, Enemies8ySplash, EvaluateCycleOwlDoT, not Target:IsSpellInRange(S.Sunfire), nil, nil, M.SunfireMouseover) then return "sunfire owl 12"; end
   end
   -- wrath,if=eclipse.in_solar&spell_targets.starfire=1|eclipse.lunar_next|eclipse.any_next&spell_targets.starfire>1
-  if S.Wrath:IsReady() and (EclipseInSolar and EnemiesCount8ySplash == 1 or EclipseLunarNext or EclipseAnyNext and EnemiesCount8ySplash > 1) then
+  if S.Wrath:IsReady() and (Player:BuffDown(S.CatForm) or not Target:IsInMeleeRange(8)) and (EclipseInSolar and EnemiesCount8ySplash == 1 or EclipseLunarNext or EclipseAnyNext and EnemiesCount8ySplash > 1) then
     if Press(S.Wrath, not Target:IsSpellInRange(S.Wrath), true) then return "wrath owl 14"; end
   end
   -- starfire
@@ -344,10 +340,6 @@ local function Ramp()
   if Player:BuffUp(S.Innervate) and PossibleRejuvenationCount() > 0 and Mouseover and Mouseover:Exists() and Mouseover:BuffRefreshable(S.Rejuvenation) then
     if Press(M.RejuvenationMouseover) then return "rejuvenation_cycle ramp"; end
   end
-  -- convoke_the_spirits
-  --if S.ConvokeTheSpirits:IsReady() and Focus:IsInRange(30) then
-  --  if Press(S.ConvokeTheSpirits) then return "convoke_the_spirits ramp"; end
-  --end
 end
 
 local function Healing()
@@ -468,7 +460,13 @@ local function OutOfCombat()
   end
   -- mark_of_the_wild
   if Settings.Commons.Enabled.MarkOfTheWild and S.MarkOfTheWild:IsCastable() and (Player:BuffDown(S.MarkOfTheWild, true) or Everyone.GroupBuffMissing(S.MarkOfTheWild)) then
-    if Press(M.MarkOfTheWildPlayer) then return "mark_of_the_wild outofcombat 6"; end
+    if Press(M.MarkOfTheWildPlayer) then return "mark_of_the_wild"; end
+  end
+  if Everyone.TargetIsValid() and Target:AffectingCombat() then
+    -- rake,if=buff.shadowmeld.up|buff.prowl.up
+    if S.Rake:IsReady() and (Player:StealthUp(false, true)) then
+      if Press(S.Rake, not Target:IsInMeleeRange(10)) then return "rake"; end
+    end
   end
 end
 

@@ -173,6 +173,12 @@ end
         WR.AddFreeBinds(RareKeys);
         WR.SetupFreeBinds = false;
       end
+      if Object.SpellTable ~= nil then
+        for i, Spell in pairs(Object.SpellTable) do
+          WR.Bind(Spell);
+        end
+        return;
+      end
       local Bind = WR.FreeBinds[#WR.FreeBinds];
       tableremove(WR.FreeBinds, #WR.FreeBinds);
       WR.Unbind(Bind);
