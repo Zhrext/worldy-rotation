@@ -92,7 +92,13 @@ do
     local Usable = MacroID or Object:IsUsable();
     local ShowPooling = Object.SpellID == PoolResource;
     local TargetIsCastingSilence = Target:Exists() and Utils.ValueIsInArray(SilenceIDs, Target:CastSpellID());
-    if ShowPooling or not Usable or OutofRange or (Immovable and (Player:IsMoving() or Player:DebuffUp(QuakingDebuffId, true) or TargetIsCastingSilence)) or (not OffGCD and (Player:CastEnd() - HL.Latency() > 0 or Player:GCDRemains() - HL.Latency() > 0)) then
+    if ShowPooling then
+      WR.MainFrame:ChangeBind(nil);
+      Object.LastDisplayTime = GetTime();
+      return true;
+    end
+    
+    if not Usable or OutofRange or (Immovable and (Player:IsMoving() or Player:DebuffUp(QuakingDebuffId, true) or TargetIsCastingSilence)) or (not OffGCD and (Player:CastEnd() - HL.Latency() > 0 or Player:GCDRemains() - HL.Latency() > 0)) then
       WR.MainFrame:ChangeBind(nil);
       Object.LastDisplayTime = GetTime();
       return false;
