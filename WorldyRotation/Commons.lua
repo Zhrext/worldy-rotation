@@ -62,11 +62,11 @@ end
 do
   local ExplosiveNPCID = 120651;
   function Commons.HandleExplosive(Spell, Macro)
-    if Target:NPCID() == ExplosiveNPCID and Spell:IsReady() then
+    if Target and Target:Exists() and Target:NPCID() == ExplosiveNPCID and Spell:IsReady() then
       if WR.Press(Spell, not Target:IsSpellInRange(Spell)) then return "Handle Explosive"; end
     end
     if Macro then
-      if Mouseover and Mouseover:NPCID() == ExplosiveNPCID and Spell:IsReady() then
+      if Mouseover and Mouseover:Exists() and Mouseover:NPCID() == ExplosiveNPCID and Spell:IsReady() then
         if WR.Press(Macro, not Mouseover:IsSpellInRange(Spell)) then return "Handle Explosive Mouseover"; end
       end
     end

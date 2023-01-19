@@ -450,7 +450,7 @@ local function APL()
 
   if Everyone.TargetIsValid() then
     -- Explosives
-    if (Settings.Commons.Enabled.HandleExplosives) then
+    if (Settings.General.Enabled.HandleExplosives) then
       local ShouldReturn = Everyone.HandleExplosive(S.ThrowGlaive, M.ThrowGlaiveMouseover); if ShouldReturn then return ShouldReturn; end
     end
     -- FodderToTheFlames

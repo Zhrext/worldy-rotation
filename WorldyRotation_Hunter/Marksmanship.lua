@@ -479,7 +479,7 @@ local function APL()
       ShouldReturn = Everyone.InterruptWithStun(S.Intimidation, 40, false, Mouseover, M.IntimidationMouseover); if ShouldReturn then return ShouldReturn; end
     end
     -- Explosives
-    if (Settings.Commons.Enabled.HandleExplosives) then
+    if (Settings.General.Enabled.HandleExplosives) then
       local ShouldReturn = Everyone.HandleExplosive(S.ArcaneShot, M.ArcaneShotMouseover); if ShouldReturn then return ShouldReturn; end
     end
     -- Dispels

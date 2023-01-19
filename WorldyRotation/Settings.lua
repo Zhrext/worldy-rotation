@@ -30,6 +30,8 @@
         -- Dispel
         DispelBuffs = false,
         DispelDebuffs = false,
+        -- Explosives
+        HandleExplosives = false,
         -- Misc
         Racials = false,
         Potions = false,
