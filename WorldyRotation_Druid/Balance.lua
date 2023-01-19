@@ -503,6 +503,10 @@ local function APL()
   end
 
   if Everyone.TargetIsValid() or Player:AffectingCombat() then
+    -- Explosives
+    if (Settings.Commons.Enabled.HandleExplosives) then
+      local ShouldReturn = Everyone.HandleExplosive(S.Moonfire, M.MoonfireMouseover); if ShouldReturn then return ShouldReturn; end
+    end
     Immovable = true --Player:BuffDown(S.StarfallBuff) or Player:BuffRemains(S.StarfallBuff) < 2
     -- Calculate fight_remains
     BossFightRemains = HL.BossFightRemains(nil, true)

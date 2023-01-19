@@ -170,8 +170,15 @@ function Commons.CastCycle(Object, Enemies, Condition, OutofRange, OffGCD, Displ
   end
   if WR.AoEON() then
     local BestUnit, BestConditionValue = nil, nil;
-    for _, CycleUnit in pairs(Enemies) do
-      if not CycleUnit:IsFacingBlacklisted() and not CycleUnit:IsUserCycleBlacklisted() and Condition(CycleUnit) then
+    local CycleUnits = {};
+    if Target and Target:Exists() then
+      tableinsert(CycleUnits, Target);
+    end
+    if Mouseover and Mouseover:Exists() then
+      tableinsert(CycleUnits, Mouseover);
+    end
+    for _, CycleUnit in pairs(CycleUnits) do
+      if not CycleUnit:IsFacingBlacklisted() and not CycleUnit:IsUserCycleBlacklisted() and Condition(CycleUnit) and (CycleUnit:AffectingCombat() or CycleUnit:IsDummy()) then
         BestUnit, BestConditionValue = CycleUnit, Condition(CycleUnit);
       end
     end
@@ -199,7 +206,14 @@ function Commons.CastTargetIf(Object, Enemies, TargetIfMode, TargetIfCondition, 
   end
   if WR.AoEON() then
     local BestUnit, BestConditionValue = nil, nil;
-    for _, CycleUnit in pairs(Enemies) do
+    local CycleUnits = {};
+    if Target and Target:Exists() then
+      tableinsert(CycleUnits, Target);
+    end
+    if Mouseover and Mouseover:Exists() then
+      tableinsert(CycleUnits, Mouseover);
+    end
+    for _, CycleUnit in pairs(CycleUnits) do
       if not CycleUnit:IsFacingBlacklisted() and not CycleUnit:IsUserCycleBlacklisted() and (CycleUnit:AffectingCombat() or CycleUnit:IsDummy())
         and (not BestConditionValue or Utils.CompareThis(TargetIfMode, TargetIfCondition(CycleUnit), BestConditionValue)) then
         BestUnit, BestConditionValue = CycleUnit, TargetIfCondition(CycleUnit);

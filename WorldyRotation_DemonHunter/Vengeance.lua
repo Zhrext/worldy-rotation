@@ -449,6 +449,10 @@ local function APL()
   IsTanking = Player:IsTankingAoE(8) or Player:IsTanking(Target)
 
   if Everyone.TargetIsValid() then
+    -- Explosives
+    if (Settings.Commons.Enabled.HandleExplosives) then
+      local ShouldReturn = Everyone.HandleExplosive(S.ThrowGlaive, M.ThrowGlaiveMouseover); if ShouldReturn then return ShouldReturn; end
+    end
     -- FodderToTheFlames
     if S.ThrowGlaive:IsCastable() and Utils.ValueIsInArray(FodderToTheFlamesDeamonIds, Target:NPCID()) then
       if Press(S.ThrowGlaive, not Target:IsSpellInRange(S.ThrowGlaive)) then return "fodder to the flames"; end
@@ -617,6 +621,7 @@ local function AutoBind()
   Bind(M.InfernalStrikePlayer)
   Bind(M.SigilOfFlamePlayer)
   Bind(M.SigilOfSilencePlayer)
+  Bind(M.ThrowGlaiveMouseover)
 end
 
 local function Init()

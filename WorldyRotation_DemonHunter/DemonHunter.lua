@@ -161,9 +161,11 @@ Macro.DemonHunter.Commons = {
 Macro.DemonHunter.Havoc = MergeTableByKey(Macro.DemonHunter.Commons, {
   MetamorphosisPlayer              = Macro("MetamorphosisPlayer", "/cast [@player] " .. Spell.DemonHunter.Havoc.Metamorphosis:Name()),
   SigilOfMiseryPlayer              = Macro("SigilOfMiseryPlayer", "/cast [@player] " .. Spell.DemonHunter.Havoc.SigilOfMisery:Name()),
+  ThrowGlaiveMouseover             = Macro("ThrowGlaiveMouseover", "/cast [@mouseover] " .. Spell.DemonHunter.Havoc.ThrowGlaive:Name()),
 })
 
 Macro.DemonHunter.Vengeance = MergeTableByKey(Macro.DemonHunter.Commons, {
   InfernalStrikePlayer             = Macro("InfernalStrikePlayer", "/cast [@player] " .. Spell.DemonHunter.Vengeance.InfernalStrike:Name()),
   SigilOfSilencePlayer             = Macro("SigilOfSilencePlayer", "/cast [@player] " .. Spell.DemonHunter.Vengeance.SigilOfSilence:Name()),
+  ThrowGlaiveMouseover             = Macro("ThrowGlaiveMouseover", "/cast [@mouseover] " .. Spell.DemonHunter.Vengeance.ThrowGlaive:Name()),
 })

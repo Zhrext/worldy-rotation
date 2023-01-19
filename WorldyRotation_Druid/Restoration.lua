@@ -256,6 +256,10 @@ local function Owl()
 end
 
 local function Damage()
+  -- Explosives
+  if (Settings.Commons.Enabled.HandleExplosives) then
+    local ShouldReturn = Everyone.HandleExplosive(S.Moonfire, M.MoonfireMouseover); if ShouldReturn then return ShouldReturn; end
+  end
   -- Eclipse Check
   EclipseCheck()
   -- run_action_list,name=cat,if=talent.feral_affinity.enabled

@@ -220,6 +220,10 @@ local function APL()
   end
 
   if Everyone.TargetIsValid() then
+    -- Explosives
+    if (Settings.Commons.Enabled.HandleExplosives) then
+      local ShouldReturn = Everyone.HandleExplosive(S.ThrowGlaive, M.ThrowGlaiveMouseover); if ShouldReturn then return ShouldReturn; end
+    end
     -- Precombat
     if not Player:AffectingCombat() then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
@@ -391,6 +395,7 @@ local function AutoBind()
   Bind(M.MetamorphosisPlayer)
   Bind(M.SigilOfFlamePlayer)
   Bind(M.SigilOfMiseryPlayer)
+  Bind(M.ThrowGlaiveMouseover)
 end
 
 local function Init()
