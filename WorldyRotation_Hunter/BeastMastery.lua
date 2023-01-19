@@ -498,7 +498,7 @@ local function APL()
       local ShouldReturn = Everyone.HandleExplosive(S.CobraShot, M.CobraShotMouseover); if ShouldReturn then return ShouldReturn; end
     end
     -- Dispels
-    if Settings.General.Enabled.DispelDebuffs and not Player:IsCasting() and not Player:IsChanneling() and (Everyone.UnitHasEnrageBuff(Target) or Everyone.UnitHasMagicBuff(Target)) then
+    if Settings.General.Enabled.DispelBuffs and S.TranquilizingShot:IsReady() and not Player:IsCasting() and not Player:IsChanneling() and (Everyone.UnitHasEnrageBuff(Target) or Everyone.UnitHasMagicBuff(Target)) then
       if Press(S.TranquilizingShot, not TargetInRange40y) then return "dispel"; end
     end
     -- auto_shot
