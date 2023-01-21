@@ -1,0 +1,15 @@
+## Interface: 100002
+
+## Title: Worldy|cFFA330C9Rotation|r [|cFF0070DDShaman|r]
+## Author: WorldyRotation Team
+## Notes: Worldy Rotation - Shaman Module.
+
+## DefaultState: Enabled
+## LoadOnDemand: 1
+## Dependencies: WorldyRotation
+
+Settings.lua
+Shaman.lua
+Events.lua
+Enhancement.lua
+Overrides.lua
