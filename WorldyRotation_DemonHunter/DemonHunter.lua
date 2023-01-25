@@ -73,6 +73,7 @@ Spell.DemonHunter.Havoc = MergeTableByKey(Spell.DemonHunter.Commons, {
   FuriousGaze                           = Spell(343311),
   GlaiveTempest                         = Spell(342817),
   Initiative                            = Spell(388108),
+  IsolatedPrey                          = Spell(388113),
   Momentum                              = Spell(206476),
   Ragefire                              = Spell(388107),
   SerratedGlaive                        = Spell(390154),
@@ -85,6 +86,7 @@ Spell.DemonHunter.Havoc = MergeTableByKey(Spell.DemonHunter.Commons, {
   -- Buffs
   ChaosTheoryBuff                       = Spell(390195),
   FuriousGazeBuff                       = Spell(343312),
+  InnerDemonBuff                        = Spell(390145),
   MetamorphosisBuff                     = Spell(162264),
   MomentumBuff                          = Spell(208628),
   TacticalRetreatBuff                   = Spell(389890),

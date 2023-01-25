@@ -86,6 +86,7 @@ Spell.Druid.Balance = MergeTableByKey(Spell.Druid.Commons, {
   Wrath                                 = Spell(190984),
   -- Talents
   AetherialKindling                     = Spell(327541),
+  AstralSmolder                         = Spell(394058),
   BalanceofAllThings                    = Spell(394048),
   CelestialAlignment                    = MultiSpell(194223,383410), -- 194223 without Orbital Strike, 383410 with Orbital Strike
   ElunesGuidance                        = Spell(393991),
@@ -109,6 +110,7 @@ Spell.Druid.Balance = MergeTableByKey(Spell.Druid.Commons, {
   Typhoon                               = Spell(132469),
   TwinMoons                             = Spell(279620),
   UmbralEmbrace                         = Spell(393760),
+  UmbralIntensity                       = Spell(383195),
   WaningTwilight                        = Spell(393956),
   WarriorOfElune                        = Spell(202425),
   WildMushroom                          = Spell(88747),

@@ -263,8 +263,13 @@ local function APL()
     -- pick_up_fragment,type=demon,if=demon_soul_fragments>0
     -- pick_up_fragment,mode=nearest,if=talent.demonic_appetite&fury.deficit>=35&(!cooldown.eye_beam.ready|fury<30)
     -- TODO: Can't detect when orbs actually spawn, we could possibly show a suggested icon when we DON'T want to pick up souls so people can avoid moving?
-    -- vengeful_retreat,use_off_gcd=1,if=talent.initiative&talent.essence_break&time>1&(cooldown.essence_break.remains>15|cooldown.essence_break.remains<gcd.max&(!talent.demonic|buff.metamorphosis.up|cooldown.eye_beam.remains>15+(10*talent.cycle_of_hatred)))
-    if Settings.Havoc.Enabled.VengefulRetreat and S.VengefulRetreat:IsCastable() and (S.Initiative:IsAvailable() and S.EssenceBreak:IsAvailable() and HL.CombatTime() > 1 and (S.EssenceBreak:CooldownRemains() > 15 or S.EssenceBreak:CooldownRemains() < Player:GCD() + 0.5 and ((not S.Demonic:IsAvailable()) or Player:BuffUp(S.MetamorphosisBuff) or S.EyeBeam:CooldownRemains() > 15 + (10 * num(S.CycleOfHatred:IsAvailable()))))) and WR.Toggle(4) then
+    -- annihilation,if=buff.inner_demon.up&cooldown.metamorphosis.remains<=gcd*3
+    if S.Annihilation:IsReady() and (Player:BuffUp(S.InnerDemonBuff) and S.Metamorphosis:CooldownRemains() <= Player:GCD() * 3) then
+      if Press(S.Annihilation, not IsInMeleeRange(5)) then return "annihilation main 2"; end
+    end
+    -- vengeful_retreat,use_off_gcd=1,if=talent.initiative&talent.essence_break&time>1&gcd.remains<0.4&(cooldown.essence_break.remains>15|cooldown.essence_break.remains<gcd.max&(!talent.demonic|buff.metamorphosis.up|cooldown.eye_beam.remains>15+(10*talent.cycle_of_hatred)))
+    -- Note: Add 250ms to GCDRemains check to allow for internet and human latencies
+    if Settings.Havoc.Enabled.VengefulRetreat and WR.Toggle(4) and S.VengefulRetreat:IsCastable() and (S.Initiative:IsAvailable() and S.EssenceBreak:IsAvailable() and HL.CombatTime() > 1 and Player:GCDRemains() < 0.65 and (S.EssenceBreak:CooldownRemains() > 15 or S.EssenceBreak:CooldownRemains() < Player:GCD() + 0.5 and ((not S.Demonic:IsAvailable()) or Player:BuffUp(S.MetamorphosisBuff) or S.EyeBeam:CooldownRemains() > 15 + (10 * num(S.CycleofHatred:IsAvailable()))))) then
       if Press(S.VengefulRetreat, not Target:IsInMeleeRange(8)) then return "vengeful_retreat main 4"; end
     end
     -- vengeful_retreat,use_off_gcd=1,if=talent.initiative&!talent.essence_break&time>1&!buff.momentum.up
@@ -291,6 +296,10 @@ local function APL()
     if S.GlaiveTempest:IsReady() then
       if Press(S.GlaiveTempest) then return "glaive_tempest main 14"; end
     end
+    -- annihilation,if=buff.inner_demon.up&cooldown.eye_beam.remains<=gcd
+    if S.Annihilation:IsReady() and (Player:BuffUp(S.InnerDemonBuff) and S.EyeBeam:CooldownRemains() <= Player:GCD()) then
+      if Press(S.Annihilation, not IsInMeleeRange(5)) then return "annihilation main 16"; end
+    end
     -- eye_beam,if=active_enemies>desired_targets|raid_event.adds.in>(40-talent.cycle_of_hatred*15)&!debuff.essence_break.up
     if S.EyeBeam:IsReady() and (Target:DebuffDown(S.EssenceBreakDebuff)) then
       if Press(S.EyeBeam, not IsInMeleeRange(20)) then return "eye_beam main 18"; end
@@ -314,6 +323,10 @@ local function APL()
     -- immolation_aura,if=!buff.immolation_aura.up&(!talent.ragefire|active_enemies>desired_targets|raid_event.adds.in>15)
     if S.ImmolationAura:IsCastable() and (Player:BuffDown(S.ImmolationAuraBuff)) then
       if Press(S.ImmolationAura, not IsInMeleeRange(8)) then return "immolation_aura main 26"; end
+    end
+    -- fel_rush,if=talent.isolated_prey&active_enemies=1&fury.deficit>=35
+    if S.FelRush:IsCastable() and (S.IsolatedPrey:IsAvailable() and EnemiesCount8 == 1 and Player:FuryDeficit() >= 35) and Settings.Havoc.Enabled.FelRush and WR.Toggle(4) then
+      if Press(S.FelRush, not Target:IsInMeleeRange(8)) then return "fel_rush main 27"; end
     end
     -- felblade,if=fury.deficit>=40
     if S.Felblade:IsCastable() and (Player:FuryDeficit() >= 40) and WR.Toggle(4) then
