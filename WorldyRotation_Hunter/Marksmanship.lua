@@ -277,7 +277,7 @@ local function St()
     if Press(S.RapidFire, not TargetInRange40y) then return "rapid_fire st 22"; end
   end
   -- trueshot,if=!raid_event.adds.exists|!raid_event.adds.up&(raid_event.adds.duration+raid_event.adds.in<25|raid_event.adds.in>60)|raid_event.adds.up&raid_event.adds.remains>10|active_enemies>1|fight_remains<25
-  if S.Trueshot:IsReady() and CDsON() and not Player:IsCasting(S.RapidFire) and not Player:IsChanneling(S.RapidFire) and (VarTrueshotReady) then
+  if S.Trueshot:IsReady() and CDsON() and not Player:IsCasting(S.SteadyShot) and not Player:IsCasting(S.RapidFire) and not Player:IsChanneling(S.RapidFire) and (VarTrueshotReady) then
     if Press(S.Trueshot, not TargetInRange40y, nil, true) then return "trueshot st 24"; end
   end
   -- multishot,if=buff.bombardment.up&buff.trick_shots.down&active_enemies>1|talent.salvo&buff.salvo.down&!talent.volley
@@ -373,7 +373,7 @@ local function Trickshots()
     if Press(M.VolleyCursor)  then return "volley trickshots 20"; end
   end
   -- trueshot
-  if S.Trueshot:IsReady() and CDsON() and not Player:IsCasting(S.RapidFire) and not Player:IsChanneling(S.RapidFire) then
+  if S.Trueshot:IsReady() and CDsON() and not Player:IsCasting(S.SteadyShot) and not Player:IsCasting(S.RapidFire) and not Player:IsChanneling(S.RapidFire) then
     if Press(S.Trueshot, not TargetInRange40y) then return "trueshot trickshots 22"; end
   end
   -- rapid_fire,if=buff.trick_shots.remains>=execute_time&(talent.surging_shots|buff.double_tap.up&talent.streamline&!ca_active)
@@ -548,6 +548,7 @@ local function AutoBind()
   Bind(S.SummonPet4)
   Bind(S.SummonPet5)
   Bind(S.Volley)
+  Bind(S.WailingArrow)
   
   -- Bind Items
   Bind(M.Trinket1)
