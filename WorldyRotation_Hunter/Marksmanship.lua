@@ -179,16 +179,20 @@ local function Precombat()
   -- food
   -- misdirection
   if Focus and Focus:Exists() and S.Misdirection:IsReady() then
-    if Press(M.MisdirectionFocus) then return "misdirection precombat 0"; end
+    if Press(M.MisdirectionFocus) then return "misdirection opener"; end
   end
   -- summon_pet,if=!talent.lone_wolf
   if S.SummonPet:IsCastable() and (not S.LoneWolf:IsAvailable()) then
-    if Press(SummonPetSpells[Settings.Commons2.SummonPetSlot]) then return "Summon Pet"; end
+    if Press(SummonPetSpells[Settings.Commons2.SummonPetSlot]) then return "Summon Pet opener"; end
   end
   -- snapshot_stats
   -- double_tap,precast_time=10
   if S.DoubleTap:IsReady() and CDsON() then
     if Press(S.DoubleTap) then return "double_tap opener"; end
+  end
+  -- salvo,precast_time=10
+  if S.Salvo:IsCastable() and CDsON() then
+    if Press(S.Salvo) then return "salvo opener"; end
   end
   -- aimed_shot,if=active_enemies<3&(!talent.volley|active_enemies<2)
   if S.AimedShot:IsReady() and (not Player:IsCasting(S.AimedShot)) and (EnemiesCount10ySplash < 3 and ((not S.Volley:IsAvailable()) or EnemiesCount10ySplash < 2)) then
@@ -224,6 +228,10 @@ local function Cds()
   -- lights_judgment,if=buff.trueshot.down
   if S.LightsJudgment:IsReady() and (Player:BuffDown(S.TrueshotBuff)) then
     if Press(S.LightsJudgment, not Target:IsSpellInRange(S.LightsJudgment)) then return "lights_judgment cds 10"; end
+  end
+  -- salvo
+  if S.Salvo:IsCastable() then
+    if Press(S.Salvo) then return "salvo cds 14"; end
   end
 end
 
@@ -542,6 +550,7 @@ local function AutoBind()
   Bind(S.TarTrap)
   Bind(S.TranquilizingShot)
   Bind(S.Trueshot)
+  Bind(S.Salvo)  
   Bind(S.SummonPet)
   Bind(S.SummonPet2)
   Bind(S.SummonPet3)
