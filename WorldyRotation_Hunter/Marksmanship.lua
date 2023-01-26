@@ -186,10 +186,6 @@ local function Precombat()
     if Press(SummonPetSpells[Settings.Commons2.SummonPetSlot]) then return "Summon Pet opener"; end
   end
   -- snapshot_stats
-  -- double_tap,precast_time=10
-  if S.DoubleTap:IsReady() and CDsON() then
-    if Press(S.DoubleTap) then return "double_tap opener"; end
-  end
   -- salvo,precast_time=10
   if S.Salvo:IsCastable() and CDsON() then
     if Press(S.Salvo) then return "salvo opener"; end
@@ -230,7 +226,7 @@ local function Cds()
     if Press(S.LightsJudgment, not Target:IsSpellInRange(S.LightsJudgment)) then return "lights_judgment cds 10"; end
   end
   -- salvo
-  if S.Salvo:IsCastable() then
+  if S.Salvo:IsCastable() and (EnemiesCount10ySplash > 2 or S.Volley:CooldownRemains() < 10) then
     if Press(S.Salvo) then return "salvo cds 14"; end
   end
 end
@@ -243,6 +239,10 @@ local function St()
   -- kill_shot
   if S.KillShot:IsReady() then
     if Press(S.KillShot, not TargetInRange40y) then return "kill_shot st 4"; end
+  end
+  -- volley,if=buff.salvo.up
+  if S.Volley:IsReady() and (Player:BuffUp(S.SalvoBuff)) then
+    if Press(S.Volley, not TargetInRange40y)  then return "volley st 5"; end
   end
   -- kill_shot_mouseover
   if Mouseover:Exists() and S.KillShot:IsCastable() and Mouseover:HealthPercentage() <= 20  then
@@ -259,10 +259,6 @@ local function St()
   -- explosive_shot
   if S.ExplosiveShot:IsReady() then
     if Press(S.ExplosiveShot, not TargetInRange40y) then return "explosive_shot st 10"; end
-  end
-  -- double_tap,if=(cooldown.rapid_fire.remains<gcd|ca_active|!talent.streamline)&(!raid_event.adds.exists|raid_event.adds.up&(raid_event.adds.in<10&raid_event.adds.remains<3|raid_event.adds.in>cooldown|active_enemies>1)|!raid_event.adds.up&(raid_event.adds.count=1|raid_event.adds.in>cooldown))
-  if S.DoubleTap:IsReady() and ((S.RapidFire:CooldownRemains() < Player:GCD() or Target:HealthPercentage() > 70 or not S.Streamline:IsAvailable())) and CDsON() then
-    if Press(S.DoubleTap) then return "double_tap st 12"; end
   end
   -- stampede
   if S.Stampede:IsCastable() and CDsON() then
@@ -281,7 +277,7 @@ local function St()
     if Press(M.VolleyCursor, not TargetInRange40y)  then return "volley st 20"; end
   end
   -- rapid_fire,if=talent.surging_shots|buff.double_tap.up&talent.streamline&!ca_active
-  if S.RapidFire:IsCastable() and (S.SurgingShots:IsAvailable() or Player:BuffUp(S.DoubleTapBuff) and S.Streamline:IsAvailable()) then
+  if S.RapidFire:IsCastable() and (S.SurgingShots:IsAvailable()) then
     if Press(S.RapidFire, not TargetInRange40y) then return "rapid_fire st 22"; end
   end
   -- trueshot,if=!raid_event.adds.exists|!raid_event.adds.up&(raid_event.adds.duration+raid_event.adds.in<25|raid_event.adds.in>60)|raid_event.adds.up&raid_event.adds.remains>10|active_enemies>1|fight_remains<25
@@ -348,10 +344,6 @@ local function Trickshots()
   if Mouseover:Exists() and S.KillShot:IsCastable() and Mouseover:HealthPercentage() <= 20  then
     if Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover cleave 38"; end
   end
-  -- double_tap,if=cooldown.rapid_fire.remains<gcd|ca_active|!talent.streamline
-  if S.DoubleTap:IsReady() and (S.RapidFire:CooldownRemains() < Player:GCD() or not S.Streamline:IsAvailable()) and CDsON() then
-    if Press(S.DoubleTap) then return "double_tap trickshots 6"; end
-  end
   -- explosive_shot
   if S.ExplosiveShot:IsReady() then
     if Press(S.ExplosiveShot, not TargetInRange40y) then return "explosive_shot trickshots 8"; end
@@ -385,7 +377,7 @@ local function Trickshots()
     if Press(S.Trueshot, not TargetInRange40y) then return "trueshot trickshots 22"; end
   end
   -- rapid_fire,if=buff.trick_shots.remains>=execute_time&(talent.surging_shots|buff.double_tap.up&talent.streamline&!ca_active)
-  if S.RapidFire:IsCastable() and (Player:BuffRemains(S.TrickShotsBuff) >= S.RapidFire:ExecuteTime() and (S.SurgingShots:IsAvailable() or Player:BuffUp(S.DoubleTapBuff) and S.Streamline:IsAvailable())) then
+  if S.RapidFire:IsCastable() and (Player:BuffRemains(S.TrickShotsBuff) >= S.RapidFire:ExecuteTime() and S.SurgingShots:IsAvailable()) then
     if Press(S.RapidFire, not TargetInRange40y) then return "rapid_fire trickshots 24"; end
   end
   -- aimed_shot,target_if=min:dot.serpent_sting.remains+action.serpent_sting.in_flight_to_target*99,if=talent.serpentstalkers_trickery&(buff.trick_shots.remains>=execute_time&(buff.precise_shots.down|buff.trueshot.up|full_recharge_time<cast_time+gcd))
@@ -531,7 +523,6 @@ local function AutoBind()
   Bind(S.ChimaeraShot)
   Bind(S.Berserking)
   Bind(S.BloodFury)
-  Bind(S.DoubleTap)
   Bind(S.CounterShot)
   Bind(S.DeathChakram)
   Bind(S.Exhilaration)
