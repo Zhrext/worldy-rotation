@@ -268,7 +268,7 @@ local function HuntRamp()
     if Press(S.Shear, not IsInMeleeRange) then return "shear huntramp 12"; end
   end
   -- throw_glaive
-  if S.ThrowGlaive:IsCastable() then
+  if S.ThrowGlaive:IsCastable() and Target:AffectingCombat() then
     if Press(S.ThrowGlaive, not Target:IsSpellInRange(S.ThrowGlaive)) then return "throw_glaive huntramp 14"; end
   end
   -- felblade
@@ -307,7 +307,7 @@ local function EDRamp()
     if Press(S.Shear, not IsInMeleeRange) then return "shear edramp 12"; end
   end
   -- throw_glaive
-  if S.ThrowGlaive:IsCastable() then
+  if S.ThrowGlaive:IsCastable() and Target:AffectingCombat() then
     if Press(S.ThrowGlaive, not Target:IsSpellInRange(S.ThrowGlaive)) then return "throw_glaive edramp 14"; end
   end
   -- felblade
@@ -346,7 +346,7 @@ local function SCRamp()
     if Press(S.Shear, not IsInMeleeRange) then return "shear scramp 12"; end
   end
   -- throw_glaive
-  if S.ThrowGlaive:IsCastable() then
+  if S.ThrowGlaive:IsCastable()  and Target:AffectingCombat()then
     if Press(S.ThrowGlaive, not Target:IsSpellInRange(S.ThrowGlaive)) then return "throw_glaive scramp 14"; end
   end
   -- felblade
@@ -398,7 +398,7 @@ local function FD()
     if Press(S.Shear, not IsInMeleeRange) then return "shear fd 18"; end
   end
   -- throw_glaive
-  if S.ThrowGlaive:IsCastable() then
+  if S.ThrowGlaive:IsCastable() and Target:AffectingCombat() then
     if Press(S.ThrowGlaive, not Target:IsSpellInRange(S.ThrowGlaive)) then return "throw_glaive fd 20"; end
   end
   -- felblade
@@ -479,7 +479,7 @@ local function APL()
     end
     -- potion
     -- trinkets
-    if CDsON() and Settings.General.Enabled.Trinkets then
+    if CDsON() and Settings.General.Enabled.Trinkets and Target:IsInMeleeRange(8) then
       -- use_item,slot=trinket1
       local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
       if Trinket1ToUse then
@@ -594,7 +594,7 @@ local function APL()
       if Press(S.Shear) then return "shear main 30"; end
     end
     -- throw_glaive
-    if S.ThrowGlaive:IsCastable() then
+    if S.ThrowGlaive:IsCastable() and Target:AffectingCombat() then
       if Press(S.ThrowGlaive, not Target:IsSpellInRange(S.ThrowGlaive)) then return "throw_glaive main 34"; end
     end
     -- felblade
