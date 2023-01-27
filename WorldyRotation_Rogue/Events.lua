@@ -12,9 +12,9 @@ local Arena, Boss, Nameplate = Unit.Arena, Unit.Boss, Unit.Nameplate
 local Party, Raid = Unit.Party, Unit.Raid
 local Spell = HL.Spell
 local Item = HL.Item
--- HeroRotation
-local HR = HeroRotation
-local Rogue = HR.Commons.Rogue
+-- WorldyRotation
+local WR = WorldyRotation
+local Rogue = WR.Commons.Rogue
 -- Lua
 local C_Timer = C_Timer
 local mathmax = math.max
@@ -25,8 +25,6 @@ local tableinsert = table.insert
 local UnitAttackSpeed = UnitAttackSpeed
 local GetTime = GetTime
 -- File Locals
-
-
 
 --- ============================ CONTENT ============================
 
@@ -208,8 +206,9 @@ do
     function(_, _, _, _, _, _, _, _, _, _, _, SpellID, _, _, Amount, Over )
       if SpellID == 185763 then
         if (GetTime() - FanStart) > 0.5 then
+          -- Subsequent Fan the Hammer procs are reduced by 1 CP
+          FanCP = mathmin(Rogue.CPMaxSpend(), Player:ComboPoints() + Amount + (mathmax(0, Amount - 1) * mathmin(2, Player:BuffStack(OpportunityBuff) - 1)))
           FanStart = GetTime()
-          FanCP = mathmin(Rogue.CPMaxSpend(), Player:ComboPoints() + (Amount * mathmin(3, Player:BuffStack(OpportunityBuff))))
         end
       end
     end,
@@ -363,3 +362,4 @@ do
     return BaseCritChance
   end
 end
+
