@@ -1,0 +1,15 @@
+## Interface: 100005
+
+## Title: Worldy|cFFA330C9Rotation|r [|cFF33937FEvoker|r]
+## Author: Worldy Team
+## Notes: Worldy Rotation - Evoker Module.
+
+## DefaultState: Enabled
+## LoadOnDemand: 1
+## Dependencies: WorldyRotation
+
+Settings.lua
+Evoker.lua
+Events.lua
+Devastation.lua
+Overrides.lua

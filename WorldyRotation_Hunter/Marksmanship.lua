@@ -241,8 +241,8 @@ local function St()
     if Press(S.KillShot, not TargetInRange40y) then return "kill_shot st 4"; end
   end
   -- volley,if=buff.salvo.up
-  if S.Volley:IsReady() and (Player:BuffUp(S.SalvoBuff)) then
-    if Press(S.Volley, not TargetInRange40y)  then return "volley st 5"; end
+  if Settings.Marksmanship.UseVolley and S.Volley:IsReady() and Mouseover:GUID() == Target:GUID() and (Player:BuffUp(S.SalvoBuff)) then
+    if Press(M.VolleyCursor, not TargetInRange40y)  then return "volley st 5"; end
   end
   -- kill_shot_mouseover
   if Mouseover:Exists() and S.KillShot:IsCastable() and Mouseover:HealthPercentage() <= 20  then

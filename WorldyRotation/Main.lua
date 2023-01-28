@@ -327,6 +327,9 @@ local EnabledRotation = {
   --  [103]   = "WorldyRotation_Druid",         -- Feral
   --  [104]   = "WorldyRotation_Druid",         -- Guardian
     [105]   = "WorldyRotation_Druid",         -- Restoration
+    -- Evoker
+      [1467]  = "WorldyRotation_Evoker",        -- Devastation
+      --[1468] = "WorldyRotation_Evoker",         -- Preservation
   ---- Hunter
     [253]   = "WorldyRotation_Hunter",        -- Beast Mastery
     [254]   = "WorldyRotation_Hunter",        -- Marksmanship
