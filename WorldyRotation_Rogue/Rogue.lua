@@ -15,9 +15,10 @@ local Spell      = HL.Spell
 local MultiSpell = HL.MultiSpell
 local Item       = HL.Item
 local MergeTableByKey = HL.Utils.MergeTableByKey
--- HeroRotation
-local HR = HeroRotation
-local Everyone = HR.Commons.Everyone
+-- WorldyRotation
+local WR = WorldyRotation
+local Everyone = WR.Commons.Everyone
+local Macro       = WR.Macro
 -- Lua
 local mathmin = math.min
 local pairs = pairs
@@ -25,23 +26,24 @@ local pairs = pairs
 local Commons = {}
 
 --- ======= GLOBALIZE =======
-HR.Commons.Rogue = Commons
+WR.Commons.Rogue = Commons
 
 --- ============================ CONTENT ============================
 -- GUI Settings
 local Settings = {
-  General = HR.GUISettings.General,
-  Commons = HR.GUISettings.APL.Rogue.Commons,
-  Commons2 = HR.GUISettings.APL.Rogue.Commons2,
-  Assassination = HR.GUISettings.APL.Rogue.Assassination,
-  Outlaw = HR.GUISettings.APL.Rogue.Outlaw,
-  Subtlety = HR.GUISettings.APL.Rogue.Subtlety
+  General = WR.GUISettings.General,
+  Commons = WR.GUISettings.APL.Rogue.Commons,
+  Commons2 = WR.GUISettings.APL.Rogue.Commons2,
+  Assassination = WR.GUISettings.APL.Rogue.Assassination,
+  Outlaw = WR.GUISettings.APL.Rogue.Outlaw,
+  Subtlety = WR.GUISettings.APL.Rogue.Subtlety
 }
 
 -- Spells
 if not Spell.Rogue then Spell.Rogue = {} end
 
 Spell.Rogue.Commons = {
+  Sanguine                = Spell(226510),
   -- Racials
   AncestralCall           = Spell(274738),
   ArcanePulse             = Spell(260364),
@@ -151,6 +153,7 @@ Spell.Rogue.Assassination = MergeTableByKey(Spell.Rogue.Commons, {
   ShivDebuff              = Spell(319504),
   VenomRush               = Spell(152152),
   -- PvP
+  DeathfromAbove          = Spell(269513),
 })
 
 Spell.Rogue.Outlaw = MergeTableByKey(Spell.Rogue.Commons, {
@@ -179,10 +182,12 @@ Spell.Rogue.Outlaw = MergeTableByKey(Spell.Rogue.Commons, {
   ImprovedAdrenalineRush  = Spell(395422),
   KeepItRolling           = Spell(381989),
   KillingSpree            = Spell(51690),
+  LoadedDice              = Spell(256170),
   LoadedDiceBuff          = Spell(256171),
   PreyontheWeak           = Spell(131511),
   PreyontheWeakDebuff     = Spell(255909),
   QuickDraw               = Spell(196938),
+  SummarilyDispatched     = Spell(381990),
   SwiftSlasher            = Spell(381988),
   TakeEmBySurpriseBuff    = Spell(385907),
   Weaponmaster            = Spell(200733),
@@ -235,29 +240,65 @@ Spell.Rogue.Subtlety = MergeTableByKey(Spell.Rogue.Commons, {
   SecretTechnique         = Spell(280719),
   ShadowFocus             = Spell(108209),
   ShurikenTornado         = Spell(277925),
-  SilentStorm             = Spell(385722),
-  SilentStormBuff         = Spell(385727),
   TheRotten               = Spell(382015),
   TheRottenBuff           = Spell(394203),
   Weaponmaster            = Spell(193537),
+  SilentStormBuff         = Spell(385722),
   -- PvP
 })
 
 -- Items
 if not Item.Rogue then Item.Rogue = {} end
-Item.Rogue.Assassination = {
-  -- Trinkets
+Item.Rogue.Commons = {
+  AlgetharPuzzleBox                   = Item(193701, {13, 14}),
+  ManicGrieftorch                     = Item(194308, {13, 14}),
+  WindscarWhetstone                   = Item(137486, {13, 14}),
+  ElementalPotionOfPower              = Item(191389),
+  Healthstone                         = Item(5512),  
+  RefreshingHealingPotion             = Item(191380), 
+
 }
 
-Item.Rogue.Outlaw = {
+Item.Rogue.Assassination = MergeTableByKey(Item.Rogue.Commons, {
   -- Trinkets
-  ManicGrieftorch         = Item(194308, {13, 14}),
-  WindscarWhetstone       = Item(137486, {13, 14}),
+})
+
+Item.Rogue.Outlaw = MergeTableByKey(Item.Rogue.Commons, {
+  -- Trinkets
+})
+
+Item.Rogue.Subtlety = MergeTableByKey(Item.Rogue.Commons, {
+  -- Trinkets
+})
+
+-- Macro
+if not Macro.Rogue then Macro.Rogue = {}; end
+Macro.Rogue.Commons = {
+  Healthstone                                 = Macro("Healthstone", "/use Healthstone"),
+  ManicGrieftorch                             = Macro("ManicGrieftorch", "/use Manic Grieftorch"),
+  ElementalPotionOfPower                      = Macro("ElementalPotionOfPower", "/use Elemental Potion of Power"),
+  RefreshingHealingPotion                     = Macro("RefreshingHealingPotion", "/use Refreshing Healing Potion"),
+  SinisterStrikeMouseover                     = Macro("SinisterStrikeMouseover", "/cast [@mouseover] Sinister Strike"),
+  KickMouseover                               = Macro("KickMouseover", "/cast [@mouseover] Kick"),
+  BlindMouseover                              = Macro("BlindMouseover", "/cast [@mouseover] Blind"),
+  CheapShotMouseover                          = Macro("CheapShotMouseover", "/cast [@mouseover] Cheap Shot"),
+  KidneyShotMouseover                         = Macro("KidneyShotMouseover", "/cast [@mouseover] Kidney Shot"),
 }
 
-Item.Rogue.Subtlety = {
-  -- Trinkets
-}
+Macro.Rogue.Outlaw = MergeTableByKey(Macro.Rogue.Commons, {
+  PistolShotMouseover                     = Macro("PistolShotMouseover", "/cast [@mouseover] Pistol Shot"),
+  --Dispatch                                = Macro("Dispatch", "/cast Cold Blood\n /stopcasting\n /cast Dispatch"),
+
+  
+})
+
+Macro.Rogue.Subtlety = MergeTableByKey(Macro.Rogue.Commons, {
+  SymbolsofDeathShadowDance             = Macro("SymbolsofDeathShadowDance", "/cast Symbols of Death /cast Shadow Dance"),
+})
+
+Macro.Rogue.Assassination = MergeTableByKey(Macro.Rogue.Commons, {
+})
+
 
 function Commons.StealthSpell()
   return Spell.Rogue.Commons.Subterfuge:IsAvailable() and Spell.Rogue.Commons.Stealth2 or Spell.Rogue.Commons.Stealth
@@ -270,7 +311,7 @@ end
 -- Stealth
 function Commons.Stealth(Stealth, Setting)
   if Settings.Commons2.StealthOOC and Stealth:IsCastable() and Player:StealthDown() then
-    if HR.Cast(Stealth, Settings.Commons2.OffGCDasOffGCD.Stealth) then return "Cast Stealth (OOC)" end
+    if WR.Cast(Stealth, Settings.Commons2.OffGCDasOffGCD.Stealth) then return "Cast Stealth (OOC)" end
   end
 
   return false
@@ -282,7 +323,7 @@ do
 
   function Commons.CrimsonVial()
     if CrimsonVial:IsCastable() and Player:HealthPercentage() <= Settings.Commons2.CrimsonVialHP then
-      if HR.Cast(CrimsonVial, Settings.Commons2.GCDasOffGCD.CrimsonVial) then return "Cast Crimson Vial (Defensives)" end
+      if WR.Cast(CrimsonVial, Settings.Commons2.GCDasOffGCD.CrimsonVial) then return "Cast Crimson Vial (Defensives)" end
     end
 
     return false
@@ -295,7 +336,7 @@ do
 
   function Commons.Feint()
     if Feint:IsCastable() and Player:BuffDown(Feint) and Player:HealthPercentage() <= Settings.Commons2.FeintHP then
-      if HR.Cast(Feint, Settings.Commons2.GCDasOffGCD.Feint) then return "Cast Feint (Defensives)" end
+      if WR.Cast(Feint, Settings.Commons2.GCDasOffGCD.Feint) then return "Cast Feint (Defensives)" end
     end
   end
 end
@@ -316,7 +357,7 @@ do
   local function CastPoison(Poison)
     PoisonRemains = Player:BuffRemains(Poison)
     if PoisonRemains < (Player:AffectingCombat() and Settings.Commons.PoisonRefreshCombat * 60 or Settings.Commons.PoisonRefresh * 60) then
-      HR.CastSuggested(Poison)
+      --WR.Cast(Poison)
     end
   end
 
@@ -377,7 +418,7 @@ function Commons.MfDSniping(MarkedforDeath)
       end
     end
     if BestUnit and BestUnit:GUID() ~= Target:GUID() then
-      HR.CastLeftNameplate(BestUnit, MarkedforDeath)
+      WR.CastLeftNameplate(BestUnit, MarkedforDeath)
     end
   end
 end
