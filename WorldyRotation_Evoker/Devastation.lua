@@ -73,6 +73,7 @@ local PlayerHaste
 local BossFightRemains = 11111
 local FightRemains = 11111
 local GCDMax
+local Immovable
 
 -- Stun Interrupts
 local StunInterrupts = {
@@ -119,11 +120,11 @@ local function Precombat()
   end
   -- firestorm,if=talent.firestorm
   if S.Firestorm:IsCastable() then
-    if Press(S.Firestorm, not Target:IsInRange(25), true) then return "firestorm precombat"; end
+    if Press(S.Firestorm, not Target:IsInRange(25), Immovable) then return "firestorm precombat"; end
   end
   -- living_flame,if=!talent.firestorm
   if S.LivingFlame:IsCastable() and (not S.Firestorm:IsAvailable()) then
-    if Press(S.LivingFlame, not Target:IsInRange(25), true) then return "living_flame precombat"; end
+    if Press(S.LivingFlame, not Target:IsInRange(25), Immovable) then return "living_flame precombat"; end
   end
   -- azure_strike
   if S.AzureStrike:IsCastable() then
@@ -241,7 +242,7 @@ local function Aoe()
   --end
   -- firestorm
   if S.Firestorm:IsCastable() then
-    if Press(S.Firestorm, not Target:IsInRange(25), true) then return "firestorm aoe 12"; end
+    if Press(S.Firestorm, not Target:IsInRange(25), Immovable) then return "firestorm aoe 12"; end
   end
   -- shattering_star
   if S.ShatteringStar:IsCastable() then
@@ -257,7 +258,7 @@ local function Aoe()
   end
   -- living_flame,if=buff.burnout.up&buff.leaping_flames.up&!buff.essence_burst.up
   if S.LivingFlame:IsCastable() and (Player:BuffUp(S.BurnoutBuff) and Player:BuffUp(S.LeapingFlamesBuff) and Player:BuffDown(S.EssenceBurstBuff)) then
-    if Press(S.LivingFlame, not Target:IsSpellInRange(S.LivingFlame), true) then return "living_flame aoe 20"; end
+    if Press(S.LivingFlame, not Target:IsSpellInRange(S.LivingFlame), Immovable) then return "living_flame aoe 20"; end
   end
   -- pyre,if=cooldown.dragonrage.remains>=10&spell_targets.pyre>=4
   if S.Pyre:IsReady() and ((S.Dragonrage:CooldownRemains() >= 10 or (not CDsON())) and EnemiesCount8ySplash >= 4) then
@@ -269,11 +270,11 @@ local function Aoe()
   end
   -- disintegrate,chain=1,if=!talent.shattering_star|cooldown.shattering_star.remains>5|essence>essence.max-1|buff.essence_burst.stack==buff.essence_burst.max_stack
   if S.Disintegrate:IsReady() and ((not S.ShatteringStar:IsAvailable()) or S.ShatteringStar:CooldownRemains() > 5 or Player:Essence() > Player:EssenceMax() - 1 or Player:BuffStack(S.EssenceBurstBuff) == MaxEssenceBurstStack) then
-    if Press(S.Disintegrate, not Target:IsSpellInRange(S.Disintegrate), true) then return "disintegrate aoe 26"; end
+    if Press(S.Disintegrate, not Target:IsSpellInRange(S.Disintegrate), Immovable) then return "disintegrate aoe 26"; end
   end
   -- living_flame,if=talent.snapfire&buff.burnout.up
   if S.LivingFlame:IsCastable() and (S.Snapfire:IsAvailable() and Player:BuffUp(S.BurnoutBuff)) then
-    if Press(S.LivingFlame, not Target:IsSpellInRange(S.LivingFlame), true) then return "living_flame aoe 28"; end
+    if Press(S.LivingFlame, not Target:IsSpellInRange(S.LivingFlame), Immovable) then return "living_flame aoe 28"; end
   end
   -- azure_strike
   if S.AzureStrike:IsCastable() then
@@ -314,7 +315,7 @@ local function ST()
   end
   -- living_flame,if=buff.dragonrage.up&buff.dragonrage.remains<(buff.essence_burst.max_stack-buff.essence_burst.stack)*gcd.max&buff.burnout.up
   if S.LivingFlame:IsCastable() and (VarDragonrageUp and VarDragonrageRemains < (MaxEssenceBurstStack - Player:BuffStack(S.EssenceBurstBuff)) * GCDMax and Player:BuffUp(S.BurnoutBuff)) then
-    if Press(S.LivingFlame, not Target:IsSpellInRange(S.LivingFlame), true) then return "living_flame st 12"; end
+    if Press(S.LivingFlame, not Target:IsSpellInRange(S.LivingFlame), Immovable) then return "living_flame st 12"; end
   end
   -- azure_strike,if=buff.dragonrage.up&buff.dragonrage.remains<(buff.essence_burst.max_stack-buff.essence_burst.stack)*gcd.max
   if S.AzureStrike:IsCastable() and (VarDragonrageUp and VarDragonrageRemains < (MaxEssenceBurstStack - Player:BuffStack(S.EssenceBurstBuff)) * GCDMax) then
@@ -322,11 +323,11 @@ local function ST()
   end
   -- firestorm,if=!buff.dragonrage.up&debuff.shattering_star_debuff.down|buff.snapfire.up
   if S.Firestorm:IsCastable() and ((not VarDragonrageUp) and Target:DebuffDown(S.ShatteringStar) or Player:BuffUp(S.SnapfireBuff)) then
-    if Press(S.Firestorm, not Target:IsInRange(25), true) then return "firestorm st 18"; end
+    if Press(S.Firestorm, not Target:IsInRange(25), Immovable) then return "firestorm st 18"; end
   end
   -- living_flame,if=buff.burnout.up&buff.essence_burst.stack<buff.essence_burst.max_stack&essence<essence.max-1
   if S.LivingFlame:IsCastable() and (Player:BuffUp(S.BurnoutBuff) and Player:BuffStack(S.EssenceBurstBuff) < MaxEssenceBurstStack and Player:Essence() < Player:EssenceMax() - 1) then
-    if Press(S.LivingFlame, not Target:IsSpellInRange(S.LivingFlame), true) then return "living_flame st 20"; end
+    if Press(S.LivingFlame, not Target:IsSpellInRange(S.LivingFlame), Immovable) then return "living_flame st 20"; end
   end
   -- azure_strike,if=buff.dragonrage.up&(essence<3&!buff.essence_burst.up|(talent.shattering_star&cooldown.shattering_star.remains<=(buff.essence_burst.max_stack-buff.essence_burst.stack)*gcd.max))
   if S.AzureStrike:IsCastable() and (VarDragonrageUp and (Player:Essence() < 3 and Player:BuffDown(S.EssenceBurstBuff) or (S.ShatteringStar:IsAvailable() and S.ShatteringStar:CooldownRemains() <= (MaxEssenceBurstStack - Player:BuffStack(S.EssenceBurstBuff)) * GCDMax))) then
@@ -334,8 +335,8 @@ local function ST()
   end
   -- disintegrate,chain=1,early_chain_if=evoker.use_early_chaining&buff.dragonrage.up&ticks>=2,interrupt_if=buff.dragonrage.up&ticks>=2&(evoker.use_clipping|cooldown.fire_breath.up|cooldown.eternity_surge.up),if=buff.dragonrage.up|(!talent.shattering_star|cooldown.shattering_star.remains>6|essence>essence.max-1|buff.essence_burst.stack==buff.essence_burst.max_stack)
   -- Note: Chaining is up to the user. We will display this for the next action, but the user must decide when to press the button.
-  if S.Disintegrate:IsReady() and (VarDragonrageUp or ((not S.ShatteringStar:IsAvailable()) or S.ShatteringStar:CooldownRemains() > 6 or Player:Essence() > Player:EssenceMax() - 1 or Player:BuffStack(S.EssenceBurstBuff) == MaxEssenceBurstStack)) then
-    if Press(S.Disintegrate, not Target:IsSpellInRange(S.Disintegrate), true) then return "disintegrate st 26"; end
+  if S.Disintegrate:IsCastable() and (VarDragonrageUp or ((not S.ShatteringStar:IsAvailable()) or S.ShatteringStar:CooldownRemains() > 6 or Player:Essence() > Player:EssenceMax() - 1 or Player:BuffStack(S.EssenceBurstBuff) == MaxEssenceBurstStack)) then
+    if Press(S.Disintegrate, not Target:IsSpellInRange(S.Disintegrate), Immovable) then return "disintegrate st 26"; end
   end
   -- deep_breath,if=!buff.dragonrage.up&spell_targets.deep_breath>1
   --if S.DeepBreath:IsCastable() and CDsON() and ((not VarDragonrageUp) and EnemiesCount8ySplash > 1) then
@@ -343,7 +344,7 @@ local function ST()
   --end
   -- living_flame
   if S.LivingFlame:IsCastable() then
-    if Press(S.LivingFlame, not Target:IsSpellInRange(S.LivingFlame), true) then return "living_flame st 36"; end
+    if Press(S.LivingFlame, not Target:IsSpellInRange(S.LivingFlame), Immovable) then return "living_flame st 36"; end
   end
   -- azure_strike
   if S.AzureStrike:IsCastable() and Player:IsMoving() then
@@ -353,6 +354,7 @@ end
 
 -- APL Main
 local function APL()
+  Immovable = Player:BuffRemains(S.HoverBuff) < 2
   Enemies25y = Player:GetEnemiesInRange(25)
   Enemies8ySplash = Target:GetEnemiesInSplashRange(8)
   if (AoEON()) then
@@ -390,6 +392,48 @@ local function APL()
   end
 
   if Everyone.TargetIsValid() then
+    if Player:IsChanneling(S.EternitySurge) then
+      local ESEmpower = 0
+      -- eternity_surge,empower_to=1,if=spell_targets.pyre<=1+talent.eternitys_span|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste
+      if (EnemiesCount8ySplash <= 1 + num(S.EternitysSpan:IsAvailable()) or VarDragonrageRemains < 1.75 * PlayerHaste and VarDragonrageRemains >= 1 * PlayerHaste) then
+        ESEmpower = 1
+      -- eternity_surge,empower_to=2,if=spell_targets.pyre<=2+2*talent.eternitys_span|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
+      elseif (EnemiesCount8ySplash <= 2 + 2 * num(S.EternitysSpan:IsAvailable()) or VarDragonrageRemains < 2.5 * PlayerHaste and VarDragonrageRemains >= 1.75 * PlayerHaste) then
+        ESEmpower = 2
+      -- eternity_surge,empower_to=3,if=spell_targets.pyre<=3+3*talent.eternitys_span|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
+      elseif (EnemiesCount8ySplash <= 3 + 3 * num(S.EternitysSpan:IsAvailable()) or (not S.FontofMagic:IsAvailable()) or VarDragonrageRemains <= 3.25 * PlayerHaste and VarDragonrageRemains >= 2.5 * PlayerHaste) then
+        ESEmpower = 3
+      -- eternity_surge,empower_to=4
+      else
+        ESEmpower = 4
+      end
+      if (Player:ChannelPercentage(true) > (25 * ESEmpower)) then
+        if Press(M.EternitySurgeMacro, false, nil, true) then return "ES"; end
+      end
+      if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for ES"; end
+    end
+  
+    if Player:IsChanneling(S.FireBreath) then
+      local FBEmpower = 0
+      local FBRemains = Target:DebuffRemains(S.FireBreath)
+      -- fire_breath,empower_to=1,if=(20+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste|active_enemies<=2
+      if ((20 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or VarDragonrageRemains < 1.75 * PlayerHaste and VarDragonrageRemains >= 1 * PlayerHaste or EnemiesCount8ySplash <= 2) then
+        FBEmpower = 1
+      -- fire_breath,empower_to=2,if=(14+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
+      elseif ((14 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or VarDragonrageRemains < 2.5 * PlayerHaste and VarDragonrageRemains >= 1.75 * PlayerHaste) then
+        FBEmpower = 2
+      -- fire_breath,empower_to=3,if=(8+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
+      elseif ((8 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or (not S.FontofMagic:IsAvailable()) or VarDragonrageRemains <= 3.25 * PlayerHaste and VarDragonrageRemains >= 2.5 * PlayerHaste) then
+        FBEmpower = 3
+      -- fire_breath,empower_to=4
+      else
+        FBEmpower = 4
+      end
+      if (Player:ChannelPercentage(true) > (25 * FBEmpower)) then
+        if Press(M.FireBreathMacro, false, nil, true) then return "FB"; end
+      end
+      if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for FB"; end
+    end
     -- Precombat
     if not Player:AffectingCombat() and not Player:IsCasting() then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
@@ -453,6 +497,8 @@ local function AutoBind()
   Bind(M.Healthstone)
   
   -- Macros
+  Bind(M.EternitySurgeMacro)
+  Bind(M.FireBreathMacro)
   Bind(M.QuellMouseover)
 end
 

@@ -41,6 +41,7 @@ Spell.Evoker.Commons = {
   -- Buffs/Debuffs
   BlessingoftheBronzeBuff               = Spell(381748),
   FireBreathDebuff                      = Spell(357209),
+  HoverBuff                             = Spell(358267),
   LeapingFlamesBuff                     = Spell(370901),
   -- Trinket Effects
   SpoilsofNeltharusCrit                 = Spell(381954),
@@ -111,8 +112,11 @@ Macro.Evoker.Commons = {
   Healthstone                      = Macro("Healthstone", "/use item:5512"),
   
   -- Spells
+  FireBreathMacro                  = Macro("FireBreathMacro", "/cast " .. Spell.Evoker.Commons.FireBreath:Name()),
   QuellMouseover                   = Macro("QuellMouseover", "/cast [@mouseover] " .. Spell.Evoker.Commons.Quell:Name()),
 }
 
 Macro.Evoker.Devastation = MergeTableByKey(Macro.Evoker.Commons, {
+  -- Spells
+  EternitySurgeMacro                  = Macro("EternitySurgeMacro", "/cast " .. Spell.Evoker.Devastation.EternitySurge:Name()),
 })
