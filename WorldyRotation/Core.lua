@@ -86,7 +86,7 @@ do
   };
   local QuakingDebuffId = Spell(240447);
   local PoolResource = 999910;
-  local SpellQueueWindow = math.max(math.min(tonumber(C_CVar.GetCVar("SpellQueueWindow")),120),50);
+  local SpellQueueWindow = tonumber(C_CVar.GetCVar("SpellQueueWindow"));
   function WR.Press(Object, OutofRange, Immovable, OffGCD)
     local SpellID = Object.SpellID;
     local ItemID = Object.ItemID;
@@ -100,7 +100,8 @@ do
       return true;
     end
     
-    if not Usable or OutofRange or (Immovable and (Player:IsMoving() or Player:DebuffUp(QuakingDebuffId, true) or TargetIsCastingSilence)) or (not OffGCD and (Player:CastEnd() - (SpellQueueWindow - HL.Latency()) > 0 or Player:GCDRemains() - (SpellQueueWindow - HL.Latency()) > 0)) then
+    local PrecastWindow = mathmin(mathmax(SpellQueueWindow - HL.Latency(), 50), 100)
+    if not Usable or OutofRange or (Immovable and (Player:IsMoving() or Player:DebuffUp(QuakingDebuffId, true) or TargetIsCastingSilence)) or (not OffGCD and (Player:CastEnd() - PrecastWindow > 0 or Player:GCDRemains() - PrecastWindow > 0)) then
       WR.MainFrame:ChangeBind(nil);
       Object.LastDisplayTime = GetTime();
       return false;

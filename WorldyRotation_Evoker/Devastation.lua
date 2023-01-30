@@ -404,7 +404,7 @@ local function APL()
       -- eternity_surge,empower_to=4
       else
         ESEmpower = 4
-        ESCastPercentage = 95
+        ESCastPercentage = 97
       end
       if (Player:ChannelPercentage(true) > ESCastPercentage) then
         if Press(M.EternitySurgeMacro, false, nil, true) then return "ES" .. ESEmpower; end
@@ -431,7 +431,7 @@ local function APL()
       -- fire_breath,empower_to=4
       else
         FBEmpower = 4
-        FBCastPercentage = 95
+        FBCastPercentage = 97
       end
       if (Player:ChannelPercentage(true) > FBCastPercentage) then
         if Press(M.FireBreathMacro, false, nil, true) then return "FB" .. FBEmpower; end
