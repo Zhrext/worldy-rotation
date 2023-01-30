@@ -112,6 +112,7 @@ Macro.Evoker.Commons = {
   Healthstone                      = Macro("Healthstone", "/use item:5512"),
   
   -- Spells
+  DeepBreathCursor                 = Macro("DeepBreathCursor", "/cast [@cursor] " .. Spell.Evoker.Commons.DeepBreath:Name()),
   FireBreathMacro                  = Macro("FireBreathMacro", "/cast " .. Spell.Evoker.Commons.FireBreath:Name()),
   QuellMouseover                   = Macro("QuellMouseover", "/cast [@mouseover] " .. Spell.Evoker.Commons.Quell:Name()),
 }

@@ -75,12 +75,6 @@ local FightRemains = 11111
 local GCDMax
 local Immovable
 
--- Stun Interrupts
-local StunInterrupts = {
-  {S.TailSwipe, "Cast Tail Swipe (Interrupt)", function() return true; end},
-  {S.WingBuffet, "Cast Wing Buffet (Interrupt)", function() return true; end},
-}
-
 -- Update Equipment
 HL:RegisterForEvent(function()
   equip = Player:GetEquipment()
@@ -176,7 +170,7 @@ local function ES()
   else
     ESEmpower = 4
   end
-  if Press(S.EternitySurge, not Target:IsSpellInRange(S.EternitySurge), true) then return "eternity_surge empower " .. ESEmpower .. " ES 2"; end
+  if Press(M.EternitySurgeMacro, not Target:IsSpellInRange(S.EternitySurge), true) then return "eternity_surge empower " .. ESEmpower .. " ES 2"; end
 end
 
 local function FB()
@@ -195,7 +189,7 @@ local function FB()
   else
     FBEmpower = 4
   end
-  if Press(S.FireBreath, not Target:IsInRange(20), true) then return "fire_breath empower " .. FBEmpower; end
+  if Press(M.FireBreathMacro, not Target:IsInRange(20), true) then return "fire_breath empower " .. FBEmpower; end
 end
 
 local function Aoe()
@@ -226,7 +220,7 @@ local function Aoe()
     else
       FBEmpower = 2
     end
-    if Press(S.FireBreath, not Target:IsInRange(20), true) then return "fire_breath empower " .. FBEmpower .. " aoe 6"; end
+    if Press(M.FireBreathMacro, not Target:IsInRange(20), true) then return "fire_breath empower " .. FBEmpower .. " aoe 6"; end
   end
   -- call_action_list,name=es,if=buff.dragonrage.up|!talent.dragonrage|cooldown.dragonrage.remains>15
   if S.EternitySurge:IsCastable() and (VarDragonrageUp or (not S.Dragonrage:IsAvailable()) or (not CDsON()) or S.Dragonrage:CooldownRemains() > 15) then
@@ -394,45 +388,55 @@ local function APL()
   if Everyone.TargetIsValid() then
     if Player:IsChanneling(S.EternitySurge) then
       local ESEmpower = 0
+      local ESCastPercentage = 0
       -- eternity_surge,empower_to=1,if=spell_targets.pyre<=1+talent.eternitys_span|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste
       if (EnemiesCount8ySplash <= 1 + num(S.EternitysSpan:IsAvailable()) or VarDragonrageRemains < 1.75 * PlayerHaste and VarDragonrageRemains >= 1 * PlayerHaste) then
         ESEmpower = 1
+        ESCastPercentage = 25
       -- eternity_surge,empower_to=2,if=spell_targets.pyre<=2+2*talent.eternitys_span|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
       elseif (EnemiesCount8ySplash <= 2 + 2 * num(S.EternitysSpan:IsAvailable()) or VarDragonrageRemains < 2.5 * PlayerHaste and VarDragonrageRemains >= 1.75 * PlayerHaste) then
         ESEmpower = 2
+        ESCastPercentage = 50
       -- eternity_surge,empower_to=3,if=spell_targets.pyre<=3+3*talent.eternitys_span|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
       elseif (EnemiesCount8ySplash <= 3 + 3 * num(S.EternitysSpan:IsAvailable()) or (not S.FontofMagic:IsAvailable()) or VarDragonrageRemains <= 3.25 * PlayerHaste and VarDragonrageRemains >= 2.5 * PlayerHaste) then
         ESEmpower = 3
+        ESCastPercentage = 75
       -- eternity_surge,empower_to=4
       else
         ESEmpower = 4
+        ESCastPercentage = 95
       end
-      if (Player:ChannelPercentage(true) > (25 * ESEmpower)) then
-        if Press(M.EternitySurgeMacro, false, nil, true) then return "ES"; end
+      if (Player:ChannelPercentage(true) > ESCastPercentage) then
+        if Press(M.EternitySurgeMacro, false, nil, true) then return "ES" .. ESEmpower; end
       end
-      if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for ES"; end
+      if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for ES" .. ESEmpower; end
     end
   
     if Player:IsChanneling(S.FireBreath) then
       local FBEmpower = 0
+      local FBCastPercentage = 0
       local FBRemains = Target:DebuffRemains(S.FireBreath)
       -- fire_breath,empower_to=1,if=(20+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste|active_enemies<=2
       if ((20 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or VarDragonrageRemains < 1.75 * PlayerHaste and VarDragonrageRemains >= 1 * PlayerHaste or EnemiesCount8ySplash <= 2) then
         FBEmpower = 1
+        FBCastPercentage = 25
       -- fire_breath,empower_to=2,if=(14+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
       elseif ((14 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or VarDragonrageRemains < 2.5 * PlayerHaste and VarDragonrageRemains >= 1.75 * PlayerHaste) then
         FBEmpower = 2
+        FBCastPercentage = 50
       -- fire_breath,empower_to=3,if=(8+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
       elseif ((8 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or (not S.FontofMagic:IsAvailable()) or VarDragonrageRemains <= 3.25 * PlayerHaste and VarDragonrageRemains >= 2.5 * PlayerHaste) then
         FBEmpower = 3
+        FBCastPercentage = 75
       -- fire_breath,empower_to=4
       else
         FBEmpower = 4
+        FBCastPercentage = 95
       end
-      if (Player:ChannelPercentage(true) > (25 * FBEmpower)) then
-        if Press(M.FireBreathMacro, false, nil, true) then return "FB"; end
+      if (Player:ChannelPercentage(true) > FBCastPercentage) then
+        if Press(M.FireBreathMacro, false, nil, true) then return "FB" .. FBEmpower; end
       end
-      if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for FB"; end
+      if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for FB" .. FBEmpower; end
     end
     -- Precombat
     if not Player:AffectingCombat() and not Player:IsCasting() then
@@ -445,6 +449,7 @@ local function APL()
     -- Manually added: Interrupts
     if not Player:IsCasting() and not Player:IsChanneling() then
       local ShouldReturn = Everyone.Interrupt(S.Quell, 10, true); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.InterruptWithStun(S.TailSwipe, 8); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.Interrupt(S.Quell, 10, true, Mouseover, M.QuellMouseover); if ShouldReturn then return ShouldReturn; end
     end
     -- variable,name=next_dragonrage,value=cooldown.dragonrage.remains<?(cooldown.eternity_surge.remains-2*gcd.max)<?(cooldown.fire_breath.remains-gcd.max)
@@ -454,7 +459,7 @@ local function APL()
     -- invoke_external_buff,name=power_infusion,if=buff.dragonrage.up&!buff.power_infusion.up
     -- Note: Not handling external buffs.
     -- call_action_list,name=trinkets
-    if Settings.General.Enabled.Trinkets then
+    if Settings.General.Enabled.Trinkets and CDsON() then
       local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
     end
     -- run_action_list,name=aoe,if=spell_targets.pyre>=3
@@ -497,6 +502,7 @@ local function AutoBind()
   Bind(M.Healthstone)
   
   -- Macros
+  Bind(M.DeepBreathCursor)
   Bind(M.EternitySurgeMacro)
   Bind(M.FireBreathMacro)
   Bind(M.QuellMouseover)
