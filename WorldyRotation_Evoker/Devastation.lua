@@ -127,8 +127,13 @@ local function Precombat()
 end
 
 local function Defensives()
+  -- obsidian_scales
   if S.ObsidianScales:IsCastable() and Player:BuffDown(S.ObsidianScales) and (Player:HealthPercentage() < Settings.Devastation.HP.ObsidianScales) then
     if Press(S.ObsidianScales) then return "obsidian_scales defensives"; end
+  end
+  -- healthstone
+  if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
+    if Press(M.Healthstone, nil, nil, true) then return "healthstone"; end
   end
 end
 
@@ -392,19 +397,19 @@ local function APL()
       -- eternity_surge,empower_to=1,if=spell_targets.pyre<=1+talent.eternitys_span|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste
       if (EnemiesCount8ySplash <= 1 + num(S.EternitysSpan:IsAvailable()) or VarDragonrageRemains < 1.75 * PlayerHaste and VarDragonrageRemains >= 1 * PlayerHaste) then
         ESEmpower = 1
-        ESCastPercentage = 25
+        ESCastPercentage = 27
       -- eternity_surge,empower_to=2,if=spell_targets.pyre<=2+2*talent.eternitys_span|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
       elseif (EnemiesCount8ySplash <= 2 + 2 * num(S.EternitysSpan:IsAvailable()) or VarDragonrageRemains < 2.5 * PlayerHaste and VarDragonrageRemains >= 1.75 * PlayerHaste) then
         ESEmpower = 2
-        ESCastPercentage = 50
+        ESCastPercentage = 52
       -- eternity_surge,empower_to=3,if=spell_targets.pyre<=3+3*talent.eternitys_span|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
       elseif (EnemiesCount8ySplash <= 3 + 3 * num(S.EternitysSpan:IsAvailable()) or (not S.FontofMagic:IsAvailable()) or VarDragonrageRemains <= 3.25 * PlayerHaste and VarDragonrageRemains >= 2.5 * PlayerHaste) then
         ESEmpower = 3
-        ESCastPercentage = 75
+        ESCastPercentage = 77
       -- eternity_surge,empower_to=4
       else
         ESEmpower = 4
-        ESCastPercentage = 97
+        ESCastPercentage = 98
       end
       if (Player:ChannelPercentage(true) > ESCastPercentage) then
         if Press(M.EternitySurgeMacro, false, nil, true) then return "ES" .. ESEmpower; end
@@ -419,19 +424,19 @@ local function APL()
       -- fire_breath,empower_to=1,if=(20+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste|active_enemies<=2
       if ((20 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or VarDragonrageRemains < 1.75 * PlayerHaste and VarDragonrageRemains >= 1 * PlayerHaste or EnemiesCount8ySplash <= 2) then
         FBEmpower = 1
-        FBCastPercentage = 25
+        FBCastPercentage = 27
       -- fire_breath,empower_to=2,if=(14+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
       elseif ((14 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or VarDragonrageRemains < 2.5 * PlayerHaste and VarDragonrageRemains >= 1.75 * PlayerHaste) then
         FBEmpower = 2
-        FBCastPercentage = 50
+        FBCastPercentage = 52
       -- fire_breath,empower_to=3,if=(8+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
       elseif ((8 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or (not S.FontofMagic:IsAvailable()) or VarDragonrageRemains <= 3.25 * PlayerHaste and VarDragonrageRemains >= 2.5 * PlayerHaste) then
         FBEmpower = 3
-        FBCastPercentage = 75
+        FBCastPercentage = 77
       -- fire_breath,empower_to=4
       else
         FBEmpower = 4
-        FBCastPercentage = 97
+        FBCastPercentage = 98
       end
       if (Player:ChannelPercentage(true) > FBCastPercentage) then
         if Press(M.FireBreathMacro, false, nil, true) then return "FB" .. FBEmpower; end
@@ -509,7 +514,7 @@ local function AutoBind()
 end
 
 local function Init()
-  WR.Print("Devastation Evoker rotation by Worldy.")
+  WR.Print("Devastation Evoker by Worldy.")
   AutoBind()
 end
 
