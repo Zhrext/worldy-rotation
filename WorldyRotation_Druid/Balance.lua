@@ -462,8 +462,12 @@ local function AoE()
     if Press(S.ForceOfNature, not Target:IsInRange(45)) then return "force_of_nature aoe 40"; end
   end
   -- starfire
-  if S.Starfire:IsCastable() and not Player:IsMoving() then
+  if S.Starfire:IsCastable() and not Player:IsMoving() and (EnemiesCount8ySplash > 1) then
     if Press(S.Starfire, not Target:IsSpellInRange(S.Starfire), Immovable) then return "starfire aoe 44"; end
+  end
+  -- wrath
+  if S.Wrath:IsCastable() and not Player:IsMoving() then
+    if Press(S.Wrath, not Target:IsSpellInRange(S.Wrath)) then return "wrath aoe 48"; end
   end
   -- run_action_list,name=fallthru
   local ShouldReturn = Fallthru(); if ShouldReturn then return ShouldReturn; end

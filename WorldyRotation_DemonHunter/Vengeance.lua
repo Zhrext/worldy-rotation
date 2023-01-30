@@ -497,9 +497,9 @@ local function APL()
     end
     -- variable,name=spirit_bomb_soul_fragments,op=setif,value=variable.spirit_bomb_soul_fragments_in_meta,value_else=variable.spirit_bomb_soul_fragments_not_in_meta,condition=buff.metamorphosis.up
     VarSpiritBombFragments = (Player:BuffUp(S.MetamorphosisBuff)) and VarSpiritBombFragmentsInMeta or VarSpiritBombFragmentsNotInMeta
-    -- variable,name=frailty_target_requirement,op=setif,value=5,value_else=6,condition=spell_targets.spirit_bomb>1|spell_targets.soul_cleave>1
+    -- variable,name=frailty_target_requirement,op=setif,value=5,value_else=6,condition=spell_targets.spirit_bomb>1
     VarFrailtyTargetRequirement = (EnemiesCount8yMelee > 1) and 5 or 6
-    -- variable,name=frailty_dump_fury_requirement,op=setif,value=action.spirit_bomb.cost+(action.soul_cleave.cost*2),value_else=action.soul_cleave.cost*3,condition=spell_targets.spirit_bomb>1|spell_targets.soul_cleave
+    -- variable,name=frailty_dump_fury_requirement,op=setif,value=action.spirit_bomb.cost+(action.soul_cleave.cost*2),value_else=action.soul_cleave.cost*3,condition=spell_targets.spirit_bomb>1
     VarFrailtyDumpFuryRequirement = (EnemiesCount8yMelee > 1) and (S.SpiritBomb:Cost() + (S.SoulCleave:Cost() * 2)) or (S.SoulCleave:Cost() * 3)
     -- variable,name=pooling_for_the_hunt,value=talent.the_hunt.enabled&cooldown.the_hunt.remains<(gcd.max*2)&fury<variable.frailty_dump_fury_requirement&debuff.frailty.stack<=1
     VarPoolingForTheHunt = (S.TheHunt:IsAvailable() and S.TheHunt:CooldownRemains() < (GCDMax * 2) and Player:Fury() < VarFrailtyDumpFuryRequirement and Target:DebuffStack(S.FrailtyDebuff) <= 1)
@@ -542,7 +542,7 @@ local function APL()
       VarFD = true
     end
     -- variable,name=fiery_demise_in_progress,value=0,if=talent.fiery_brand.enabled&talent.fiery_demise.enabled&cooldown.fiery_brand.charges_fractional<1.65&((talent.fel_devastation.enabled&cooldown.fel_devastation.remains>10)|(talent.soul_carver.enabled&cooldown.soul_carver.remains>10))
-    if S.FieryBrand:IsAvailable() and S.FieryDemise:IsAvailable() and S.FieryBrand:ChargesFractional() < 1.65 and ((S.FelDevastation:IsAvailable() and S.FelDevastation:CooldownRemains() > 10) or ((not S.FelDevastation:IsAvailable()) and S.SoulCarver:IsAvailable() and S.SoulCarver:CooldownRemains() > 10)) then
+    if S.FieryBrand:IsAvailable() and S.FieryDemise:IsAvailable() and S.FieryBrand:ChargesFractional() < 1.65 and Target:DebuffDown(S.FieryBrandDebuff) and ((S.FelDevastation:IsAvailable() and S.FelDevastation:CooldownRemains() > 10) or ((not S.FelDevastation:IsAvailable()) and S.SoulCarver:IsAvailable() and S.SoulCarver:CooldownRemains() > 10)) then
       VarFD = false
     end
     -- run_action_list,name=the_hunt_ramp,if=variable.the_hunt_ramp_in_progress
