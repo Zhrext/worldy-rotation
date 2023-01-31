@@ -20,10 +20,10 @@ local SpellProt             = Spell.Warrior.Protection
 -- Arms, ID: 71
 local ArmsOldSpellIsCastable
 ArmsOldSpellIsCastable = HL.AddCoreOverride ("Spell.IsCastable",
-  function (self, Range, AoESpell, ThisUnit, BypassRecovery, Offset)
-    local BaseCheck = ArmsOldSpellIsCastable(self, Range, AoESpell, ThisUnit, BypassRecovery, Offset)
+  function (self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
+    local BaseCheck = ArmsOldSpellIsCastable(self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
     if self == SpellArms.Charge then
-      return BaseCheck and self:Charges() >= 1 and (not Target:IsInRange(8) and Target:IsInRange(25))
+      return BaseCheck and (self:Charges() >= 1 and (Player:AffectingCombat() and (not Target:IsInRange(8)) and Target:IsInRange(25) or not Player:AffectingCombat()))
     else
       return BaseCheck
     end
@@ -33,10 +33,10 @@ ArmsOldSpellIsCastable = HL.AddCoreOverride ("Spell.IsCastable",
 -- Fury, ID: 72
 local FuryOldSpellIsCastable
 FuryOldSpellIsCastable = HL.AddCoreOverride ("Spell.IsCastable",
-  function (self, Range, AoESpell, ThisUnit, BypassRecovery, Offset)
-    local BaseCheck = FuryOldSpellIsCastable(self, Range, AoESpell, ThisUnit, BypassRecovery, Offset)
+  function (self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
+    local BaseCheck = FuryOldSpellIsCastable(self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
     if self == SpellFury.Charge then
-      return BaseCheck and (self:Charges() >= 1 and (not Target:IsInRange(8)) and Target:IsInRange(25))
+      return BaseCheck and (self:Charges() >= 1 and (Player:AffectingCombat() and (not Target:IsInRange(8)) and Target:IsInRange(25) or not Player:AffectingCombat()))
     else
       return BaseCheck
     end
@@ -62,11 +62,13 @@ FuryOldSpellIsReady = HL.AddCoreOverride ("Spell.IsReady",
 -- Protection, ID: 73
 local ProtOldSpellIsCastable
 ProtOldSpellIsCastable = HL.AddCoreOverride ("Spell.IsCastable",
-  function (self, Range, AoESpell, ThisUnit, BypassRecovery, Offset)
-    local BaseCheck = ProtOldSpellIsCastable(self, Range, AoESpell, ThisUnit, BypassRecovery, Offset)
-    --if self == SpellProt.Charge then
-      --return BaseCheck and (self:Charges() >= 1 and (not Target:IsInRange(8)) and Target:IsInRange(25))
-    if self == SpellProt.Avatar then
+  function (self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
+    local BaseCheck = ProtOldSpellIsCastable(self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
+    if self == SpellProt.Charge then
+      return BaseCheck and (self:Charges() >= 1 and (not Target:IsInRange(8)))
+    elseif self == SpellProt.HeroicThrow or self == SpellProt.TitanicThrow then
+      return BaseCheck and (not Target:IsInRange(8))
+    elseif self == SpellProt.Avatar then
       return BaseCheck and (Player:BuffDown(SpellProt.AvatarBuff))
     elseif self == SpellProt.Intervene then
       return BaseCheck and (Player:IsInParty() or Player:IsInRaid())
@@ -75,17 +77,3 @@ ProtOldSpellIsCastable = HL.AddCoreOverride ("Spell.IsCastable",
     end
   end
 , 73)
-
--- Example (Arcane Mage)
--- HL.AddCoreOverride ("Spell.IsCastableP",
--- function (self, Range, AoESpell, ThisUnit, BypassRecovery, Offset)
---   if Range then
---     local RangeUnit = ThisUnit or Target
---     return self:IsLearned() and self:CooldownRemainsP( BypassRecovery, Offset or "Auto") == 0 and RangeUnit:IsInRange( Range, AoESpell )
---   elseif self == SpellArcane.MarkofAluneth then
---     return self:IsLearned() and self:CooldownRemainsP( BypassRecovery, Offset or "Auto") == 0 and not Player:IsCasting(self)
---   else
---     return self:IsLearned() and self:CooldownRemainsP( BypassRecovery, Offset or "Auto") == 0
---   end
--- end
--- , 62)

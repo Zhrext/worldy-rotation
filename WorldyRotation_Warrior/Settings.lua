@@ -18,11 +18,10 @@ local CreateARPanelOptions = WR.GUI.CreateARPanelOptions
 WR.GUISettings.APL.Warrior = {
   Commons = {
     Enabled = {
-      Charge = true,
-      HeroicLeap = true,
+      Charge = false,
     },
     HP = {
-      VictoryRushHP = 80,
+      VictoryRush = 80,
     },
   },
   Arms = {
@@ -31,9 +30,13 @@ WR.GUISettings.APL.Warrior = {
   },
   Protection = {
     Enabled = {
-      Intervene = true,
+      Intervene = false,
     },
-    RageCapValue = 80,
+    HP = {
+      ShieldWall = 35,
+      LastStand = 40,
+      RallyingCry = 42,
+    },
   },
 }
 
@@ -54,4 +57,3 @@ CreateARPanelOptions(CP_Fury, "APL.Warrior.Fury")
 
 -- Protection Settings
 CreateARPanelOptions(CP_Protection, "APL.Warrior.Protection")
-CreatePanelOption("Slider", CP_Protection, "APL.Warrior.Protection.RageCapValue", {30, 100, 5}, "Rage Cap Value", "Set the highest amount of Rage we should allow to pool before dumping Rage with Ignore Pain. Setting this value to 30 will allow you to over-cap Rage.")

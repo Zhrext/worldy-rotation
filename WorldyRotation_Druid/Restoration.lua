@@ -303,7 +303,7 @@ end
 local function Dispel()
   -- natures_cure
   if Focus and Everyone.DispellableFriendlyUnit() and S.NaturesCure:IsReady() then
-    if Cast(M.NaturesCureFocus) then return "natures_cure dispel 2"; end
+    if Press(M.NaturesCureFocus) then return "natures_cure dispel 2"; end
   end
 end
 
@@ -397,11 +397,11 @@ local function Healing()
     if Press(M.AdaptiveSwarmFocus) then return "adaptive_swarm healing"; end
   end
   -- lifebloom
-  if Player:AffectingCombat() and Everyone.UnitGroupRole(Focus) == "TANK" and Everyone.FriendlyUnitsWithBuffCount(S.Lifebloom, true) < 1 and (Focus:HealthPercentage() <= Settings.Restoration.HealingOne.HP.LifebloomTank - (num(Player:BuffUp(S.CatForm)) * 15)) and S.Lifebloom:IsCastable() and Focus:BuffRefreshable(S.Lifebloom) then
+  if Player:AffectingCombat() and Everyone.UnitGroupRole(Focus) == "TANK" and Everyone.FriendlyUnitsWithBuffCount(S.Lifebloom, true, false) < 1 and (Focus:HealthPercentage() <= Settings.Restoration.HealingOne.HP.LifebloomTank - (num(Player:BuffUp(S.CatForm)) * 15)) and S.Lifebloom:IsCastable() and Focus:BuffRefreshable(S.Lifebloom) then
     if Press(M.LifebloomFocus) then return "lifebloom healing"; end
   end
   -- lifebloom,if=unit.hp&undergrowth.available|!tank.lifebloom.ticking
-  if Player:AffectingCombat() and Everyone.UnitGroupRole(Focus) ~= "TANK" and Everyone.FriendlyUnitsWithBuffCount(S.Lifebloom, nil, true) < 1 and (S.Undergrowth:IsAvailable() or Everyone.IsSoloMode()) and (Focus:HealthPercentage() <= Settings.Restoration.HealingOne.HP.Lifebloom - (num(Player:BuffUp(S.CatForm)) * 15)) and S.Lifebloom:IsCastable() and Focus:BuffRefreshable(S.Lifebloom) then
+  if Player:AffectingCombat() and Everyone.UnitGroupRole(Focus) ~= "TANK" and Everyone.FriendlyUnitsWithBuffCount(S.Lifebloom, false, true) < 1 and (S.Undergrowth:IsAvailable() or Everyone.IsSoloMode()) and (Focus:HealthPercentage() <= Settings.Restoration.HealingOne.HP.Lifebloom - (num(Player:BuffUp(S.CatForm)) * 15)) and S.Lifebloom:IsCastable() and Focus:BuffRefreshable(S.Lifebloom) then
     if Press(M.LifebloomFocus) then return "lifebloom healing"; end
   end
   -- efflorescence,if=unit.hp

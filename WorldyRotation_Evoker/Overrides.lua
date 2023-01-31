@@ -61,4 +61,27 @@ HL.AddCoreOverride ("Player.EssenceTimeToX",
   end
 , 1467)
 
--- Preservation, ID: ????
+-- Preservation, ID: 1468
+
+HL.AddCoreOverride ("Player.EssenceTimeToMax",
+  function()
+    local Deficit = Player:EssenceDeficit()
+    if Deficit == 0 then return 0; end
+    local Regen = GetPowerRegenForPowerType(EssencePowerType)
+    if not Regen or Regen < 0.2 then Regen = 0.2; end
+    local TimeToOneEssence = 1 / Regen
+    local LastUpdate = Cache.Persistent.Player.LastPowerUpdate
+    return Deficit * TimeToOneEssence - (GetTime() - LastUpdate)
+  end
+, 1468)
+
+HL.AddCoreOverride ("Player.EssenceTimeToX",
+  function(Amount)
+    local Essence = Player:Essence()
+    if Essence >= Amount then return 0; end
+    local Regen = GetPowerRegenForPowerType(EssencePowerType)
+    local TimeToOneEssence = 1 / Regen
+    local LastUpdate = Cache.Persistent.Player.LastPowerUpdate
+    return ((Amount - Essence) * TimeToOneEssence) - (GetTime() - LastUpdate)
+  end
+, 1468)

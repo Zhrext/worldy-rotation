@@ -328,8 +328,8 @@ local EnabledRotation = {
   --  [104]   = "WorldyRotation_Druid",         -- Guardian
     [105]   = "WorldyRotation_Druid",         -- Restoration
     -- Evoker
-      [1467]  = "WorldyRotation_Evoker",        -- Devastation
-      --[1468] = "WorldyRotation_Evoker",         -- Preservation
+    [1467]  = "WorldyRotation_Evoker",        -- Devastation
+    [1468] = "WorldyRotation_Evoker",         -- Preservation
   ---- Hunter
     [253]   = "WorldyRotation_Hunter",        -- Beast Mastery
     [254]   = "WorldyRotation_Hunter",        -- Marksmanship
@@ -363,8 +363,8 @@ local EnabledRotation = {
   --  [266]   = "WorldyRotation_Warlock",       -- Demonology
   --  [267]   = "WorldyRotation_Warlock",       -- Destruction
   ---- Warrior
-  --[71]    = "WorldyRotation_Warrior",       -- Arms
-  --[72]    = "WorldyRotation_Warrior",       -- Fury
+  [71]    = "WorldyRotation_Warrior",       -- Arms
+  [72]    = "WorldyRotation_Warrior",       -- Fury
   [73]    = "WorldyRotation_Warrior"        -- Protection
 };
 local LatestSpecIDChecked = 0;

@@ -346,7 +346,7 @@ local function SCRamp()
     if Press(S.Shear, not IsInMeleeRange) then return "shear scramp 12"; end
   end
   -- throw_glaive
-  if S.ThrowGlaive:IsCastable()  and Target:AffectingCombat()then
+  if S.ThrowGlaive:IsCastable() and Target:AffectingCombat()then
     if Press(S.ThrowGlaive, not Target:IsSpellInRange(S.ThrowGlaive)) then return "throw_glaive scramp 14"; end
   end
   -- felblade

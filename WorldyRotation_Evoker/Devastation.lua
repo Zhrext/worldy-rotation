@@ -74,6 +74,8 @@ local BossFightRemains = 11111
 local FightRemains = 11111
 local GCDMax
 local Immovable
+local ESCastPercentage = 100
+local FBCastPercentage = 100
 
 -- Update Equipment
 HL:RegisterForEvent(function()
@@ -128,7 +130,7 @@ end
 
 local function Defensives()
   -- obsidian_scales
-  if S.ObsidianScales:IsCastable() and Player:BuffDown(S.ObsidianScales) and (Player:HealthPercentage() < Settings.Devastation.HP.ObsidianScales) then
+  if S.ObsidianScales:IsCastable() and Player:BuffDown(S.ObsidianScales) and (Player:HealthPercentage() < Settings.Commons.HP.ObsidianScales) then
     if Press(S.ObsidianScales) then return "obsidian_scales defensives"; end
   end
   -- healthstone
@@ -165,17 +167,21 @@ local function ES()
   -- eternity_surge,empower_to=1,if=spell_targets.pyre<=1+talent.eternitys_span|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste
   if (EnemiesCount8ySplash <= 1 + num(S.EternitysSpan:IsAvailable()) or VarDragonrageRemains < 1.75 * PlayerHaste and VarDragonrageRemains >= 1 * PlayerHaste) then
     ESEmpower = 1
+    ESCastPercentage = 27
   -- eternity_surge,empower_to=2,if=spell_targets.pyre<=2+2*talent.eternitys_span|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
   elseif (EnemiesCount8ySplash <= 2 + 2 * num(S.EternitysSpan:IsAvailable()) or VarDragonrageRemains < 2.5 * PlayerHaste and VarDragonrageRemains >= 1.75 * PlayerHaste) then
     ESEmpower = 2
+    ESCastPercentage = 52
   -- eternity_surge,empower_to=3,if=spell_targets.pyre<=3+3*talent.eternitys_span|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
   elseif (EnemiesCount8ySplash <= 3 + 3 * num(S.EternitysSpan:IsAvailable()) or (not S.FontofMagic:IsAvailable()) or VarDragonrageRemains <= 3.25 * PlayerHaste and VarDragonrageRemains >= 2.5 * PlayerHaste) then
     ESEmpower = 3
+    ESCastPercentage = 77
   -- eternity_surge,empower_to=4
   else
     ESEmpower = 4
+    ESCastPercentage = 98
   end
-  if Press(M.EternitySurgeMacro, not Target:IsSpellInRange(S.EternitySurge), true) then return "eternity_surge empower " .. ESEmpower .. " ES 2"; end
+  if Press(M.EternitySurgeMacro, not Target:IsInRange(30), true) then return "eternity_surge empower " .. ESEmpower .. " ES 2"; end
 end
 
 local function FB()
@@ -184,17 +190,21 @@ local function FB()
   -- fire_breath,empower_to=1,if=(20+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste|active_enemies<=2
   if ((20 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or VarDragonrageRemains < 1.75 * PlayerHaste and VarDragonrageRemains >= 1 * PlayerHaste or EnemiesCount8ySplash <= 2) then
     FBEmpower = 1
+    FBCastPercentage = 27
   -- fire_breath,empower_to=2,if=(14+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
   elseif ((14 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or VarDragonrageRemains < 2.5 * PlayerHaste and VarDragonrageRemains >= 1.75 * PlayerHaste) then
     FBEmpower = 2
+    FBCastPercentage = 52
   -- fire_breath,empower_to=3,if=(8+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
   elseif ((8 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or (not S.FontofMagic:IsAvailable()) or VarDragonrageRemains <= 3.25 * PlayerHaste and VarDragonrageRemains >= 2.5 * PlayerHaste) then
     FBEmpower = 3
+    FBCastPercentage = 77
   -- fire_breath,empower_to=4
   else
     FBEmpower = 4
+    FBCastPercentage = 98
   end
-  if Press(M.FireBreathMacro, not Target:IsInRange(20), true) then return "fire_breath empower " .. FBEmpower; end
+  if Press(M.FireBreathMacro, not Target:IsInRange(30), true) then return "fire_breath empower " .. FBEmpower; end
 end
 
 local function Aoe()
@@ -210,22 +220,26 @@ local function Aoe()
   if S.FireBreath:IsCastable() and (VarDragonrageUp or (not S.Dragonrage:IsAvailable()) or (not CDsON()) or S.Dragonrage:CooldownRemains() > 10 and S.EverburningFlame:IsAvailable()) then
     local ShouldReturn = FB(); if ShouldReturn then return ShouldReturn; end
   end
-  if S.FireBreath:IsCastable() and (S.Dragonrage:CooldownRemains() > 10 or (not CDsON())) then
+  if S.FireBreath:IsReady() and (S.Dragonrage:CooldownRemains() > 10 or (not CDsON())) then
     local FBEmpower = 0
     -- fire_breath,empower_to=1,if=cooldown.dragonrage.remains>10&spell_targets.pyre>=7
     if EnemiesCount8ySplash >= 7 then
       FBEmpower = 1
+      FBCastPercentage = 27
     -- fire_breath,empower_to=2,if=cooldown.dragonrage.remains>10&spell_targets.pyre>=6
     elseif EnemiesCount8ySplash >= 6 then
       FBEmpower = 2
+      FBCastPercentage = 52
     -- fire_breath,empower_to=3,if=cooldown.dragonrage.remains>10&spell_targets.pyre>=4
     elseif EnemiesCount8ySplash >= 4 then
       FBEmpower = 3
+      FBCastPercentage = 77
     -- fire_breath,empower_to=2,if=cooldown.dragonrage.remains>10
     else
       FBEmpower = 2
+      FBCastPercentage = 52
     end
-    if Press(M.FireBreathMacro, not Target:IsInRange(20), true) then return "fire_breath empower " .. FBEmpower .. " aoe 6"; end
+    if Press(M.FireBreathMacro, not Target:IsInRange(30), true) then return "fire_breath empower " .. FBEmpower .. " aoe 6"; end
   end
   -- call_action_list,name=es,if=buff.dragonrage.up|!talent.dragonrage|cooldown.dragonrage.remains>15
   if S.EternitySurge:IsCastable() and (VarDragonrageUp or (not S.Dragonrage:IsAvailable()) or (not CDsON()) or S.Dragonrage:CooldownRemains() > 15) then
@@ -293,10 +307,10 @@ local function ST()
   -- call_action_list,name=fb,if=!talent.dragonrage|variable.next_dragonrage>15|!talent.animosity
   -- call_action_list,name=es,if=!talent.dragonrage|variable.next_dragonrage>15|!talent.animosity
   if ((not S.Dragonrage:IsAvailable()) or (not CDsON()) or VarNextDragonrage > 15 or not S.Animosity:IsAvailable()) then
-    if S.FireBreath:IsCastable() then
+    if S.FireBreath:IsReady() then
       local ShouldReturn = FB(); if ShouldReturn then return ShouldReturn; end
     end
-    if S.EternitySurge:IsCastable() then
+    if S.EternitySurge:IsReady() then
       local ShouldReturn = ES(); if ShouldReturn then return ShouldReturn; end
     end
   end
@@ -346,7 +360,7 @@ local function ST()
     if Press(S.LivingFlame, not Target:IsSpellInRange(S.LivingFlame), Immovable) then return "living_flame st 36"; end
   end
   -- azure_strike
-  if S.AzureStrike:IsCastable() and Player:IsMoving() then
+  if S.AzureStrike:IsCastable() then
     if Press(S.AzureStrike, not Target:IsSpellInRange(S.AzureStrike)) then return "azure_strike st 38"; end
   end
 end
@@ -360,13 +374,6 @@ local function APL()
     EnemiesCount8ySplash = #Enemies8ySplash
   else
     EnemiesCount8ySplash = 1
-  end
-  
-  if not Player:AffectingCombat() then
-    -- Manually added: Group buff check
-    if S.BlessingoftheBronze:IsCastable() and (Player:BuffDown(S.BlessingoftheBronzeBuff) or Everyone.GroupBuffMissing(S.BlessingoftheBronzeBuff)) then
-      if Press(S.BlessingoftheBronze) then return "blessing_of_the_bronze precombat"; end
-    end
   end
 
   if Everyone.TargetIsValid() or Player:AffectingCombat() then
@@ -389,60 +396,34 @@ local function APL()
     VarDragonrageUp = Player:BuffUp(S.Dragonrage)
     VarDragonrageRemains = VarDragonrageUp and Player:BuffRemains(S.Dragonrage) or 0
   end
+  
+  if not Player:AffectingCombat() then
+    -- Manually added: Group buff check
+    if Settings.Commons.Enabled.BlessingoftheBronze and S.BlessingoftheBronze:IsCastable() and (Player:BuffDown(S.BlessingoftheBronzeBuff) or Everyone.GroupBuffMissing(S.BlessingoftheBronzeBuff)) then
+      if Press(S.BlessingoftheBronze) then return "blessing_of_the_bronze precombat"; end
+    end
+  end
+  
+  if Player:IsCasting() and Player:IsChanneling(S.EternitySurge) then
+    if Player:ChannelPercentage(true) > ESCastPercentage then
+      if Press(M.EternitySurgeMacro, false, nil, true) then return "ES " .. ESCastPercentage; end
+    end
+    if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for ES " .. ESCastPercentage; end
+  end
+  
+  if Player:IsCasting() and Player:IsChanneling(S.FireBreath) then
+    if Player:ChannelPercentage(true) > FBCastPercentage then
+      if Press(M.FireBreathMacro, false, nil, true) then return "FB " .. FBCastPercentage; end
+    end
+    if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for FB " .. FBCastPercentage; end
+  end
+  
+  -- Explosives
+  if (Settings.General.Enabled.HandleExplosives) then
+    local ShouldReturn = Everyone.HandleExplosive(S.AzureStrike, M.AzureStrikeMouseover); if ShouldReturn then return ShouldReturn; end
+  end
 
   if Everyone.TargetIsValid() then
-    if Player:IsChanneling(S.EternitySurge) then
-      local ESEmpower = 0
-      local ESCastPercentage = 0
-      -- eternity_surge,empower_to=1,if=spell_targets.pyre<=1+talent.eternitys_span|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste
-      if (EnemiesCount8ySplash <= 1 + num(S.EternitysSpan:IsAvailable()) or VarDragonrageRemains < 1.75 * PlayerHaste and VarDragonrageRemains >= 1 * PlayerHaste) then
-        ESEmpower = 1
-        ESCastPercentage = 27
-      -- eternity_surge,empower_to=2,if=spell_targets.pyre<=2+2*talent.eternitys_span|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
-      elseif (EnemiesCount8ySplash <= 2 + 2 * num(S.EternitysSpan:IsAvailable()) or VarDragonrageRemains < 2.5 * PlayerHaste and VarDragonrageRemains >= 1.75 * PlayerHaste) then
-        ESEmpower = 2
-        ESCastPercentage = 52
-      -- eternity_surge,empower_to=3,if=spell_targets.pyre<=3+3*talent.eternitys_span|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
-      elseif (EnemiesCount8ySplash <= 3 + 3 * num(S.EternitysSpan:IsAvailable()) or (not S.FontofMagic:IsAvailable()) or VarDragonrageRemains <= 3.25 * PlayerHaste and VarDragonrageRemains >= 2.5 * PlayerHaste) then
-        ESEmpower = 3
-        ESCastPercentage = 77
-      -- eternity_surge,empower_to=4
-      else
-        ESEmpower = 4
-        ESCastPercentage = 98
-      end
-      if (Player:ChannelPercentage(true) > ESCastPercentage) then
-        if Press(M.EternitySurgeMacro, false, nil, true) then return "ES" .. ESEmpower; end
-      end
-      if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for ES" .. ESEmpower; end
-    end
-  
-    if Player:IsChanneling(S.FireBreath) then
-      local FBEmpower = 0
-      local FBCastPercentage = 0
-      local FBRemains = Target:DebuffRemains(S.FireBreath)
-      -- fire_breath,empower_to=1,if=(20+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste|active_enemies<=2
-      if ((20 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or VarDragonrageRemains < 1.75 * PlayerHaste and VarDragonrageRemains >= 1 * PlayerHaste or EnemiesCount8ySplash <= 2) then
-        FBEmpower = 1
-        FBCastPercentage = 27
-      -- fire_breath,empower_to=2,if=(14+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
-      elseif ((14 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or VarDragonrageRemains < 2.5 * PlayerHaste and VarDragonrageRemains >= 1.75 * PlayerHaste) then
-        FBEmpower = 2
-        FBCastPercentage = 52
-      -- fire_breath,empower_to=3,if=(8+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
-      elseif ((8 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or (not S.FontofMagic:IsAvailable()) or VarDragonrageRemains <= 3.25 * PlayerHaste and VarDragonrageRemains >= 2.5 * PlayerHaste) then
-        FBEmpower = 3
-        FBCastPercentage = 77
-      -- fire_breath,empower_to=4
-      else
-        FBEmpower = 4
-        FBCastPercentage = 98
-      end
-      if (Player:ChannelPercentage(true) > FBCastPercentage) then
-        if Press(M.FireBreathMacro, false, nil, true) then return "FB" .. FBEmpower; end
-      end
-      if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for FB" .. FBEmpower; end
-    end
     -- Precombat
     if not Player:AffectingCombat() and not Player:IsCasting() then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
@@ -507,6 +488,7 @@ local function AutoBind()
   Bind(M.Healthstone)
   
   -- Macros
+  Bind(M.AzureStrikeMouseover)
   Bind(M.DeepBreathCursor)
   Bind(M.EternitySurgeMacro)
   Bind(M.FireBreathMacro)

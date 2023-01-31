@@ -32,10 +32,15 @@ Spell.Evoker.Commons = {
   BlessingoftheBronze                   = Spell(364342),
   DeepBreath                            = Spell(357210),
   Disintegrate                          = Spell(356995),
+  EmeraldBlossom                        = Spell(355913),
   FireBreath                            = MultiSpell(357208,382266), -- with and without Font of Magic
   LivingFlame                           = Spell(361469),
+  Naturalize                            = Spell(360823),
+  Return                                = Spell(361227),
+  VerdantEmbrace                        = Spell(360995),
   -- Talents
   BlastFurnace                          = Spell(375510),
+  EssenceAttunement                     = Spell(375722),
   ObsidianScales                        = Spell(363916),
   TipTheScales                          = Spell(370553),
   -- Buffs/Debuffs
@@ -63,7 +68,6 @@ Spell.Evoker.Devastation = MergeTableByKey(Spell.Evoker.Commons, {
   ChargedBlast                          = Spell(370455),
   Dragonrage                            = Spell(375087),
   EngulfingBlaze                        = Spell(370837),
-  EssenceAttunement                     = Spell(375722),
   EternitySurge                         = MultiSpell(359073,382411), -- with and without Font of Magic
   EternitysSpan                         = Spell(375757),
   EverburningFlame                      = Spell(370819),
@@ -87,9 +91,26 @@ Spell.Evoker.Devastation = MergeTableByKey(Spell.Evoker.Commons, {
   LivingFlameDebuff                     = Spell(361500),
 })
 
+Spell.Evoker.Preservation = MergeTableByKey(Spell.Evoker.Commons, {
+  -- Spells
+  DreamBreath                           = Spell(355936),
+  DreamFlight                           = Spell(359816),
+  Echo                                  = Spell(364343),
+  MassReturn                            = Spell(361178),
+  Spiritbloom                           = Spell(367226),
+  TemporalAnomaly                       = Spell(373861),
+  TimeDilation                          = Spell(357170),
+  Reversion                             = Spell(367364),
+  Rewind                                = Spell(363534),
+  -- Buff
+  EssenceBurstBuff                      = Spell(369299),
+})
+
 -- Items
 if not Item.Evoker then Item.Evoker = {} end
 Item.Evoker.Commons = {
+  -- Potions
+  Healthstone                           = Item(5512),
   -- Trinkets
   CrimsonAspirantsBadgeofFerocity       = Item(201449, {13, 14}),
   -- Items
@@ -103,6 +124,9 @@ Item.Evoker.Commons = {
 Item.Evoker.Devastation = MergeTableByKey(Item.Evoker.Commons, {
 })
 
+Item.Evoker.Preservation = MergeTableByKey(Item.Evoker.Commons, {
+})
+
 -- Macros
 if not Macro.Evoker then Macro.Evoker = {}; end
 Macro.Evoker.Commons = {
@@ -112,12 +136,76 @@ Macro.Evoker.Commons = {
   Healthstone                      = Macro("Healthstone", "/use item:5512"),
   
   -- Spells
+  AzureStrikeMouseover             = Macro("AzureStrikeMouseover", "/cast [@mouseover] " .. Spell.Evoker.Commons.AzureStrike:Name()),
   DeepBreathCursor                 = Macro("DeepBreathCursor", "/cast [@cursor] " .. Spell.Evoker.Commons.DeepBreath:Name()),
-  FireBreathMacro                  = Macro("FireBreathMacro", "/cast " .. Spell.Evoker.Commons.FireBreath:Name()),
+  EmeraldBlossomFocus              = Macro("EmeraldBlossomFocus", "/cast [@focus] " .. Spell.Evoker.Commons.EmeraldBlossom:Name()),
+  FireBreathMacro                  = Macro("FireBreath", "/cast " .. Spell.Evoker.Commons.FireBreath:Name()),
+  LivingFlameFocus                 = Macro("LivingFlameFocus", "/cast [@focus] " .. Spell.Evoker.Commons.LivingFlame:Name()),
+  NaturalizeFocus                  = Macro("NaturalizeFocus", "/cast [@focus] " .. Spell.Evoker.Commons.Naturalize:Name()),
   QuellMouseover                   = Macro("QuellMouseover", "/cast [@mouseover] " .. Spell.Evoker.Commons.Quell:Name()),
+  VerdantEmbraceFocus              = Macro("VerdantEmbraceFocus", "/cast [@focus] " .. Spell.Evoker.Commons.VerdantEmbrace:Name()),
 }
 
 Macro.Evoker.Devastation = MergeTableByKey(Macro.Evoker.Commons, {
   -- Spells
-  EternitySurgeMacro                  = Macro("EternitySurgeMacro", "/cast " .. Spell.Evoker.Devastation.EternitySurge:Name()),
+  EternitySurgeMacro               = Macro("EternitySurge", "/cast " .. Spell.Evoker.Devastation.EternitySurge:Name()),
+})
+
+Macro.Evoker.Preservation = MergeTableByKey(Macro.Evoker.Commons, {
+  -- Spells
+  DreamBreathMacro                 = Macro("DreamBreath", "/cast " .. Spell.Evoker.Preservation.DreamBreath:Name()),
+  DreamFlightCursor                = Macro("DreamFlightCursor", "/cast [@cursor] " .. Spell.Evoker.Preservation.DreamFlight:Name()),
+  EchoFocus                        = Macro("EchoFocus", "/cast [@focus] " .. Spell.Evoker.Preservation.Echo:Name()),
+  SpiritbloomFocus                 = Macro("SpiritbloomFocus", "/cast [@focus] " .. Spell.Evoker.Preservation.Spiritbloom:Name()),
+  TimeDilationFocus                = Macro("TimeDilationFocus", "/cast [@focus] " .. Spell.Evoker.Preservation.TimeDilation:Name()),
+  TipTheScalesDreamBreath          = Macro("TipTheScalesDreamBreath", "/cast " .. Spell.Evoker.Commons.TipTheScales:Name() .. "\n/cast " .. Spell.Evoker.Preservation.DreamBreath:Name()),
+  TipTheScalesSpiritbloom          = Macro("TipTheScalesSpiritbloom", "/cast " .. Spell.Evoker.Commons.TipTheScales:Name() .. "\n/cast [@focus] " .. Spell.Evoker.Preservation.Spiritbloom:Name()),
+  ReversionFocus                   = Macro("ReversionFocus", "/cast [@focus] " .. Spell.Evoker.Preservation.Reversion:Name()),
+  -- Focus
+  FocusTarget                      = Macro("FocusTarget", "/focus target"),
+  FocusPlayer                      = Macro("FocusPlayer", "/focus player"),
+  FocusParty1                      = Macro("FocusParty1", "/focus party1"),
+  FocusParty2                      = Macro("FocusParty2", "/focus party2"),
+  FocusParty3                      = Macro("FocusParty3", "/focus party3"),
+  FocusParty4                      = Macro("FocusParty4", "/focus party4"),
+  FocusRaid1                       = Macro("FocusRaid1", "/focus raid1"),
+  FocusRaid2                       = Macro("FocusRaid2", "/focus raid2"),
+  FocusRaid3                       = Macro("FocusRaid3", "/focus raid3"),
+  FocusRaid4                       = Macro("FocusRaid4", "/focus raid4"),
+  FocusRaid5                       = Macro("FocusRaid5", "/focus raid5"),
+  FocusRaid6                       = Macro("FocusRaid6", "/focus raid6"),
+  FocusRaid7                       = Macro("FocusRaid7", "/focus raid7"),
+  FocusRaid8                       = Macro("FocusRaid8", "/focus raid8"),
+  FocusRaid9                       = Macro("FocusRaid9", "/focus raid9"),
+  FocusRaid10                      = Macro("FocusRaid10", "/focus raid10"),
+  FocusRaid11                      = Macro("FocusRaid11", "/focus raid11"),
+  FocusRaid12                      = Macro("FocusRaid12", "/focus raid12"),
+  FocusRaid13                      = Macro("FocusRaid13", "/focus raid13"),
+  FocusRaid14                      = Macro("FocusRaid14", "/focus raid14"),
+  FocusRaid15                      = Macro("FocusRaid15", "/focus raid15"),
+  FocusRaid16                      = Macro("FocusRaid16", "/focus raid16"),
+  FocusRaid17                      = Macro("FocusRaid17", "/focus raid17"),
+  FocusRaid18                      = Macro("FocusRaid18", "/focus raid18"),
+  FocusRaid19                      = Macro("FocusRaid19", "/focus raid19"),
+  FocusRaid20                      = Macro("FocusRaid20", "/focus raid20"),
+  FocusRaid21                      = Macro("FocusRaid21", "/focus raid21"),
+  FocusRaid22                      = Macro("FocusRaid22", "/focus raid22"),
+  FocusRaid23                      = Macro("FocusRaid23", "/focus raid23"),
+  FocusRaid24                      = Macro("FocusRaid24", "/focus raid24"),
+  FocusRaid25                      = Macro("FocusRaid25", "/focus raid25"),
+  FocusRaid26                      = Macro("FocusRaid26", "/focus raid26"),
+  FocusRaid27                      = Macro("FocusRaid27", "/focus raid27"),
+  FocusRaid28                      = Macro("FocusRaid28", "/focus raid28"),
+  FocusRaid29                      = Macro("FocusRaid29", "/focus raid29"),
+  FocusRaid30                      = Macro("FocusRaid30", "/focus raid30"),
+  FocusRaid31                      = Macro("FocusRaid31", "/focus raid31"),
+  FocusRaid32                      = Macro("FocusRaid32", "/focus raid32"),
+  FocusRaid33                      = Macro("FocusRaid33", "/focus raid33"),
+  FocusRaid34                      = Macro("FocusRaid34", "/focus raid34"),
+  FocusRaid35                      = Macro("FocusRaid35", "/focus raid35"),
+  FocusRaid36                      = Macro("FocusRaid36", "/focus raid36"),
+  FocusRaid37                      = Macro("FocusRaid37", "/focus raid37"),
+  FocusRaid38                      = Macro("FocusRaid38", "/focus raid38"),
+  FocusRaid39                      = Macro("FocusRaid39", "/focus raid39"),
+  FocusRaid40                      = Macro("FocusRaid40", "/focus raid40"),
 })

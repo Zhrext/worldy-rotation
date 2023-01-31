@@ -448,12 +448,13 @@ end
 
 
 -- Get lowest friendly unit.
-function Commons.LowestFriendlyUnit()
+function Commons.LowestFriendlyUnit(Range)
+  if not Range then Range = 40; end
   local LowestUnit;
   local FriendlyUnits = Commons.FriendlyUnits();
   for i = 1, #FriendlyUnits do
     local FriendlyUnit = FriendlyUnits[i];
-    if FriendlyUnit and FriendlyUnit:Exists() and not FriendlyUnit:IsDeadOrGhost() and FriendlyUnit:IsInRange(40) and not Commons.IsMindControlled(FriendlyUnit) then
+    if FriendlyUnit and FriendlyUnit:Exists() and not FriendlyUnit:IsDeadOrGhost() and FriendlyUnit:IsInRange(Range) and not Commons.IsMindControlled(FriendlyUnit) then
       if not LowestUnit or FriendlyUnit:HealthPercentage() < LowestUnit:HealthPercentage() then
         LowestUnit = FriendlyUnit;
       end
@@ -483,7 +484,7 @@ function Commons.FriendlyUnitsWithBuffCount(Buff, OnlyTanks, OnlyNonTanks)
   local FriendlyUnits = Commons.FriendlyUnits();
   for i = 1, #FriendlyUnits do
     local FriendlyUnit = FriendlyUnits[i];
-    if FriendlyUnit:Exists() and not FriendlyUnit:IsDeadOrGhost() and (not OnlyTanks or Commons.UnitGroupRole(FriendlyUnit) == "TANK") and (not OnlyNonTanks or (not Commons.UnitGroupRole(FriendlyUnit) == "TANK")) then
+    if FriendlyUnit:Exists() and not FriendlyUnit:IsDeadOrGhost() and (not OnlyTanks or Commons.UnitGroupRole(FriendlyUnit) == "TANK") and (not OnlyNonTanks or (Commons.UnitGroupRole(FriendlyUnit) ~= "TANK")) then
       if FriendlyUnit:BuffUp(Buff) and not FriendlyUnit:BuffRefreshable(Buff) then
         Count = Count + 1;
       end
@@ -498,7 +499,7 @@ function Commons.FriendlyUnitsWithoutBuffCount(Buff, OnlyTanks, OnlyNonTanks)
   local Count = #FriendlyUnits;
   for i = 1, #FriendlyUnits do
     local FriendlyUnit = FriendlyUnits[i];
-    if FriendlyUnit:Exists() and not FriendlyUnit:IsDeadOrGhost() and (not OnlyTanks or Commons.UnitGroupRole(FriendlyUnit) == "TANK") and (not OnlyNonTanks or (not Commons.UnitGroupRole(FriendlyUnit) == "TANK")) then
+    if FriendlyUnit:Exists() and not FriendlyUnit:IsDeadOrGhost() and (not OnlyTanks or Commons.UnitGroupRole(FriendlyUnit) == "TANK") and (not OnlyNonTanks or (Commons.UnitGroupRole(FriendlyUnit) ~= "TANK")) then
       if FriendlyUnit:BuffUp(Buff) and not FriendlyUnit:BuffRefreshable(Buff) then
         Count = Count - 1;
       end
@@ -521,23 +522,25 @@ function Commons.DeadFriendlyUnitsCount()
 end
 
 -- Get Focus Unit
-function Commons.GetFocusUnit(IncludeDispellableUnits)
+function Commons.GetFocusUnit(IncludeDispellableUnits, Range)
+  if not Range then Range = 40; end
   if Commons.TargetIsValidHealableNpc() then return Target; end
   if Commons.IsSoloMode() then return Player; end
   if IncludeDispellableUnits then
     local DispellableFriendlyUnit = Commons.DispellableFriendlyUnit();
-    if DispellableFriendlyUnit then
+    if DispellableFriendlyUnit and DispellableFriendlyUnit:IsInRange(Range) then
       return DispellableFriendlyUnit;
     end
   end
-  local LowestFriendlyUnit = Commons.LowestFriendlyUnit();
+  local LowestFriendlyUnit = Commons.LowestFriendlyUnit(Range);
   if LowestFriendlyUnit then return LowestFriendlyUnit; end
 end
 
 -- Focus Unit
-function Commons.FocusUnit(IncludeDispellableUnits, Macros)
-  local NewFocusUnit = Commons.GetFocusUnit(IncludeDispellableUnits);
-  if NewFocusUnit ~= nil and (Focus == nil or not Focus:Exists() or NewFocusUnit:GUID() ~= Focus:GUID() or not Focus:IsInRange(40)) then
+function Commons.FocusUnit(IncludeDispellableUnits, Macros, Range)
+  if not Range then Range = 40; end
+  local NewFocusUnit = Commons.GetFocusUnit(IncludeDispellableUnits, Range);
+  if NewFocusUnit ~= nil and (Focus == nil or not Focus:Exists() or NewFocusUnit:GUID() ~= Focus:GUID() or not Focus:IsInRange(Range)) then
     local FocusUnitKey = "Focus" .. Utils.UpperCaseFirst(NewFocusUnit:ID())
     if WR.Press(Macros[FocusUnitKey], nil, nil, true) then return "focus " .. NewFocusUnit:ID() .. " focus_unit 1"; end
   end
