@@ -98,12 +98,15 @@ Spell.Evoker.Preservation = MergeTableByKey(Spell.Evoker.Commons, {
   Echo                                  = Spell(364343),
   MassReturn                            = Spell(361178),
   Spiritbloom                           = MultiSpell(367226, 382731),
+  Stasis                                = Spell(370537),
+  StasisReactivate                      = Spell(370564),
   TemporalAnomaly                       = Spell(373861),
   TimeDilation                          = Spell(357170),
   Reversion                             = MultiSpell(366155, 367364),
   Rewind                                = Spell(363534),
   -- Buff
   EssenceBurstBuff                      = Spell(369299),
+  StasisBuff                            = Spell(370562),
 })
 
 -- Items

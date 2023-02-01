@@ -183,11 +183,20 @@ local function Cooldown()
   if not Focus or not Focus:Exists() or not Focus:IsInRange(30) then return; end
   -- trinket
   local ShouldReturn = Trinket(); if ShouldReturn then return ShouldReturn; end
+  -- stasis
+  if S.Stasis:IsReady() and Everyone.AreUnitsBelowHealthPercentage(Settings.Preservation.Healing, "Stasis") then
+    if Press(S.Stasis) then return "stasis cooldown"; end
+  end
+  -- stasis_reactivate
+  if S.StasisReactivate:IsReady() and (Everyone.AreUnitsBelowHealthPercentage(Settings.Preservation.Healing, "Stasis") or (Player:BuffUp(S.StasisBuff) and Player:BuffRemains(S.StasisBuff) < 3)) then
+    if Press(S.StasisReactivate) then return "stasis_reactivate cooldown"; end
+  end
+  -- tip_the_scales
   if S.TipTheScales:IsCastable() then
-    -- tip_the_scales_dream_breath
+    -- dream_breath
     if S.DreamBreath:IsReady() and Everyone.AreUnitsBelowHealthPercentage(Settings.Preservation.Healing, "DreamBreath") then
       if Press(M.TipTheScalesDreamBreath) then return "dream_breath cooldown"; end
-    -- tip_the_scales_spirit_bloom
+    -- spirit_bloom
     elseif S.Spiritbloom:IsReady() and Everyone.AreUnitsBelowHealthPercentage(Settings.Preservation.Healing, "Spiritbloom") then
       if Press(M.TipTheScalesSpiritbloom) then return "spirit_bloom cooldown"; end
     end
@@ -392,6 +401,8 @@ local function AutoBind()
   Bind(S.FireBreath)
   Bind(S.LivingFlame)
   Bind(S.ObsidianScales)
+  Bind(S.Stasis)
+  Bind(S.StasisReactivate)
   Bind(S.TailSwipe)
   Bind(S.TemporalAnomaly)
   Bind(S.Rewind)
