@@ -74,8 +74,8 @@ local BossFightRemains = 11111
 local FightRemains = 11111
 local GCDMax
 local Immovable
-local ESCastPercentage = 100
-local FBCastPercentage = 100
+local ESCastTime = 2.5
+local FBCastTime = 2.5
 
 -- Update Equipment
 HL:RegisterForEvent(function()
@@ -167,21 +167,21 @@ local function ES()
   -- eternity_surge,empower_to=1,if=spell_targets.pyre<=1+talent.eternitys_span|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste
   if (EnemiesCount8ySplash <= 1 + num(S.EternitysSpan:IsAvailable()) or VarDragonrageRemains < 1.75 * PlayerHaste and VarDragonrageRemains >= 1 * PlayerHaste) then
     ESEmpower = 1
-    ESCastPercentage = 27
+    ESCastTime = 1.2
   -- eternity_surge,empower_to=2,if=spell_targets.pyre<=2+2*talent.eternitys_span|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
   elseif (EnemiesCount8ySplash <= 2 + 2 * num(S.EternitysSpan:IsAvailable()) or VarDragonrageRemains < 2.5 * PlayerHaste and VarDragonrageRemains >= 1.75 * PlayerHaste) then
     ESEmpower = 2
-    ESCastPercentage = 52
+    ESCastTime = 1.5
   -- eternity_surge,empower_to=3,if=spell_targets.pyre<=3+3*talent.eternitys_span|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
   elseif (EnemiesCount8ySplash <= 3 + 3 * num(S.EternitysSpan:IsAvailable()) or (not S.FontofMagic:IsAvailable()) or VarDragonrageRemains <= 3.25 * PlayerHaste and VarDragonrageRemains >= 2.5 * PlayerHaste) then
     ESEmpower = 3
-    ESCastPercentage = 77
+    ESCastTime = 2
   -- eternity_surge,empower_to=4
   else
     ESEmpower = 4
-    ESCastPercentage = 98
+    ESCastTime = 2.5
   end
-  if Press(M.EternitySurgeMacro, not Target:IsInRange(30), true) then return "eternity_surge empower " .. ESEmpower .. " ES 2"; end
+  if Press(M.EternitySurgeMacro, not Target:IsInRange(30), true) then return "eternity_surge empower " .. ESEmpower; end
 end
 
 local function FB()
@@ -190,19 +190,19 @@ local function FB()
   -- fire_breath,empower_to=1,if=(20+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste|active_enemies<=2
   if ((20 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or VarDragonrageRemains < 1.75 * PlayerHaste and VarDragonrageRemains >= 1 * PlayerHaste or EnemiesCount8ySplash <= 2) then
     FBEmpower = 1
-    FBCastPercentage = 27
+    FBCastTime = 1.2
   -- fire_breath,empower_to=2,if=(14+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
   elseif ((14 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or VarDragonrageRemains < 2.5 * PlayerHaste and VarDragonrageRemains >= 1.75 * PlayerHaste) then
     FBEmpower = 2
-    FBCastPercentage = 52
+    FBCastTime = 1.5
   -- fire_breath,empower_to=3,if=(8+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
   elseif ((8 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or (not S.FontofMagic:IsAvailable()) or VarDragonrageRemains <= 3.25 * PlayerHaste and VarDragonrageRemains >= 2.5 * PlayerHaste) then
     FBEmpower = 3
-    FBCastPercentage = 77
+    FBCastTime = 2
   -- fire_breath,empower_to=4
   else
     FBEmpower = 4
-    FBCastPercentage = 98
+    FBCastTime = 2.5
   end
   if Press(M.FireBreathMacro, not Target:IsInRange(30), true) then return "fire_breath empower " .. FBEmpower; end
 end
@@ -214,7 +214,7 @@ local function Aoe()
   end
   -- tip_the_scales,if=buff.dragonrage.up&(spell_targets.pyre<=6|!cooldown.fire_breath.up)
   if S.TipTheScales:IsCastable() and CDsON() and (VarDragonrageUp and (EnemiesCount8ySplash <= 6 or S.FireBreath:CooldownDown())) then
-    if Press(S.TipTheScales) then return "tip_the_scales aoe 4"; end
+    if Press(S.TipTheScales, not Target:IsInRange(30), nil, true) then return "tip_the_scales aoe 4"; end
   end
   -- call_action_list,name=fb,if=buff.dragonrage.up|!talent.dragonrage|cooldown.dragonrage.remains>10&talent.everburning_flame
   if S.FireBreath:IsCastable() and (VarDragonrageUp or (not S.Dragonrage:IsAvailable()) or (not CDsON()) or S.Dragonrage:CooldownRemains() > 10 and S.EverburningFlame:IsAvailable()) then
@@ -225,21 +225,21 @@ local function Aoe()
     -- fire_breath,empower_to=1,if=cooldown.dragonrage.remains>10&spell_targets.pyre>=7
     if EnemiesCount8ySplash >= 7 then
       FBEmpower = 1
-      FBCastPercentage = 27
+      FBCastTime = 1.2
     -- fire_breath,empower_to=2,if=cooldown.dragonrage.remains>10&spell_targets.pyre>=6
     elseif EnemiesCount8ySplash >= 6 then
       FBEmpower = 2
-      FBCastPercentage = 52
+      FBCastTime = 1.5
     -- fire_breath,empower_to=3,if=cooldown.dragonrage.remains>10&spell_targets.pyre>=4
     elseif EnemiesCount8ySplash >= 4 then
       FBEmpower = 3
-      FBCastPercentage = 77
+      FBCastTime = 2
     -- fire_breath,empower_to=2,if=cooldown.dragonrage.remains>10
     else
       FBEmpower = 2
-      FBCastPercentage = 52
+      FBCastTime = 1.5
     end
-    if Press(M.FireBreathMacro, not Target:IsInRange(30), true) then return "fire_breath empower " .. FBEmpower .. " aoe 6"; end
+    if Press(M.FireBreathMacro, not Target:IsInRange(30), true) then return "fire_breath empower " .. FBEmpower .. " aoe"; end
   end
   -- call_action_list,name=es,if=buff.dragonrage.up|!talent.dragonrage|cooldown.dragonrage.remains>15
   if S.EternitySurge:IsCastable() and (VarDragonrageUp or (not S.Dragonrage:IsAvailable()) or (not CDsON()) or S.Dragonrage:CooldownRemains() > 15) then
@@ -266,7 +266,7 @@ local function Aoe()
     if Press(S.AzureStrike, not Target:IsSpellInRange(S.AzureStrike)) then return "azure_strike aoe 16"; end
   end
   -- pyre,if=talent.volatility
-  if S.Pyre:IsReady() and (S.Volatility:IsAvailable()) then
+  if S.Pyre:IsReady() and (S.Volatility:IsAvailable()) and not Player:IsChanneling() then
     if Press(S.Pyre, not Target:IsSpellInRange(S.Pyre)) then return "pyre aoe 18"; end
   end
   -- living_flame,if=buff.burnout.up&buff.leaping_flames.up&!buff.essence_burst.up
@@ -274,11 +274,11 @@ local function Aoe()
     if Press(S.LivingFlame, not Target:IsSpellInRange(S.LivingFlame), Immovable) then return "living_flame aoe 20"; end
   end
   -- pyre,if=cooldown.dragonrage.remains>=10&spell_targets.pyre>=4
-  if S.Pyre:IsReady() and ((S.Dragonrage:CooldownRemains() >= 10 or (not CDsON())) and EnemiesCount8ySplash >= 4) then
+  if S.Pyre:IsReady() and ((S.Dragonrage:CooldownRemains() >= 10 or (not CDsON())) and EnemiesCount8ySplash >= 4) and not Player:IsChanneling() then
     if Press(S.Pyre, not Target:IsSpellInRange(S.Pyre)) then return "pyre aoe 22"; end
   end
   -- pyre,if=cooldown.dragonrage.remains>=10&spell_targets.pyre=3&buff.charged_blast.stack>=10
-  if S.Pyre:IsReady() and ((S.Dragonrage:CooldownRemains() >= 10 or (not CDsON())) and EnemiesCount8ySplash == 3 and Player:BuffStack(S.ChargedBlastBuff) >= 10) then
+  if S.Pyre:IsReady() and ((S.Dragonrage:CooldownRemains() >= 10 or (not CDsON())) and EnemiesCount8ySplash == 3 and Player:BuffStack(S.ChargedBlastBuff) >= 10) and not Player:IsChanneling() then
     if Press(S.Pyre, not Target:IsSpellInRange(S.Pyre)) then return "pyre aoe 24"; end
   end
   -- disintegrate,chain=1,if=!talent.shattering_star|cooldown.shattering_star.remains>5|essence>essence.max-1|buff.essence_burst.stack==buff.essence_burst.max_stack
@@ -302,7 +302,7 @@ local function ST()
   end
   -- tip_the_scales,if=buff.dragonrage.up&(buff.dragonrage.remains<variable.r1_cast_time&(buff.dragonrage.remains>cooldown.fire_breath.remains|buff.dragonrage.remains>cooldown.eternity_surge.remains)|talent.feed_the_flames&!cooldown.fire_breath.up)
   if S.TipTheScales:IsCastable() and CDsON() and (VarDragonrageUp and (VarDragonrageRemains < VarR1CastTime and (VarDragonrageRemains > S.FireBreath:CooldownRemains() or VarDragonrageRemains > S.EternitySurge:CooldownRemains()) or S.FeedtheFlames:IsAvailable() and S.FireBreath:CooldownDown())) then
-    if Press(S.TipTheScales) then return "tip_the_scales st 4"; end
+    if Press(S.TipTheScales, not Target:IsInRange(30), nil, true) then return "tip_the_scales st 4"; end
   end
   -- call_action_list,name=fb,if=!talent.dragonrage|variable.next_dragonrage>15|!talent.animosity
   -- call_action_list,name=es,if=!talent.dragonrage|variable.next_dragonrage>15|!talent.animosity
@@ -316,11 +316,11 @@ local function ST()
   end
   -- wait,sec=cooldown.fire_breath.remains,if=talent.animosity&buff.dragonrage.up&buff.dragonrage.remains<gcd.max+variable.r1_cast_time*buff.tip_the_scales.down&buff.dragonrage.remains-cooldown.fire_breath.remains>=variable.r1_cast_time*buff.tip_the_scales.down
   if (S.Animosity:IsAvailable() and VarDragonrageUp and VarDragonrageRemains < GCDMax + VarR1CastTime * num(Player:BuffDown(S.TipTheScales)) and VarDragonrageRemains - S.FireBreath:CooldownRemains() >= VarR1CastTime * num(Player:BuffDown(S.TipTheScales))) then
-    if CastPooling(S.Pool, S.FireBreath:CooldownRemains(), "WAIT") then return "Wait for Fire Breath st 6"; end
+    if Press(S.Pool) then return "Wait for Fire Breath st 6"; end
   end
   -- wait,sec=cooldown.eternity_surge.remains,if=talent.animosity&buff.dragonrage.up&buff.dragonrage.remains<gcd.max+variable.r1_cast_time&buff.dragonrage.remains-cooldown.eternity_surge.remains>=variable.r1_cast_time*buff.tip_the_scales.down
   if (S.Animosity:IsAvailable() and VarDragonrageUp and VarDragonrageRemains < GCDMax + VarR1CastTime and VarDragonrageRemains - S.EternitySurge:CooldownRemains() >= VarR1CastTime * num(Player:BuffDown(S.TipTheScales))) then
-    if CastPooling(S.Pool, S.EternitySurge:CooldownRemains(), "WAIT") then return "Wait for Eternity Surge st 8"; end
+    if Press(S.Pool) then return "Wait for Eternity Surge st 8"; end
   end
   -- shattering_star,if=!buff.dragonrage.up|buff.essence_burst.stack==buff.essence_burst.max_stack|talent.eye_of_infinity
   if S.ShatteringStar:IsCastable() and ((not VarDragonrageUp) or Player:BuffStack(S.EssenceBurstBuff) == MaxEssenceBurstStack or S.EyeofInfinity:IsAvailable()) then
@@ -367,6 +367,19 @@ end
 
 -- APL Main
 local function APL()
+  if Player:IsChanneling(S.EternitySurge) then
+    if (GetTime() - Player:ChannelStart()) > ESCastTime then
+      if Press(M.EternitySurgeMacro, nil, nil, true) then return "ES " .. ESCastTime; end
+    end
+    if Press(S.Pool) then return "Pool for ES " .. ESCastTime; end
+  end
+  if Player:IsChanneling(S.FireBreath) then
+    if (GetTime() - Player:ChannelStart()) > FBCastTime then
+      if Press(M.FireBreathMacro, nil, nil, true) then return "FB " .. FBCastTime; end
+    end
+    if Press(S.Pool) then return "Pool for FB " .. FBCastTime; end
+  end
+  
   Immovable = Player:BuffRemains(S.HoverBuff) < 2
   Enemies25y = Player:GetEnemiesInRange(25)
   Enemies8ySplash = Target:GetEnemiesInSplashRange(8)
@@ -404,20 +417,6 @@ local function APL()
     end
   end
   
-  if Player:IsCasting() and Player:IsChanneling(S.EternitySurge) then
-    if Player:ChannelPercentage(true) > ESCastPercentage then
-      if Press(M.EternitySurgeMacro, false, nil, true) then return "ES " .. ESCastPercentage; end
-    end
-    if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for ES " .. ESCastPercentage; end
-  end
-  
-  if Player:IsCasting() and Player:IsChanneling(S.FireBreath) then
-    if Player:ChannelPercentage(true) > FBCastPercentage then
-      if Press(M.FireBreathMacro, false, nil, true) then return "FB " .. FBCastPercentage; end
-    end
-    if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for FB " .. FBCastPercentage; end
-  end
-  
   -- Explosives
   if (Settings.General.Enabled.HandleExplosives) then
     local ShouldReturn = Everyone.HandleExplosive(S.AzureStrike, M.AzureStrikeMouseover); if ShouldReturn then return ShouldReturn; end
@@ -451,15 +450,11 @@ local function APL()
     -- run_action_list,name=aoe,if=spell_targets.pyre>=3
     if EnemiesCount8ySplash >= 3 then
       local ShouldReturn = Aoe(); if ShouldReturn then return ShouldReturn; end
-      if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for Aoe()"; end
+      if Press(S.Pool) then return "Pool for Aoe()"; end
     end
     -- run_action_list,name=st
-    if true then
-      local ShouldReturn = ST(); if ShouldReturn then return ShouldReturn; end
-      if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for ST()"; end
-    end
-    -- Error condition. We should never get here.
-    if CastAnnotated(S.Pool, false, "ERR") then return "Wait/Pool Error"; end
+    local ShouldReturn = ST(); if ShouldReturn then return ShouldReturn; end
+    if Press(S.Pool) then return "Pool for ST()"; end
   end
 end
 

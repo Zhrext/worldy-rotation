@@ -93,14 +93,14 @@ Spell.Evoker.Devastation = MergeTableByKey(Spell.Evoker.Commons, {
 
 Spell.Evoker.Preservation = MergeTableByKey(Spell.Evoker.Commons, {
   -- Spells
-  DreamBreath                           = Spell(355936),
+  DreamBreath                           = MultiSpell(355936, 382614),
   DreamFlight                           = Spell(359816),
   Echo                                  = Spell(364343),
   MassReturn                            = Spell(361178),
-  Spiritbloom                           = Spell(367226),
+  Spiritbloom                           = MultiSpell(367226, 382731),
   TemporalAnomaly                       = Spell(373861),
   TimeDilation                          = Spell(357170),
-  Reversion                             = Spell(367364),
+  Reversion                             = MultiSpell(366155, 367364),
   Rewind                                = Spell(363534),
   -- Buff
   EssenceBurstBuff                      = Spell(369299),

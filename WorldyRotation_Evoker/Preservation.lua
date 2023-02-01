@@ -66,9 +66,9 @@ local EnemiesCount8ySplash
 local BossFightRemains = 11111
 local FightRemains = 11111
 local Immovable
-local FBCastPercentage = 100
-local DBCastPercentage = 100
-local SBCastPercentage = 100
+local FBCastTime = 2.5
+local DBCastTime = 2.5
+local SBCastTime = 2.5
 local LowUnitsCount = 0
 
 -- Update Equipment
@@ -152,18 +152,18 @@ local function Damage()
     local FBEmpower = 0
     if EnemiesCount8ySplash <= 2 then
       FBEmpower = 1
-      FBCastPercentage = 27
+      FBCastTime = 1.2
     elseif EnemiesCount8ySplash <= 4 then
       FBEmpower = 2
-      FBCastPercentage = 52
+      FBCastTime = 1.5
     elseif EnemiesCount8ySplash <= 6 then
       FBEmpower = 3
-      FBCastPercentage = 77
+      FBCastTime = 2
     else
       FBEmpower = 4
-      FBCastPercentage = 98
+      FBCastTime = 2.5
     end
-    if Press(M.FireBreathMacro, not Target:IsInRange(30), true) then return "fire_breath damage " .. FBEmpower; end
+    if Press(M.FireBreathMacro, not Target:IsInRange(30), true, nil, true) then return "fire_breath damage " .. FBEmpower; end
   end
   if S.Disintegrate:IsReady() and Player:BuffUp(S.EssenceBurstBuff) then
     if Press(S.Disintegrate, not Target:IsSpellInRange(S.Disintegrate), Immovable) then return "disintegrate damage"; end
@@ -215,20 +215,20 @@ local function AoEHealing()
   -- dream_breath
   if S.DreamBreath:IsReady() and Everyone.AreUnitsBelowHealthPercentage(Settings.Preservation.Healing, "DreamBreath") then
     if LowUnitsCount <= 2 then
-      DBCastPercentage = 27
+      DBCastTime = 1.2
     else
-      DBCastPercentage = 52
+      DBCastTime = 1.5
     end
-    if Press(M.DreamBreathMacro, false, true) then return "dream_breath aoe_healing"; end
+    if Press(M.DreamBreathMacro, nil, true) then return "dream_breath aoe_healing"; end
   end
   -- spirit_bloom
   if S.Spiritbloom:IsReady() and Everyone.AreUnitsBelowHealthPercentage(Settings.Preservation.Healing, "Spiritbloom") then
     if LowUnitsCount > 2 then
-      SBCastPercentage = 77
+      SBCastTime = 2
     else
-      SBCastPercentage = 27
+      SBCastTime = 1.2
     end
-    if Press(M.SpiritbloomFocus, false, true) then return "spirit_bloom aoe_healing"; end
+    if Press(M.SpiritbloomFocus, nil, true) then return "spirit_bloom aoe_healing"; end
   end
   -- living_flame,if=leaping_flames.up
   if S.LivingFlame:IsCastable() and Player:BuffUp(S.LeapingFlamesBuff) and Focus:HealthPercentage() <= Settings.Preservation.Healing.HP.LivingFlame then
@@ -335,22 +335,22 @@ local function APL()
   end
   
   if Player:IsChanneling(S.FireBreath) then
-    if Player:ChannelPercentage(true) > FBCastPercentage or (LowUnitsCount > 1 and FBCastPercentage > 27) then
-      if Press(M.FireBreathMacro, false, nil, true) then return "FB " .. FBCastPercentage; end
+    if (GetTime() - Player:ChannelStart()) > FBCastTime or (LowUnitsCount > 1 and (GetTime() - Player:ChannelStart()) > 1) then
+      if Press(M.FireBreathMacro, nil, nil, true) then return "FB " .. FBCastTime; end
     end
-    if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for FB " .. FBCastPercentage; end
+    if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for FB " .. FBCastTime; end
   end
   if Player:IsChanneling(S.DreamBreath) then
-    if Player:ChannelPercentage(true) > DBCastPercentage then
-      if Press(M.DreamBreathMacro, false, nil, true) then return "DB " .. DBCastPercentage; end
+    if (GetTime() - Player:ChannelStart()) > DBCastTime then
+      if Press(M.DreamBreathMacro, nil, nil, true) then return "DB " .. DBCastTime; end
     end
-    if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for DB " .. DBCastPercentage; end
+    if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for DB " .. DBCastTime; end
   end
   if Player:IsChanneling(S.Spiritbloom) then
-    if Player:ChannelPercentage(true) > SBCastPercentage then
-      if Press(M.SpiritbloomFocus, false, nil, true) then return "SB " .. SBCastPercentage; end
+    if (GetTime() - Player:ChannelStart()) > SBCastTime then
+      if Press(M.SpiritbloomFocus, nil, nil, true) then return "SB " .. SBCastTime; end
     end
-    if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for SB " .. SBCastPercentage; end
+    if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for SB " .. SBCastTime; end
   end
   
   -- explosives
