@@ -41,8 +41,8 @@ Spell.Warrior.Commons = {
   VictoryRush                           = Spell(34428),
   DefensiveStance                       = Spell(386208),
   -- Talents
-  Avatar                                = Spell(107574),
-  AvatarBuff                            = Spell(107574),
+  Avatar                                = MultiSpell(107574, 401150),
+  AvatarBuff                            = MultiSpell(107574, 401150),
   BerserkerRage                         = Spell(18499),
   BloodandThunder                       = Spell(384277),
   DoubleTime                            = Spell(103827),
