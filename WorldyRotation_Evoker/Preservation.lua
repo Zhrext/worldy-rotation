@@ -418,6 +418,7 @@ local function AutoBind()
   
   -- Macros
   Bind(M.AzureStrikeMouseover)
+  Bind(M.CauterizingFlameFocus)
   Bind(M.DeepBreathCursor)
   Bind(M.DreamBreathMacro)
   Bind(M.DreamFlightCursor)

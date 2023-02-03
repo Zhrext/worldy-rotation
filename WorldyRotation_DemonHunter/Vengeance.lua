@@ -48,8 +48,6 @@ local M = Macro.DemonHunter.Vengeance
 
 -- Create table to exclude above trinkets from On Use function
 local OnUseExcludes = {
-  -- I.TrinketName:ID(),
-  I.AlgetharPuzzleBox:ID(),
 }
 
 -- GUI Settings
@@ -191,10 +189,6 @@ local function Precombat()
   -- variable,name=spirit_bomb_soul_fragments_in_meta,op=setif,value=3,value_else=4,condition=talent.fracture.enabled
   -- Note: Handling variable resets via PLAYER_REGEN_ENABLED/PLAYER_TALENT_UPDATE/PLAYER_EQUIPMENT_CHANGED registrations
   -- snapshot_stats
-  -- use_item,name=algethar_puzzle_box
-  if CDsON() and Settings.General.Enabled.Trinkets and I.AlgetharPuzzleBox:IsEquippedAndReady() then
-    if Press(I.AlgetharPuzzleBox, nil, true) then return "algethar_puzzle_box precombat 0"; end
-  end
   -- sigil_of_flame
   if (not S.ConcentratedSigils:IsAvailable()) and S.SigilOfFlame:IsCastable() then
     if Press(M.SigilOfFlamePlayer, not Target:IsInMeleeRange(8)) then return "sigil_of_flame precombat 2"; end
@@ -463,7 +457,7 @@ local function APL()
     -- Note: Handled via Defensives()
     -- metamorphosis,if=!buff.metamorphosis.up&!dot.fiery_brand.ticking
     if CDsON() and S.Metamorphosis:IsCastable() and Settings.Vengeance.Enabled.MetaOffensively and (Player:BuffDown(S.MetamorphosisBuff) and Target:DebuffDown(S.FieryBrandDebuff)) then
-      if Press(S.Metamorphosis) then return "metamorphosis main 4"; end
+      if Press(S.Metamorphosis, not IsInMeleeRange) then return "metamorphosis main 4"; end
     end
     -- fiery_brand,if=!talent.fiery_demise.enabled&!dot.fiery_brand.ticking
     if CDsON() and S.FieryBrand:IsCastable() and Settings.Vengeance.Enabled.FieryBrandOffensively and ((not S.FieryDemise:IsAvailable()) and Target:DebuffDown(S.FieryBrandDebuff)) then
@@ -489,10 +483,6 @@ local function APL()
       local Trinket2ToUse = Player:GetUseableTrinkets(OnUseExcludes, 14)
       if Trinket2ToUse then
         if Press(M.Trinket2, nil, nil, true) then return "trinket2 main 14"; end
-      end
-      -- use_item,name=algethar_puzzle_box
-      if I.AlgetharPuzzleBox:IsEquippedAndReady() then
-        if Press(I.AlgetharPuzzleBox, nil, true) then return "algethar_puzzle_box main 14"; end
       end
     end
     -- variable,name=spirit_bomb_soul_fragments,op=setif,value=variable.spirit_bomb_soul_fragments_in_meta,value_else=variable.spirit_bomb_soul_fragments_not_in_meta,condition=buff.metamorphosis.up
@@ -627,7 +617,6 @@ local function AutoBind()
   Bind(S.ThrowGlaive)
   
   -- Bind Items
-  Bind(I.AlgetharPuzzleBox)
   Bind(M.Trinket1)
   Bind(M.Trinket2)
   Bind(M.Healthstone)

@@ -30,6 +30,7 @@ Spell.Evoker.Commons = {
   -- Abilities
   AzureStrike                           = Spell(362969),
   BlessingoftheBronze                   = Spell(364342),
+  CauterizingFlame                      = Spell(374251),
   DeepBreath                            = Spell(357210),
   Disintegrate                          = Spell(356995),
   EmeraldBlossom                        = Spell(355913),
@@ -141,6 +142,7 @@ Macro.Evoker.Commons = {
   -- Spells
   AzureStrikeMouseover             = Macro("AzureStrikeMouseover", "/cast [@mouseover] " .. Spell.Evoker.Commons.AzureStrike:Name()),
   DeepBreathCursor                 = Macro("DeepBreathCursor", "/cast [@cursor] " .. Spell.Evoker.Commons.DeepBreath:Name()),
+  CauterizingFlameFocus            = Macro("CauterizingFlameFocus", "/cast [@focus] " .. Spell.Evoker.Commons.CauterizingFlame:Name()),
   EmeraldBlossomFocus              = Macro("EmeraldBlossomFocus", "/cast [@focus] " .. Spell.Evoker.Commons.EmeraldBlossom:Name()),
   FireBreathMacro                  = Macro("FireBreath", "/cast " .. Spell.Evoker.Commons.FireBreath:Name()),
   LivingFlameFocus                 = Macro("LivingFlameFocus", "/cast [@focus] " .. Spell.Evoker.Commons.LivingFlame:Name()),
