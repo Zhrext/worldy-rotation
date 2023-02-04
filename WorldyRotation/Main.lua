@@ -324,7 +324,7 @@ local EnabledRotation = {
   [581]   = "WorldyRotation_DemonHunter",   -- Vengeance
   ---- Druid
   [102]   = "WorldyRotation_Druid",         -- Balance
-  --  [103]   = "WorldyRotation_Druid",         -- Feral
+  [103]   = "WorldyRotation_Druid",         -- Feral
   --  [104]   = "WorldyRotation_Druid",         -- Guardian
     [105]   = "WorldyRotation_Druid",         -- Restoration
     -- Evoker

@@ -33,6 +33,18 @@ WR.GUISettings.APL.Druid = {
       },
     },
   },
+  Feral = {
+    Enabled = {
+      WildCharge = false,
+    },
+    Defensive = {
+      HP = {
+        Barkskin = 50,
+        NaturesVigil = 75,
+        Renewal = 55,
+      },
+    },
+  },
   Restoration = {
     Defensive = {
       HP = {
@@ -102,6 +114,8 @@ local ARPanel = WR.GUI.Panel
 local CP_Druid = CreateChildPanel(ARPanel, "Druid")
 local CP_Balance = CreateChildPanel(CP_Druid, "Balance")
 local CP_Balance_Defensive = CreateChildPanel(CP_Balance, "Defensive")
+local CP_Feral = CreateChildPanel(CP_Druid, "Feral")
+local CP_Feral_Defensive = CreateChildPanel(CP_Feral, "Defensive")
 local CP_Restoration = CreateChildPanel(CP_Druid, "Restoration")
 local CP_Restoration_Defensive = CreateChildPanel(CP_Restoration, "Defensive")
 local CP_Restoration_Damage = CreateChildPanel(CP_Restoration, "Damage")
@@ -114,6 +128,10 @@ CreateARPanelOptions(CP_Druid, "APL.Druid.Commons")
 -- Balance
 CreateARPanelOptions(CP_Balance, "APL.Druid.Balance")
 CreateARPanelOptions(CP_Balance_Defensive, "APL.Druid.Balance.Defensive")
+
+-- Feral
+CreateARPanelOptions(CP_Feral, "APL.Druid.Feral")
+CreateARPanelOptions(CP_Feral_Defensive, "APL.Druid.Feral.Defensive")
 
 -- Restoration
 CreateARPanelOptions(CP_Restoration_Defensive, "APL.Druid.Restoration.Defensive")

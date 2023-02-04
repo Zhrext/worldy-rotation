@@ -53,6 +53,7 @@ Spell.Druid.Commons = {
   MightyBash                            = Spell(5211),
   MoonkinForm                           = MultiSpell(24858,197625),
   Rake                                  = Spell(1822),
+  Renewal                               = Spell(108238),
   Rip                                   = Spell(1079),
   SkullBash                             = Spell(106839),
   StampedingRoar                        = Spell(77764),
@@ -62,6 +63,7 @@ Spell.Druid.Commons = {
   SurvivalInstincts                     = Spell(61336),
   Swiftmend                             = Spell(18562),
   Swipe                                 = MultiSpell(106785,213771,213764),
+  Typhoon                               = Spell(132469),
   Thrash                                = MultiSpell(77758,106830),
   WildCharge                            = MultiSpell(16979,49376,102417),
   Wildgrowth                            = Spell(48438),
@@ -70,6 +72,7 @@ Spell.Druid.Commons = {
   -- Buffs
   FrenziedRegenerationBuff              = Spell(22842),
   IronfurBuff                           = Spell(192081),
+  SuddenAmbushBuff                      = Spell(340698),
   -- Debuffs
   MoonfireDebuff                        = Spell(164812),
   RakeDebuff                            = Spell(155722),
@@ -107,7 +110,6 @@ Spell.Druid.Balance = MergeTableByKey(Spell.Druid.Commons, {
   Starlord                              = Spell(202345),
   Starweaver                            = Spell(393940),
   StellarFlare                          = Spell(202347),
-  Typhoon                               = Spell(132469),
   TwinMoons                             = Spell(279620),
   UmbralEmbrace                         = Spell(393760),
   UmbralIntensity                       = Spell(383195),
@@ -144,6 +146,39 @@ Spell.Druid.Balance = MergeTableByKey(Spell.Druid.Commons, {
   OnethsClearVisionBuff                 = Spell(339797),
   OnethsPerceptionBuff                  = Spell(339800),
   TimewornDreambinderBuff               = Spell(340049)
+})
+
+Spell.Druid.Feral = MergeTableByKey(Spell.Druid.Commons, {
+  -- Abilties
+  -- Talents
+  AdaptiveSwarm                         = Spell(391888),
+  ApexPredatorsCraving                  = Spell(391881),
+  Berserk                               = Spell(106951),
+  Bloodtalons                           = Spell(319439),
+  BrutalSlash                           = Spell(202028),
+  DoubleClawedRake                      = Spell(391700),
+  FeralFrenzy                           = Spell(274837),
+  Incarnation                           = Spell(102543),
+  LunarInspiration                      = Spell(155580),
+  LIMoonfire                            = Spell(155625), -- Lunar Inspiration Moonfire
+  MomentofClarity                       = Spell(236068),
+  Predator                              = Spell(202021),
+  PrimalWrath                           = Spell(285381),
+  RipandTear                            = Spell(391347),
+  Sabertooth                            = Spell(202031),
+  SouloftheForest                       = Spell(158476),
+  Swipe                                 = Spell(106785),
+  TearOpenWounds                        = Spell(391785),
+  TigersFury                            = Spell(5217),
+  -- Buffs
+  ApexPredatorsCravingBuff              = Spell(391882),
+  BloodtalonsBuff                       = Spell(145152),
+  Clearcasting                          = Spell(135700),
+  SabertoothBuff                        = Spell(391722),
+  -- Debuffs
+  AdaptiveSwarmDebuff                   = Spell(391889),
+  AdaptiveSwarmHeal                     = Spell(391891),
+  LIMoonfireDebuff                      = Spell(155625),
 })
 
 Spell.Druid.Restoration = MergeTableByKey(Spell.Druid.Commons, {
@@ -189,6 +224,9 @@ Item.Druid.Commons = {
 Item.Druid.Balance = MergeTableByKey(Item.Druid.Commons, {
 })
 
+Item.Druid.Feral = MergeTableByKey(Item.Druid.Commons, {
+})
+
 Item.Druid.Restoration = MergeTableByKey(Item.Druid.Commons, {
 })
 
@@ -216,6 +254,9 @@ Macro.Druid.Commons = {
 
 Macro.Druid.Balance = MergeTableByKey(Macro.Druid.Commons, {
   StellarFlareMouseover            = Macro("StellarFlareMouseover", "/cast [@mouseover] " .. Spell.Druid.Balance.StellarFlare:Name()),
+})
+
+Macro.Druid.Feral = MergeTableByKey(Macro.Druid.Commons, {
 })
 
 Macro.Druid.Restoration = MergeTableByKey(Macro.Druid.Commons, {

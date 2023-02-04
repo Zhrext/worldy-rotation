@@ -11,6 +11,7 @@ local Item    = HL.Item
 -- WorldyRotation
 local WR      = WorldyRotation
 -- Spells
+local SpellFeral = Spell.Druid.Feral
 local SpellResto = Spell.Druid.Restoration
 -- Lua
 
@@ -61,6 +62,21 @@ BalOldSpellIsCastable = HL.AddCoreOverride ("Spell.IsCastable",
     end
   end
 , 102)
+
+-- Feral, ID: 103
+local FeralOldSpellIsCastable
+FeralOldSpellIsCastable = HL.AddCoreOverride ("Spell.IsCastable",
+  function (self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
+    local BaseCheck = FeralOldSpellIsCastable(self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
+    if self == SpellFeral.CatForm or self == SpellFeral.MoonkinForm then
+      return BaseCheck and Player:BuffDown(self)
+    elseif self == SpellFeral.Prowl then
+      return BaseCheck and self:IsUsable()
+    else
+      return BaseCheck
+    end
+  end
+, 103)
 
 -- Restoration, ID: 105
 local RestoOldSpellIsCastable

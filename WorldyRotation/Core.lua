@@ -269,15 +269,15 @@ end
     elseif ArgumentLower == "cast" and Argument1 then
       local Bind = WR.SpellBinds[tonumber(Argument1)];
       WR.MainFrame:ChangeBind(Bind);
-      WR.Timer.Pulse = GetTime() + Player:GCD();
+      WR.Timer.Pulse = GetTime() + 0.150;
     elseif ArgumentLower == "use" and Argument1 then
       local Bind = WR.ItemBinds[tonumber(Argument1)];
       WR.MainFrame:ChangeBind(Bind);
-      WR.Timer.Pulse = GetTime() + Player:GCD();
+      WR.Timer.Pulse = GetTime() + 0.150;
     elseif ArgumentLower == "macro" and Argument1 then
       local Bind = WR.MacroBinds[tostring(Argument1)];
       WR.MainFrame:ChangeBind(Bind);
-      WR.Timer.Pulse = GetTime() + Player:GCD();
+      WR.Timer.Pulse = GetTime() + 0.150;
     elseif ArgumentLower == "help" then
       WR.Print("|cffffff00--[Toggles]--|r");
       WR.Print("  On/Off: |cff8888ff/wr toggle|r");
