@@ -49,7 +49,7 @@ local OnUseExcludes = {
 }
 
 -- Macros
-local M = Macro.Druid.Balance
+local M = Macro.Druid.Feral
 
 -- Rotation Variables
 local VarNeedBT
@@ -89,11 +89,6 @@ HL:RegisterForEvent(function()
   S.AdaptiveSwarm:RegisterInFlight()
 end, "LEARNED_SPELL_IN_TAB")
 S.AdaptiveSwarm:RegisterInFlight()
-
--- Interrupt Stuns
-local InterruptStuns = {
-  { S.MightyBash, "Cast Mighty Bash (Interrupt)", function () return true; end },
-}
 
 -- PMultiplier and Damage Registrations
 local function ComputeRakePMultiplier()
@@ -247,10 +242,6 @@ end
 
 -- APL Functions
 local function Precombat()
-  -- Manually added: Group buff check
-  if S.MarkOfTheWild:IsCastable() and (Player:BuffDown(S.MarkOfTheWild, true) or Everyone.GroupBuffMissing(S.MarkOfTheWild)) then
-    if Press(M.MarkOfTheWildPlayer) then return "mark_of_the_wild precombat"; end
-  end
   -- cat_form
   if S.CatForm:IsCastable() then
     if Press(S.CatForm) then return "cat_form precombat 2"; end
@@ -296,11 +287,11 @@ local function Builder()
   end
   -- rake,target_if=max:ticks_gained_on_refresh,if=refreshable|(buff.sudden_ambush.up&persistent_multiplier>dot.rake.pmultiplier&dot.rake.duration>6)
   if S.Rake:IsReady() then
-    if Everyone.CastTargetIf(S.Rake, EnemiesMelee, "max", EvaluateTargetIfFilterRakeTicks, EvaluateTargetIfRake, not Target:IsInMeleeRange(8)) then return "rake builder 2"; end
+    if Everyone.CastTargetIf(S.Rake, EnemiesMelee, "max", EvaluateTargetIfFilterRakeTicks, EvaluateTargetIfRake, not Target:IsInMeleeRange(8), nil, nil, M.RakeMouseover) then return "rake builder 2"; end
   end
   -- moonfire_cat,target_if=refreshable
   if S.LIMoonfire:IsReady() then
-    if Everyone.CastCycle(S.LIMoonfire, Enemies11y, EvaluateCycleLIMoonfire, not Target:IsSpellInRange(S.LIMoonfire)) then return "moonfire_cat builder 4"; end
+    if Everyone.CastCycle(S.LIMoonfire, Enemies11y, EvaluateCycleLIMoonfire, not Target:IsSpellInRange(S.LIMoonfire), nil, nil, M.MoonfireMouseover) then return "moonfire_cat builder 4"; end
   end
   -- pool_resource,for_next=1
   -- thrash_cat,target_if=refreshable
@@ -324,7 +315,7 @@ end
 local function BerserkBuilders()
   -- rake,target_if=refreshable
   if S.Rake:IsReady() then
-    if Everyone.CastCycle(S.Rake, EnemiesMelee, EvaluateTargetIfFilterRake, not Target:IsInMeleeRange(8)) then return "rake berserk_builders 2"; end
+    if Everyone.CastCycle(S.Rake, EnemiesMelee, EvaluateTargetIfFilterRake, not Target:IsInMeleeRange(8), nil, nil, M.RakeMouseover) then return "rake berserk_builders 2"; end
   end
   -- swipe_cat,if=spell_targets.swipe_cat>1
   if S.Swipe:IsReady() and (EnemiesCount11y > 1) then
@@ -336,7 +327,7 @@ local function BerserkBuilders()
   end
   -- moonfire_cat,target_if=refreshable
   if S.LIMoonfire:IsReady() then
-    if Everyone.CastCycle(S.LIMoonfire, Enemies11y, EvaluateCycleLIMoonfire, not Target:IsSpellInRange(S.LIMoonfire)) then return "moonfire_cat berserk_builder 8"; end
+    if Everyone.CastCycle(S.LIMoonfire, Enemies11y, EvaluateCycleLIMoonfire, not Target:IsSpellInRange(S.LIMoonfire), nil, nil, M.MoonfireMouseover) then return "moonfire_cat berserk_builder 8"; end
   end
   -- shred
   if S.Shred:IsReady() then
@@ -351,11 +342,11 @@ local function Finisher()
   end
   -- primal_wrath,target_if=refreshable,if=spell_targets.primal_wrath>1
   if S.PrimalWrath:IsReady() and (EnemiesCount11y > 1) then
-    if Everyone.CastCycle(S.PrimalWrath, Enemies11y, EvaluateCyclePrimalWrath, not Target:IsInMeleeRange(11)) then return "primal_wrath finisher 4"; end
+    if Everyone.CastCycle(S.PrimalWrath, Enemies11y, EvaluateCyclePrimalWrath, not Target:IsInMeleeRange(11), nil, nil, M.PrimalWrathMouseover) then return "primal_wrath finisher 4"; end
   end
   -- rip,target_if=refreshable
   if S.Rip:IsReady() then
-    if Everyone.CastCycle(S.Rip, EnemiesMelee, EvaluateCycleRip, not Target:IsInRange(8)) then return "rip finisher 6"; end
+    if Everyone.CastCycle(S.Rip, EnemiesMelee, EvaluateCycleRip, not Target:IsInRange(8), nil, nil, M.RipMouseover) then return "rip finisher 6"; end
   end
   -- pool_resource,for_next=1
   -- ferocious_bite,max_energy=1,if=!buff.bs_inc.up|(buff.bs_inc.up&!talent.soul_of_the_forest.enabled)
@@ -419,7 +410,7 @@ end
 local function Bloodtalons()
   -- rake,target_if=max:druid.rake.ticks_gained_on_refresh,if=(refreshable|1.4*persistent_multiplier>dot.rake.pmultiplier)&buff.bt_rake.down
   if S.Rake:IsReady() and (BTBuffDown(S.Rake)) then
-    if Everyone.CastTargetIf(S.Rake, EnemiesMelee, "max", EvaluateTargetIfFilterRakeTicks, EvaluateTargetIfRakeBloodtalons, not Target:IsInRange(8)) then return "rake bloodtalons 2"; end
+    if Everyone.CastTargetIf(S.Rake, EnemiesMelee, "max", EvaluateTargetIfFilterRakeTicks, EvaluateTargetIfRakeBloodtalons, not Target:IsInRange(8), nil, nil, M.RakeMouseover) then return "rake bloodtalons 2"; end
   end
   -- lunar_inspiration,if=refreshable&buff.bt_moonfire.down
   if S.LunarInspiration:IsAvailable() and S.LIMoonfire:IsReady() and (Target:DebuffRefreshable(S.LIMoonfireDebuff) and BTBuffDown(S.LIMoonfire)) then
@@ -482,11 +473,11 @@ local function Aoe()
   -- pool_resource,for_next=1
   -- rake,target_if=max:dot.rake.ticks_gained_on_refresh.pmult,if=((dot.rake.ticks_gained_on_refresh.pmult*(1+talent.doubleclawed_rake.enabled))>(spell_targets.swipe_cat*0.216+3.32))
   if S.Rake:IsReady() then
-    if Everyone.CastTargetIf(S.Rake, EnemiesMelee, "max", EvaluateTargetIfFilterRakeAoe, EvaluateTargetIfRakeAoe, not Target:IsInMeleeRange(8)) then return "rake aoe 10"; end
+    if Everyone.CastTargetIf(S.Rake, EnemiesMelee, "max", EvaluateTargetIfFilterRakeAoe, EvaluateTargetIfRakeAoe, not Target:IsInMeleeRange(8), nil, nil, M.RakeMouseover) then return "rake aoe 10"; end
   end
   -- lunar_inspiration,target_if=max:((ticks_gained_on_refresh+1)-(spell_targets.swipe_cat*2.492))
   if S.LIMoonfire:IsCastable() then
-    if Everyone.CastCycle(S.LIMoonfire, Enemies11y, EvaluateCycleLIMoonfireAoe, not Target:IsSpellInRange(S.LIMoonfire)) then return "lunar_inspiration aoe 12"; end
+    if Everyone.CastCycle(S.LIMoonfire, Enemies11y, EvaluateCycleLIMoonfireAoe, not Target:IsSpellInRange(S.LIMoonfire), nil, nil, M.MoonfireMouseover) then return "lunar_inspiration aoe 12"; end
   end
   -- swipe_cat
   if S.Swipe:IsReady() then
@@ -530,8 +521,15 @@ local function APL()
   end
 
   -- cat_form OOC, if setting is true
-  if S.CatForm:IsCastable() and Settings.Feral.ShowCatFormOOC then
+  if S.CatForm:IsCastable() and Settings.Feral.Enabled.CatFormOOC then
     if Press(S.CatForm) then return "cat_form ooc"; end
+  end
+  
+  if not Player:AffectingCombat() then
+    -- Manually added: Group buff check
+    if S.MarkOfTheWild:IsCastable() and (Player:BuffDown(S.MarkOfTheWild, true) or Everyone.GroupBuffMissing(S.MarkOfTheWild)) then
+      if Press(M.MarkOfTheWildPlayer) then return "mark_of_the_wild precombat"; end
+    end
   end
 
   if Everyone.TargetIsValid() and not Player:IsChanneling() then
@@ -539,9 +537,16 @@ local function APL()
     if not Player:AffectingCombat() then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
     end
+    -- Explosives
+    if Settings.General.Enabled.HandleExplosives then
+      local ShouldReturn = Everyone.HandleExplosive(S.Rake, M.RakeMouseover, 8); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.HandleExplosive(S.Moonfire, M.MoonfireMouseover); if ShouldReturn then return ShouldReturn; end
+    end
     -- Interrupts
     if not Player:IsCasting() and not Player:IsChanneling() then
       local ShouldReturn = Everyone.Interrupt(S.SkullBash, 10, true); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.InterruptWithStun(S.MightyBash, 8); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.InterruptWithStun(S.IncapacitatingRoar, 8); if ShouldReturn then return ShouldReturn; end
     end
     -- prowl
     if S.Prowl:IsCastable() then
@@ -550,15 +555,15 @@ local function APL()
     -- Defensive
     if Player:AffectingCombat() then
       -- natures_vigil
-      if Player:HealthPercentage() <= Settings.Feral.Defensive.HP.NaturesVigil and S.NaturesVigil:IsReady() then
+      if Player:HealthPercentage() <= Settings.Feral.HP.NaturesVigil and S.NaturesVigil:IsReady() then
         if Press(S.NaturesVigil, nil, nil, true) then return "natures_vigil defensive 2"; end
       end
       -- renewal
-      if Player:HealthPercentage() <= Settings.Feral.Defensive.HP.Renewal and S.Renewal:IsReady() then
+      if Player:HealthPercentage() <= Settings.Feral.HP.Renewal and S.Renewal:IsReady() then
         if Press(S.Renewal, nil, nil, true) then return "renewal defensive 2"; end
       end
       -- barkskin
-      if Player:HealthPercentage() <= Settings.Feral.Defensive.HP.Barkskin and S.Barkskin:IsReady() then
+      if Player:HealthPercentage() <= Settings.Feral.HP.Barkskin and S.Barkskin:IsReady() then
         if Press(S.Barkskin, nil, nil, true) then return "barkskin defensive 2"; end
       end
       -- healthstone
@@ -590,7 +595,7 @@ local function APL()
     end
     -- adaptive_swarm,target_if=((!dot.adaptive_swarm_damage.ticking|dot.adaptive_swarm_damage.remains<2)&(dot.adaptive_swarm_damage.stack<3|!dot.adaptive_swarm_heal.stack>1)&!action.adaptive_swarm_heal.in_flight&!action.adaptive_swarm_damage.in_flight&!action.adaptive_swarm.in_flight)&target.time_to_die>5|active_enemies>2&!dot.adaptive_swarm_damage.ticking&energy<35&target.time_to_die>5
     if S.AdaptiveSwarm:IsReady() then
-      if Everyone.CastCycle(S.AdaptiveSwarm, Enemies11y, EvaluateCycleAdaptiveSwarm, not Target:IsSpellInRange(S.AdaptiveSwarm)) then return "adaptive_swarm main 8"; end
+      if Everyone.CastCycle(S.AdaptiveSwarm, Enemies11y, EvaluateCycleAdaptiveSwarm, not Target:IsSpellInRange(S.AdaptiveSwarm), nil, nil, M.AdaptiveSwarmMouseover) then return "adaptive_swarm main 8"; end
     end
     -- feral_frenzy,if=combo_points<2|combo_points=2&buff.bs_inc.up
     if S.FeralFrenzy:IsReady() and (ComboPoints < 2 or ComboPoints == 2 and Player:BuffUp(BsInc)) then
@@ -630,6 +635,7 @@ end
 
 local function AutoBind()
   -- Bind Spells
+  Bind(S.AdaptiveSwarm)
   Bind(S.Barkskin)
   Bind(S.Berserking)
   Bind(S.Berserk)
@@ -641,6 +647,7 @@ local function AutoBind()
   Bind(S.FeralFrenzy)
   Bind(S.HeartOfTheWild)
   Bind(S.Incarnation)
+  Bind(S.IncapacitatingRoar)
   Bind(S.NaturesVigil)
   Bind(S.MightyBash)
   Bind(S.Moonfire)
@@ -661,7 +668,12 @@ local function AutoBind()
   Bind(S.Typhoon)
   Bind(S.WildCharge)
   -- Macros
+  Bind(M.AdaptiveSwarmMouseover)
+  Bind(M.RakeMouseover)
+  Bind(M.RipMouseover)
+  Bind(M.PrimalWrathMouseover)
   Bind(M.MarkOfTheWildPlayer)
+  Bind(M.MoonfireMouseover)
   -- Bind Items
   Bind(M.Trinket1)
   Bind(M.Trinket2)

@@ -46,6 +46,7 @@ Spell.Druid.Commons = {
   FrenziedRegeneration                  = Spell(22842),
   HeartOfTheWild                        = Spell(319454),
   Innervate                             = Spell(29166),
+  IncapacitatingRoar                    = Spell(99),
   ImprovedNaturesCure                   = Spell(392378),
   Ironfur                               = Spell(192081),
   NaturesVigil                          = Spell(124974),
@@ -238,6 +239,8 @@ Macro.Druid.Commons = {
   InnervatePlayer                  = Macro("InnervatePlayer", "/cast [@player] " .. Spell.Druid.Commons.Innervate:Name()),
   MarkOfTheWildPlayer              = Macro("MarkOfTheWildPlayer", "/cast [@player] " .. Spell.Druid.Commons.MarkOfTheWild:Name()),
   MoonfireMouseover                = Macro("MoonfireMouseover", "/cast [@mouseover] " .. Spell.Druid.Commons.Moonfire:Name()),
+  RakeMouseover                    = Macro("RakeMouseover", "/cast [@mouseover] " .. Spell.Druid.Commons.Rake:Name()),
+  RipMouseover                     = Macro("RipMouseover", "/cast [@mouseover] " .. Spell.Druid.Commons.Rip:Name()),
   RebirthMouseover                 = Macro("RebirthMouseover", "/cast [@mouseover] " .. Spell.Druid.Commons.Rebirth:Name()),
   RegrowthFocus                    = Macro("RegrowthFocus", "/cast [@focus] " .. Spell.Druid.Commons.Regrowth:Name()),
   RejuvenationFocus                = Macro("RejuvenationFocus", "/cast [@focus] " .. Spell.Druid.Commons.Rejuvenation:Name()),
@@ -257,6 +260,8 @@ Macro.Druid.Balance = MergeTableByKey(Macro.Druid.Commons, {
 })
 
 Macro.Druid.Feral = MergeTableByKey(Macro.Druid.Commons, {
+  AdaptiveSwarmMouseover           = Macro("AdaptiveSwarmMouseover", "/cast [@mouseover] " .. Spell.Druid.Feral.AdaptiveSwarm:Name()),
+  PrimalWrathMouseover             = Macro("PrimalWrathMouseover", "/cast [@mouseover] " .. Spell.Druid.Feral.PrimalWrath:Name()),
 })
 
 Macro.Druid.Restoration = MergeTableByKey(Macro.Druid.Commons, {

@@ -26,35 +26,32 @@ WR.GUISettings.APL.Druid = {
     Enabled = {
       MoonkinFormOOC = false,
     },
-    Defensive = {
-      HP = {
-        Barkskin = 50,
-        NaturesVigil = 75,
-      },
+    HP = {
+      Barkskin = 50,
+      NaturesVigil = 75,
     },
   },
   Feral = {
     Enabled = {
+      CatFormOOC = true,
       WildCharge = false,
     },
-    Defensive = {
-      HP = {
-        Barkskin = 50,
-        NaturesVigil = 75,
-        Renewal = 55,
-      },
+    HP = {
+      Barkskin = 50,
+      NaturesVigil = 75,
+      Renewal = 55,
     },
   },
   Restoration = {
-    Defensive = {
-      HP = {
-        Barkskin = 40,
-      },
-    },
     Damage = {
       Enabled = {
         ConvokeTheSpirits = true,
         NaturesVigil = true,
+      },
+    },
+    Defensive = {
+      HP = {
+        Barkskin = 40,
       },
     },
     HealingOne = {
@@ -113,12 +110,10 @@ WR.GUI.LoadSettingsRecursively(WR.GUISettings)
 local ARPanel = WR.GUI.Panel
 local CP_Druid = CreateChildPanel(ARPanel, "Druid")
 local CP_Balance = CreateChildPanel(CP_Druid, "Balance")
-local CP_Balance_Defensive = CreateChildPanel(CP_Balance, "Defensive")
 local CP_Feral = CreateChildPanel(CP_Druid, "Feral")
-local CP_Feral_Defensive = CreateChildPanel(CP_Feral, "Defensive")
 local CP_Restoration = CreateChildPanel(CP_Druid, "Restoration")
-local CP_Restoration_Defensive = CreateChildPanel(CP_Restoration, "Defensive")
 local CP_Restoration_Damage = CreateChildPanel(CP_Restoration, "Damage")
+local CP_Restoration_Defensive = CreateChildPanel(CP_Restoration, "Defensive")
 local CP_Restoration_HealingOne = CreateChildPanel(CP_Restoration, "HealingOne")
 local CP_Restoration_HealingTwo = CreateChildPanel(CP_Restoration, "HealingTwo")
 
@@ -127,14 +122,12 @@ CreateARPanelOptions(CP_Druid, "APL.Druid.Commons")
 
 -- Balance
 CreateARPanelOptions(CP_Balance, "APL.Druid.Balance")
-CreateARPanelOptions(CP_Balance_Defensive, "APL.Druid.Balance.Defensive")
 
 -- Feral
 CreateARPanelOptions(CP_Feral, "APL.Druid.Feral")
-CreateARPanelOptions(CP_Feral_Defensive, "APL.Druid.Feral.Defensive")
 
 -- Restoration
-CreateARPanelOptions(CP_Restoration_Defensive, "APL.Druid.Restoration.Defensive")
 CreateARPanelOptions(CP_Restoration_Damage, "APL.Druid.Restoration.Damage")
+CreateARPanelOptions(CP_Restoration_Defensive, "APL.Druid.Restoration.Defensive")
 CreateARPanelOptions(CP_Restoration_HealingOne, "APL.Druid.Restoration.HealingOne")
 CreateARPanelOptions(CP_Restoration_HealingTwo, "APL.Druid.Restoration.HealingTwo")

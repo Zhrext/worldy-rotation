@@ -491,11 +491,11 @@ local function APL()
   -- Defensive
   if Player:AffectingCombat() then
     -- natures_vigil
-    if Player:HealthPercentage() <= Settings.Balance.Defensive.HP.NaturesVigil and S.NaturesVigil:IsReady() then
+    if Player:HealthPercentage() <= Settings.Balance.HP.NaturesVigil and S.NaturesVigil:IsReady() then
       if Press(S.NaturesVigil, nil, nil, true) then return "barkskin defensive 2"; end
     end
     -- barkskin
-    if Player:HealthPercentage() <= Settings.Balance.Defensive.HP.Barkskin and S.Barkskin:IsReady() then
+    if Player:HealthPercentage() <= Settings.Balance.HP.Barkskin and S.Barkskin:IsReady() then
       if Press(S.Barkskin, nil, nil, true) then return "barkskin defensive 2"; end
     end
     -- healthstone
