@@ -362,11 +362,11 @@ end
 local function Cooldown()
   -- berserk
   if S.Berserk:IsReady() then
-    if Press(S.Berserk) then return "berserk cooldown 2"; end
+    if Press(S.Berserk, not Target:IsInMeleeRange(8)) then return "berserk cooldown 2"; end
   end
   -- incarnation
   if S.Incarnation:IsReady() then
-    if Press(S.Incarnation) then return "incarnation cooldown 4"; end
+    if Press(S.Incarnation, not Target:IsInMeleeRange(8)) then return "incarnation cooldown 4"; end
   end
   -- convoke_the_spirits,if=buff.tigers_fury.up&combo_points<3|fight_remains<5
   if S.ConvokeTheSpirits:IsReady() and (Player:BuffUp(S.TigersFury) and ComboPoints < 3 or FightRemains < 5) then
@@ -374,15 +374,15 @@ local function Cooldown()
   end
   -- berserking
   if S.Berserking:IsCastable() then
-    if Press(S.Berserking) then return "berserking cooldown 8"; end
+    if Press(S.Berserking, not Target:IsInMeleeRange(8)) then return "berserking cooldown 8"; end
   end
   -- shadowmeld,if=buff.tigers_fury.up&buff.bs_inc.down&combo_points<4&buff.sudden_ambush.down&dot.rake.pmultiplier<1.6&energy>40&druid.rake.ticks_gained_on_refresh>spell_targets.swipe_cat*2-2&target.time_to_die>5
   if S.Shadowmeld:IsCastable() and (Player:BuffUp(S.TigersFury) and Player:BuffDown(BsInc) and ComboPoints < 4 and Player:BuffDown(S.SuddenAmbushBuff) and Target:PMultiplier(S.Rake) < 1.6 and Player:Energy() > 40 and TicksGainedOnRefresh(S.RakeDebuff) > EnemiesCount11y * 2 - 2 and Target:TimeToDie() > 5) then
-    if Press(S.Shadowmeld) then return "shadowmeld cooldown 10"; end
+    if Press(S.Shadowmeld, not Target:IsInMeleeRange(8)) then return "shadowmeld cooldown 10"; end
   end
   -- potion,if=buff.bs_inc.up|fight_remains<cooldown.bs_inc.remains|fight_remains<35
   -- use_items
-  if CDsON() and Settings.General.Enabled.Trinkets then
+  if CDsON() and Settings.General.Enabled.Trinkets and Target:IsInMeleeRange(8) then
     local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
     if Trinket1ToUse then
       if Press(M.Trinket1, nil, nil, true) then return "trinket1 cooldown 14"; end
@@ -578,7 +578,7 @@ local function APL()
     VarNeedBT = (S.Bloodtalons:IsAvailable() and Player:BuffDown(S.BloodtalonsBuff))
     -- tigers_fury
     if S.TigersFury:IsCastable() and CDsON() then
-      if Press(S.TigersFury) then return "tigers_fury main 4"; end
+      if Press(S.TigersFury, not Target:IsInMeleeRange(8)) then return "tigers_fury main 4"; end
     end
     -- rake,if=buff.prowl.up|buff.shadowmeld.up
     if S.Rake:IsReady() and (Player:StealthUp(false, true)) then
