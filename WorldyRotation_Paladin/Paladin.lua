@@ -17,6 +17,7 @@ local Item       = HL.Item
 local MergeTableByKey = HL.Utils.MergeTableByKey
 -- WorldyRotation
 local WR         = WorldyRotation
+local Macro      = WR.Macro
 
 --- ============================ CONTENT ============================
 -- Spells
@@ -33,8 +34,11 @@ Spell.Paladin.Commons = {
   GiftoftheNaaru                        = Spell(59542),
   LightsJudgment                        = Spell(255647),
   -- Abilities
+  BlessingofFreedom                     = Spell(1044),
+  BlessingofProtection                  = Spell(1022),
   Consecration                          = Spell(26573),
   CrusaderStrike                        = Spell(35395),
+  CleanseToxins                         = Spell(213644),
   DivineShield                          = Spell(642),
   DivineSteed                           = Spell(190784),
   FlashofLight                          = Spell(19750),
@@ -110,6 +114,7 @@ Spell.Paladin.Retribution = MergeTableByKey(Spell.Paladin.Commons, {
   ExecutionSentence                     = Spell(343527),
   ExecutionersWrath                     = Spell(387196),
   Exorcism                              = Spell(383185),
+  Expurgation                           = Spell(383344),
   FinalReckoning                        = Spell(343721),
   FinalVerdict                          = Spell(383328),
   FiresofJustice                        = Spell(203316),
@@ -150,6 +155,8 @@ Spell.Paladin.Holy = MergeTableByKey(Spell.Paladin.Commons, {
 -- Items
 if not Item.Paladin then Item.Paladin = {} end
 Item.Paladin.Commons = {
+  -- Potion
+  Healthstone                           = Item(5512),
   -- Trinkets
   AlgetharPuzzleBox                     = Item(193701, {13, 14}),
 }
@@ -161,4 +168,37 @@ Item.Paladin.Retribution = MergeTableByKey(Item.Paladin.Commons, {
 })
 
 Item.Paladin.Holy = MergeTableByKey(Item.Paladin.Commons, {
+})
+
+-- Macros
+if not Macro.Paladin then Macro.Paladin = {} end
+Macro.Paladin.Commons = {
+  -- Spells
+  BlessingofProtectionMouseover    = Macro("BlessingofProtectionMouseover", "/cast [@mouseover] " .. Spell.Paladin.Commons.BlessingofProtection:Name()),
+  BlessingofFreedomMouseover       = Macro("BlessingofFreedomMouseover", "/cast [@mouseover] " .. Spell.Paladin.Commons.BlessingofFreedom:Name()),
+  CleanseToxinsMouseover           = Macro("CleanseToxinsMouseover", "/cast [@mouseover] " .. Spell.Paladin.Commons.CleanseToxins:Name()),
+  LayonHandsFocus                  = Macro("LayonHandsFocus", "/cast [@focus] " .. Spell.Paladin.Commons.LayonHands:Name()),
+  LayonHandsPlayer                 = Macro("LayonHandsPlayer", "/cast [@player] " .. Spell.Paladin.Commons.LayonHands:Name()),
+  JudgmentMouseover                = Macro("JudgmentMouseover", "/cast [@mouseover] " .. Spell.Paladin.Commons.Judgment:Name()),
+  WordofGloryFocus                 = Macro("WordofGloryFocus", "/cast [@focus] " .. Spell.Paladin.Commons.WordofGlory:Name()),
+  WordofGloryPlayer                = Macro("WordofGloryPlayer", "/cast [@player] " .. Spell.Paladin.Commons.WordofGlory:Name()),
+  -- Items
+  Trinket1                         = Macro("Trinket1", "/use 13"),
+  Trinket2                         = Macro("Trinket2", "/use 14"),
+  Healthstone                      = Macro("Healthstone", "/use item:5512"),
+  -- Focus
+  FocusPlayer                      = Macro("FocusPlayer", "/focus player"),
+  FocusParty1                      = Macro("FocusParty1", "/focus party1"),
+  FocusParty2                      = Macro("FocusParty2", "/focus party2"),
+  FocusParty3                      = Macro("FocusParty3", "/focus party3"),
+  FocusParty4                      = Macro("FocusParty4", "/focus party4"),
+}
+
+Macro.Paladin.Protection = MergeTableByKey(Macro.Paladin.Commons, {
+})
+
+Macro.Paladin.Retribution = MergeTableByKey(Macro.Paladin.Commons, {
+})
+
+Macro.Paladin.Holy = MergeTableByKey(Macro.Paladin.Commons, {
 })
