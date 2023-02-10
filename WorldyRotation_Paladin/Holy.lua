@@ -258,8 +258,12 @@ end
 
 local function CooldownHealing()
   if not Focus or not Focus:Exists() or not Focus:IsInRange(40) then return; end
+  -- aura_mastery
+  if S.AuraMastery:IsCastable() and Everyone.AreUnitsBelowHealthPercentage(Settings.Holy.Healing, "AuraMastery") then
+    if Press(S.AuraMastery) then return "aura_mastery cooldown_healing"; end
+  end
   -- avenging_wrath
-  if S.AvengingWrath:IsCastable() and Focus:HealthPercentage() <= Settings.Holy.Healing.HP.AvengingWrath then
+  if S.AvengingWrath:IsCastable() and Everyone.AreUnitsBelowHealthPercentage(Settings.Holy.Healing, "AvengingWrath") then
     if Press(S.AvengingWrath) then return "avenging_wrath cooldown_healing"; end
   end
   -- beacon_of_virtue
@@ -273,6 +277,10 @@ local function CooldownHealing()
   -- holy_shock
   if S.HolyShock:IsReady() and Focus:HealthPercentage() <= Settings.Holy.Healing.HP.HolyShock then
     if Press(M.HolyShockFocus) then return "holy_shock cooldown_healing"; end
+  end
+  -- blessing_of_sacrifice
+  if S.BlessingofSacrifice:IsReady() and Focus:HealthPercentage() <= Settings.Holy.Healing.HP.BlessingofSacrifice then
+    if Press(M.BlessingofSacrificeFocus) then return "blessing_of_sacrifice cooldown_healing"; end
   end
 end
 
@@ -320,11 +328,11 @@ local function STHealing()
   end
   -- flash_of_light
   if S.FlashofLight:IsCastable() and Focus:HealthPercentage() <= Settings.Holy.Healing.HP.FlashofLight then
-    if Press(M.FlashofLightFocus) then return "flash_of_light st_healing"; end
+    if Press(M.FlashofLightFocus, nil, true) then return "flash_of_light st_healing"; end
   end
   -- holy_light
   if S.HolyLight:IsCastable() and Focus:HealthPercentage() <= Settings.Holy.Healing.HP.HolyLight then
-    if Press(M.HolyLightFocus) then return "holy_light st_healing"; end
+    if Press(M.HolyLightFocus, nil, true) then return "holy_light st_healing"; end
   end
 end
 
@@ -434,6 +442,7 @@ local function AutoBind()
   Bind(S.Absolution)
   Bind(S.ArcaneTorrent)
   Bind(S.AvengingWrath)
+  Bind(S.AuraMastery)
   Bind(S.Berserking)
   Bind(S.BloodFury)
   Bind(S.BlessingofFreedom)

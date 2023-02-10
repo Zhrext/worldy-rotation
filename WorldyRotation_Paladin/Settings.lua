@@ -44,8 +44,10 @@ WR.GUISettings.APL.Paladin = {
     },
     Healing = {
       HP = {
-        AvengingWrath = 60,
-        BeaconofVirtue = 80,
+        AvengingWrath = 65,
+        AuraMastery = 50,
+        BlessingofSacrifice = 60,
+        BeaconofVirtue = 85,
         DivineToll = 65,
         FlashofLight = 40,
         HolyLight = 75,
@@ -54,11 +56,15 @@ WR.GUISettings.APL.Paladin = {
         WordofGlory = 75,
       },
       AoEGroup = {
+        AvengingWrath = 2,
+        AuraMastery = 2,
         BeaconofVirtue = 2,
         DivineToll = 2,
         LightofDawn = 2,
       },
       AoERaid = {
+        AvengingWrath = 4,
+        AuraMastery = 4,
         BeaconofVirtue = 4,
         DivineToll = 4,
         LightofDawn = 4,
