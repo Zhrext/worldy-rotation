@@ -259,7 +259,7 @@ end
 local function CooldownHealing()
   if not Focus or not Focus:Exists() or not Focus:IsInRange(40) then return; end
   -- avenging_wrath
-  if S.AvengingWrath:IsCastable() then
+  if S.AvengingWrath:IsCastable() and Focus:HealthPercentage() <= Settings.Holy.Healing.HP.AvengingWrath then
     if Press(S.AvengingWrath) then return "avenging_wrath cooldown_healing"; end
   end
   -- beacon_of_virtue

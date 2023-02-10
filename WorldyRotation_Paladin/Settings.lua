@@ -44,6 +44,7 @@ WR.GUISettings.APL.Paladin = {
     },
     Healing = {
       HP = {
+        AvengingWrath = 60,
         BeaconofVirtue = 80,
         DivineToll = 65,
         FlashofLight = 40,
