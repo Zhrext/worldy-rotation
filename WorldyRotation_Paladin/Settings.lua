@@ -16,6 +16,9 @@ local CreateARPanelOptions = WR.GUI.CreateARPanelOptions
 --- ============================ CONTENT ============================
 WR.GUISettings.APL.Paladin = {
   Commons = {
+    Enabled = {
+        OutOfCombatHealing = true,
+    },
   },
   Protection = {
     HP = {
@@ -29,10 +32,36 @@ WR.GUISettings.APL.Paladin = {
   Retribution = {
   },
   Holy = {
+    Enabled = {
+      AvengingWrathOffensively = true,
+      DivineTollOffensively = true,
+      HolyShockOffensively = true,
+    },
     HP = {
       LoH = 10,
       DP = 40,
       WoG = 60,
+    },
+    Healing = {
+      HP = {
+        BeaconofVirtue = 80,
+        DivineToll = 65,
+        FlashofLight = 40,
+        HolyLight = 75,
+        HolyShock = 90,
+        LightofDawn = 90,
+        WordofGlory = 75,
+      },
+      AoEGroup = {
+        BeaconofVirtue = 2,
+        DivineToll = 2,
+        LightofDawn = 2,
+      },
+      AoERaid = {
+        BeaconofVirtue = 4,
+        DivineToll = 4,
+        LightofDawn = 4,
+      },
     },
   },
 }
@@ -44,6 +73,7 @@ local CP_Paladin = CreateChildPanel(ARPanel, "Paladin")
 local CP_Protection = CreateChildPanel(CP_Paladin, "Protection")
 local CP_Retribution = CreateChildPanel(CP_Paladin, "Retribution")
 local CP_Holy = CreateChildPanel(CP_Paladin, "Holy")
+local CP_Holy_Healing = CreateChildPanel(CP_Holy, "Healing")
 
 -- Shared Paladin settings
 CreateARPanelOptions(CP_Paladin, "APL.Paladin.Commons")
@@ -56,3 +86,4 @@ CreateARPanelOptions(CP_Retribution, "APL.Paladin.Retribution")
 
 -- Holy
 CreateARPanelOptions(CP_Holy, "APL.Paladin.Holy")
+CreateARPanelOptions(CP_Holy_Healing, "APL.Paladin.Holy.Healing")
