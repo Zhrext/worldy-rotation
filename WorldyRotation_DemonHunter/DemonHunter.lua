@@ -172,4 +172,5 @@ Macro.DemonHunter.Vengeance = MergeTableByKey(Macro.DemonHunter.Commons, {
   InfernalStrikePlayer             = Macro("InfernalStrikePlayer", "/cast [@player] " .. Spell.DemonHunter.Vengeance.InfernalStrike:Name()),
   SigilOfSilencePlayer             = Macro("SigilOfSilencePlayer", "/cast [@player] " .. Spell.DemonHunter.Vengeance.SigilOfSilence:Name()),
   ThrowGlaiveMouseover             = Macro("ThrowGlaiveMouseover", "/cast [@mouseover] " .. Spell.DemonHunter.Vengeance.ThrowGlaive:Name()),
+  FractureMouseover                = Macro("FractureMouseover", "/cast [@mouseover] " .. Spell.DemonHunter.Vengeance.Fracture:Name()),
 })

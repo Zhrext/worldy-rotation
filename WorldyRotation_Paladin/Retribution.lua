@@ -51,7 +51,7 @@ local OnUseExcludes = {
 }
 
 -- Macros
-local M = Macro.Paladin.Protection
+local M = Macro.Paladin.Retribution
 
 -- Enemies
 local Enemies5y
@@ -179,7 +179,7 @@ local function Cooldowns()
   end
   -- final_reckoning,if=(holy_power>=4&time<8|holy_power>=3&time>=8)&(cooldown.avenging_wrath.remains>gcd|cooldown.crusade.remains&(!buff.crusade.up|buff.crusade.stack>=10))&(time_to_hpg>0|holy_power=5)&(!talent.seraphim|buff.seraphim.up)&(!raid_event.adds.exists|raid_event.adds.up|raid_event.adds.in>40)&(!buff.avenging_wrath.up|holy_power=5|cooldown.hammer_of_wrath.remains)
   if S.FinalReckoning:IsCastable() and ((Player:HolyPower() >= 4 and HL.CombatTime() < 8 or Player:HolyPower() >= 3 and HL.CombatTime() >= 8) and (S.AvengingWrath:CooldownRemains() > Player:GCD() or S.Crusade:CooldownDown() and (Player:BuffDown(S.CrusadeBuff) or Player:BuffStack(S.CrusadeBuff) >= 10)) and (TimeToHPG > 0 or Player:HolyPower() == 5) and ((not S.Seraphim:IsAvailable()) or Player:BuffUp(S.Seraphim)) and (Player:BuffDown(S.AvengingWrathBuff) or Player:HolyPower() == 5 or S.HammerofWrath:CooldownDown())) then
-    if Press(S.FinalReckoning, not Target:IsInMeleeRange(8)) then return "final_reckoning cooldowns 18" end
+    if Press(M.FinalReckoningPlayer, not Target:IsInMeleeRange(8)) then return "final_reckoning cooldowns 18" end
   end
 end
 
@@ -505,9 +505,12 @@ local function AutoBind()
   Bind(S.Seraphim)
   Bind(S.ShieldofVengeance)
   Bind(S.WakeofAshes)
-  Bind(S.VerdictSpell)
+  Bind(S.FinalVerdict)
+  Bind(S.TemplarsVerdict)
+  Bind(S.FinalReckoning)
   -- Macros
   Bind(M.JudgmentMouseover)
+  Bind(M.FinalReckoningPlayer)
   -- Items
   Bind(M.Trinket1)
   Bind(M.Trinket2)

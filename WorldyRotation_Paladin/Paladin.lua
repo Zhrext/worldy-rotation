@@ -198,6 +198,7 @@ Macro.Paladin.Protection = MergeTableByKey(Macro.Paladin.Commons, {
 })
 
 Macro.Paladin.Retribution = MergeTableByKey(Macro.Paladin.Commons, {
+  FinalReckoningPlayer             = Macro("FinalReckoningPlayer", "/cast [@player] " .. Spell.Paladin.Retribution.FinalReckoning:Name()),
 })
 
 Macro.Paladin.Holy = MergeTableByKey(Macro.Paladin.Commons, {

@@ -345,7 +345,7 @@ local EnabledRotation = {
   ---- Paladin
   --  [65]    = "WorldyRotation_Paladin",       -- Holy
   [66]    = "WorldyRotation_Paladin",       -- Protection
-  --  [70]    = "WorldyRotation_Paladin",       -- Retribution
+  [70]    = "WorldyRotation_Paladin",       -- Retribution
   -- Priest
   --  [256]   = "WorldyRotation_Priest",        -- Discipline
   --    [257]   = "WorldyRotation_Priest",        -- Holy

@@ -234,7 +234,7 @@ local function APL()
   if Everyone.TargetIsValid() then
     -- Explosives
     if (Settings.General.Enabled.HandleExplosives) then
-      local ShouldReturn = Everyone.HandleExplosive(S.ThrowGlaive, M.ThrowGlaiveMouseover); if ShouldReturn then return ShouldReturn; end
+      local ShouldReturn = Everyone.HandleExplosive(S.Fracture, M.FractureMouseover, 8); if ShouldReturn then return ShouldReturn; end
     end
     -- FodderToTheFlames
     if S.ThrowGlaive:IsCastable() and Utils.ValueIsInArray(FodderToTheFlamesDeamonIds, Target:NPCID()) then
@@ -323,7 +323,7 @@ local function APL()
       if Press(S.SoulCarver, not IsInMeleeRange) then return "soul_carver main 22"; end
     end
     -- soul_carver,if=variable.fiery_demise_fiery_brand_is_ticking_on_current_target&soul_fragments<=3&debuff.frailty.stack>=variable.cooldown_frailty_requirement
-    if CDsON() and S.SoulCarver:IsCastable() and (VarFDFBTicking and SoulFragments <= 3 and Target:DebuffStack(S.FrailtyDebuff) >= VarCDFrailtyReq) then
+    if CDsON() and S.SoulCarver:IsCastable() and (VarFDFBTicking and SoulFragments <= 3) then
       if Press(S.SoulCarver, not IsInMeleeRange) then return "soul_carver main 24"; end
     end
     -- fel_devastation,if=variable.fiery_demise_fiery_brand_is_ticking_on_current_target&dot.fiery_brand.remains<3
@@ -419,6 +419,7 @@ local function AutoBind()
   Bind(M.SigilOfFlamePlayer)
   Bind(M.SigilOfSilencePlayer)
   Bind(M.ThrowGlaiveMouseover)
+  Bind(M.FractureMouseover)
 end
 
 local function Init()
