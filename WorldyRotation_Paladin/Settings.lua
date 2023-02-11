@@ -33,12 +33,13 @@ WR.GUISettings.APL.Paladin = {
   },
   Holy = {
     Enabled = {
-      AvengingWrathOffensively = true,
+      AvengingWrathOffensively = false,
       DivineTollOffensively = true,
       HolyShockOffensively = true,
+      HolyShockCycle = true,
     },
     HP = {
-      LoH = 10,
+      LoH = 15,
       DP = 40,
       WoG = 60,
     },
@@ -52,6 +53,7 @@ WR.GUISettings.APL.Paladin = {
         FlashofLight = 40,
         HolyLight = 75,
         HolyShock = 90,
+        LayonHands = 15,
         LightofDawn = 90,
         WordofGlory = 75,
       },

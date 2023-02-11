@@ -45,8 +45,8 @@ local OnUseExcludes = {
 }
 
 -- Rotation Var
-local Enemies8y, Enemies30y
-local EnemiesCount8y, EnemiesCount30y
+local Enemies8y
+local EnemiesCount8y
 
 -- GUI Settings
 local Everyone = WR.Commons.Everyone
@@ -71,7 +71,7 @@ local function ConsecrationTimeRemaining()
 end
 
 local function EvaluateCycleGlimmer(TargetUnit)
-  return TargetUnit:DebuffRefreshable(S.GlimmerofLightDebuff)
+  return TargetUnit:DebuffRefreshable(S.GlimmerofLightBuff)
 end
 
 local function HandleNightFaeBlessings()
@@ -222,9 +222,13 @@ local function Damage()
   if S.Consecration:IsCastable() and (ConsecrationTimeRemaining() <= 0) then
     if Press(S.Consecration, not Target:IsInMeleeRange(8)) then return "consecration priority 20"; end
   end
-  -- holy_shock,damage=1
-  if Settings.Holy.Enabled.HolyShockOffensively and S.HolyShock:IsReady() then
-    if Press(S.HolyShock, not Target:IsSpellInRange(S.HolyShock)) then return "holy_shock priority 22"; end
+  -- holy_shock
+  if Settings.Holy.Enabled.HolyShockOffensively and S.HolyShock:IsReady() and (not S.GlimmerofLight:IsAvailable() or EvaluateCycleGlimmer(Target)) then
+    if Press(S.HolyShock, not Target:IsSpellInRange(S.HolyShock)) then return "holy_shock damage"; end
+  end
+  -- holy_shock
+  if Settings.Holy.Enabled.HolyShockOffensively and Settings.Holy.Enabled.HolyShockCycle and S.HolyShock:IsReady() then
+    if Everyone.CastCycle(S.HolyShock, Enemies8y, EvaluateCycleGlimmer, not Target:IsSpellInRange(S.HolyShock), nil, nil, M.HolyShockMouseover) then return "holy_shock_cycle damage"; end
   end
   -- crusader_strike,if=cooldown.crusader_strike.charges=2
   if S.CrusaderStrike:IsReady() and (S.CrusaderStrike:Charges() == 2) then
@@ -258,6 +262,9 @@ end
 
 local function CooldownHealing()
   if not Focus or not Focus:Exists() or not Focus:IsInRange(40) then return; end
+  if S.LayonHands:IsCastable() and Focus:HealthPercentage() <= Settings.Holy.Healing.HP.LayonHands then
+    if Press(M.LayonHandsFocus) then return "lay_on_hands cooldown_healing"; end
+  end
   -- aura_mastery
   if S.AuraMastery:IsCastable() and Everyone.AreUnitsBelowHealthPercentage(Settings.Holy.Healing, "AuraMastery") then
     if Press(S.AuraMastery) then return "aura_mastery cooldown_healing"; end
@@ -320,11 +327,15 @@ end
 local function STHealing()
   -- word_of_glory
   if S.WordofGlory:IsReady() and Focus:HealthPercentage() <= Settings.Holy.Healing.HP.WordofGlory then
-    if Press(M.WordofGloryFocus) then return "word_of_glory aoe_healing"; end
+    if Press(M.WordofGloryFocus) then return "word_of_glory st_healing"; end
+  end
+  -- holy_shock
+  if S.HolyShock:IsReady() and Focus:HealthPercentage() <= Settings.Holy.Healing.HP.HolyShock then
+    if Press(M.HolyShockFocus) then return "holy_shock st_healing"; end
   end
   -- divine_favor
   if S.DivineFavor:IsReady() and Focus:HealthPercentage() <= Settings.Holy.Healing.HP.HolyLight then
-    if Press(S.DivineFavor) then return "divine_favor cooldown_healing"; end
+    if Press(S.DivineFavor) then return "divine_favor st_healing"; end
   end
   -- flash_of_light
   if S.FlashofLight:IsCastable() and Focus:HealthPercentage() <= Settings.Holy.Healing.HP.FlashofLight then
@@ -395,13 +406,10 @@ local function APL()
   end
   
   Enemies8y = Player:GetEnemiesInMeleeRange(8)
-  Enemies30y = Player:GetEnemiesInRange(30)
   if AoEON() then
     EnemiesCount8y = #Enemies8y
-    EnemiesCount30y = #Enemies30y
   else
     EnemiesCount8y = 1
-    EnemiesCount30y = 1
   end
   
   -- explosives
@@ -454,6 +462,7 @@ local function AutoBind()
   Bind(S.DivineFavor)
   Bind(S.DivineToll)
   Bind(S.DivineShield)
+  Bind(S.DivineProtection)
   Bind(S.HammerofJustice)
   Bind(S.HammerofWrath)
   Bind(S.HolyAvenger)
@@ -483,11 +492,14 @@ local function AutoBind()
   Bind(M.DivineTollFocus)
   Bind(M.HolyLightFocus)
   Bind(M.HolyShockFocus)
+  Bind(M.HolyShockMouseover)
   Bind(M.HolyPrismPlayer)
   Bind(M.LayonHandsFocus)
+  Bind(M.LayonHandsPlayer)
   Bind(M.LightsHammerPlayer)
   Bind(M.JudgmentMouseover)
   Bind(M.WordofGloryFocus)
+  Bind(M.WordofGloryPlayer)
   -- Bind Focus Macros
   Bind(M.FocusTarget)
   Bind(M.FocusPlayer)
