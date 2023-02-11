@@ -286,7 +286,7 @@ local function CooldownHealing()
     if Press(M.HolyShockFocus) then return "holy_shock cooldown_healing"; end
   end
   -- blessing_of_sacrifice
-  if S.BlessingofSacrifice:IsReady() and Focus:HealthPercentage() <= Settings.Holy.Healing.HP.BlessingofSacrifice then
+  if S.BlessingofSacrifice:IsReady() and Focus:GUID() ~= Player:GUID() and Focus:HealthPercentage() <= Settings.Holy.Healing.HP.BlessingofSacrifice then
     if Press(M.BlessingofSacrificeFocus) then return "blessing_of_sacrifice cooldown_healing"; end
   end
 end
