@@ -301,8 +301,6 @@ do
     Spell(392454),
     Spell(398151),
     Spell(386223),
-    Spell(106113),
-    Spell(209516),
   };
   function Commons.UnitHasMagicBuff(U)
     for i = 1, #Commons.DispellableMagicBuffIDs do
@@ -333,6 +331,9 @@ do
     Spell(386025),
     Spell(384686),
     Spell(376827),
+    Spell(106113),
+    Spell(209516),
+    Spell(215429),
   };
   function Commons.UnitHasMagicDebuff(U)
     for i = 1, #Commons.DispellableMagicDebuffs do
