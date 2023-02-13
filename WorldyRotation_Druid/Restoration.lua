@@ -471,6 +471,11 @@ local function OutOfCombat()
 end
 
 local function APL()
+  -- Explosives
+  if Settings.General.Enabled.HandleExplosives then
+    local ShouldReturn = Everyone.HandleExplosive(S.Moonfire, M.MoonfireMouseover); if ShouldReturn then return ShouldReturn; end
+  end
+  
   -- FocusUnit
   if Player:AffectingCombat() or Settings.General.Enabled.DispelDebuffs then
     local includeDispellableUnits = Settings.General.Enabled.DispelDebuffs and S.NaturesCure:IsReady()
@@ -486,11 +491,6 @@ local function APL()
   else
     Enemies8ySplash = {}
     EnemiesCount8ySplash = 1
-  end
-  
-  -- Explosives
-  if (Settings.General.Enabled.HandleExplosives) then
-    local ShouldReturn = Everyone.HandleExplosive(S.Moonfire, M.MoonfireMouseover); if ShouldReturn then return ShouldReturn; end
   end
 
   if Everyone.TargetIsValid() or Player:AffectingCombat() then
