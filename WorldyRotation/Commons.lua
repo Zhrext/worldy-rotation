@@ -118,6 +118,7 @@ do
     384808,
     373395,
     376725,
+    192288,
   };
   Commons.StunWhitelistIDs = {
     210261,
@@ -130,6 +131,9 @@ do
     386490,
     387615,
     382077,
+    387564,
+    386546,
+    385536,
   };
   function Commons.Interrupt(Spell, Range, OffGCD, Unit, Macro)
     if not Unit then
@@ -297,6 +301,8 @@ do
     Spell(392454),
     Spell(398151),
     Spell(386223),
+    Spell(106113),
+    Spell(209516),
   };
   function Commons.UnitHasMagicBuff(U)
     for i = 1, #Commons.DispellableMagicBuffIDs do
@@ -348,6 +354,7 @@ do
   end
 
   Commons.DispellableCurseDebuffs = {
+    Spell(397911),
     Spell(387615),
   };
   function Commons.UnitHasCurseDebuff(U)
