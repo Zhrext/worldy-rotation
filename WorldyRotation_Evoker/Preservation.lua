@@ -113,11 +113,11 @@ end
 local function Dispel()
   if not Focus or not Focus:Exists() or not Focus:IsInRange(30) or not Everyone.DispellableFriendlyUnit() then return; end
   -- naturalize
-  if S.Naturalize:IsReady() then
+  if S.Naturalize:IsReady() and (Everyone.UnitHasMagicDebuff(Focus) or Everyone.UnitHasDiseaseDebuff(Focus)) then
     if Press(M.NaturalizeFocus) then return "naturalize dispel"; end
   end
   -- cauterizing_flame
-  if S.CauterizingFlame:IsReady() then
+  if S.CauterizingFlame:IsReady() and (Everyone.UnitHasCurseDebuff(Focus) or Everyone.UnitHasDiseaseDebuff(Focus)) then
     if Press(M.CauterizingFlameFocus) then return "cauterizing_flame dispel"; end
   end
 end
@@ -218,7 +218,7 @@ local function AoEHealing()
     if Press(M.EmeraldBlossomFocus) then return "emerald_blossom aoe_healing"; end
   end
   -- verdant_embrace
-  if S.VerdantEmbrace:IsReady() and Focus:HealthPercentage() <= Settings.Preservation.Healing.HP.VerdantEmbrace then
+  if WR.Toggle(4) and S.VerdantEmbrace:IsReady() and Focus:HealthPercentage() <= Settings.Preservation.Healing.HP.VerdantEmbrace then
     if Press(M.VerdantEmbraceFocus) then return "verdant_embrace aoe_healing"; end
   end
   -- dream_breath
@@ -453,6 +453,8 @@ local function Init()
   AutoBind()
   Everyone.DispellableDebuffs = Utils.MergeTable(Everyone.DispellableDebuffs, Everyone.DispellableMagicDebuffs)
   Everyone.DispellableDebuffs = Utils.MergeTable(Everyone.DispellableDebuffs, Everyone.DispellableDiseaseDebuffs)
+  Everyone.DispellableDebuffs = Utils.MergeTable(Everyone.DispellableDebuffs, Everyone.DispellableCurseDebuffs)
+  WR.ToggleFrame:AddButton("V", 4, "VerdantEmbrace", "ve")
 end
 
 WR.SetAPL(1468, APL, Init);
