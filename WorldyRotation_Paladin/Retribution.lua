@@ -187,27 +187,27 @@ local function Finishers()
   -- variable,name=ds_castable,value=spell_targets.divine_storm>=2|buff.empyrean_power.up&!debuff.judgment.up&!buff.divine_purpose.up|buff.crusade.up&buff.crusade.stack<10&buff.empyrean_legacy.up&!talent.justicars_vengeance
   VarDSCastable = (EnemiesCount8y >= 2 and AoEON() or Player:BuffUp(S.EmpyreanPowerBuff) and Target:DebuffDown(S.JudgmentDebuff) and Player:BuffDown(S.DivinePurposeBuff) or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10 and Player:BuffUp(S.EmpyreanLegacyBuff) and not S.JusticarsVengeance:IsAvailable())
   -- seraphim,if=(cooldown.avenging_wrath.remains>15|cooldown.crusade.remains>15)&!talent.final_reckoning&(!talent.execution_sentence|spell_targets.divine_storm>=5)&(!raid_event.adds.exists|raid_event.adds.in>40|raid_event.adds.in<gcd|raid_event.adds.up)|fight_remains<15&fight_remains>5|buff.crusade.up&buff.crusade.stack<10
-  if S.Seraphim:IsReady() and ((S.AvengingWrath:CooldownRemains() > 15 or S.Crusade:CooldownRemains() > 15) and (not S.FinalReckoning:IsAvailable()) and ((not S.ExecutionSentence:IsAvailable()) or EnemiesCount8y >= 5) or FightRemains < 15 and FightRemains > 5 or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10) then
+  if S.Seraphim:IsReady() and ((S.AvengingWrath:CooldownRemains() > 15 or S.Crusade:CooldownRemains() > 15 or not CDsON()) and (not S.FinalReckoning:IsAvailable() or not CDsON()) and ((not S.ExecutionSentence:IsAvailable() or not CDsON()) or EnemiesCount8y >= 5) or FightRemains < 15 and FightRemains > 5 or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10) then
     if Press(S.Seraphim, not Target:IsInMeleeRange(8)) then return "seraphim finishers 2" end
   end
   -- execution_sentence,if=(buff.crusade.down&cooldown.crusade.remains>10|buff.crusade.stack>=3|cooldown.avenging_wrath.remains>10)&(!talent.final_reckoning|cooldown.final_reckoning.remains>10)&target.time_to_die>8&(spell_targets.divine_storm<5|talent.executioners_wrath)
-  if S.ExecutionSentence:IsReady() and ((Player:BuffDown(S.CrusadeBuff) and S.Crusade:CooldownRemains() > 10 or Player:BuffStack(S.CrusadeBuff) >= 3 or S.AvengingWrath:CooldownRemains() > 10) and ((not S.FinalReckoning:IsAvailable()) or S.FinalReckoning:CooldownRemains() > 10) and Target:TimeToDie() > 8 and (EnemiesCount8y < 5 or S.ExecutionersWrath:IsAvailable())) then
+  if S.ExecutionSentence:IsReady() and ((Player:BuffDown(S.CrusadeBuff) and S.Crusade:CooldownRemains() > 10 or not CDsON() or Player:BuffStack(S.CrusadeBuff) >= 3 or S.AvengingWrath:CooldownRemains() > 10 or not CDsON()) and ((not S.FinalReckoning:IsAvailable() or not CDsON()) or S.FinalReckoning:CooldownRemains() > 10) and Target:TimeToDie() > 8 and (EnemiesCount8y < 5 or S.ExecutionersWrath:IsAvailable() and CDsON())) then
     if Press(S.ExecutionSentence, not Target:IsSpellInRange(S.ExecutionSentence)) then return "execution_sentence finishers 4" end
   end
   -- radiant_decree,if=(buff.crusade.down&cooldown.crusade.remains>5|buff.crusade.stack>=3|cooldown.avenging_wrath.remains>5)&(!talent.final_reckoning|cooldown.final_reckoning.remains>5)
-  if S.RadiantDecree:IsReady() and ((Player:BuffDown(S.CrusadeBuff) and S.Crusade:CooldownRemains() > 5 or Player:BuffStack(S.CrusadeBuff) >= 3 or S.AvengingWrath:CooldownRemains() > 5) and ((not S.FinalReckoning:IsAvailable()) or S.FinalReckoning:CooldownRemains() > 5)) then
+  if S.RadiantDecree:IsReady() and ((Player:BuffDown(S.CrusadeBuff) and S.Crusade:CooldownRemains() > 5 or Player:BuffStack(S.CrusadeBuff) >= 3 or S.AvengingWrath:CooldownRemains() > 5) and ((not S.FinalReckoning:IsAvailable() or not CDsON()) or S.FinalReckoning:CooldownRemains() > 5)) then
     if Press(S.RadiantDecree, not Target:IsInMeleeRange(12)) then return "radiant_decree finishers 6"; end
   end
   -- divine_storm,if=variable.ds_castable&(!buff.empyrean_legacy.up|buff.crusade.up&buff.crusade.stack<10)&((!talent.crusade|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence|cooldown.execution_sentence.remains>gcd*6|cooldown.execution_sentence.remains>gcd*4&holy_power>=4|target.time_to_die<8|spell_targets.divine_storm>=5|!talent.seraphim&cooldown.execution_sentence.remains>gcd*2)&(!talent.final_reckoning|cooldown.final_reckoning.remains>gcd*6|cooldown.final_reckoning.remains>gcd*4&holy_power>=4|!talent.seraphim&cooldown.final_reckoning.remains>gcd*2)|talent.holy_avenger&cooldown.holy_avenger.remains<gcd*3|buff.holy_avenger.up|buff.crusade.up&buff.crusade.stack<10)
-  if S.DivineStorm:IsReady() and (VarDSCastable and (Player:BuffDown(S.EmpyreanLegacyBuff) or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10) and (((not S.Crusade:IsAvailable()) or S.Crusade:CooldownRemains() > Player:GCD() * 3) and ((not S.ExecutionSentence) or S.ExecutionSentence:CooldownRemains() > Player:GCD() * 6 or S.ExecutionSentence:CooldownRemains() > Player:GCD() * 4 and Player:HolyPower() >= 4 or Target:TimeToDie() < 8 or EnemiesCount8y >= 5 or (not S.Seraphim:IsAvailable()) and S.ExecutionSentence:CooldownRemains() > Player:GCD() * 2) and ((not S.FinalReckoning:IsAvailable()) or S.FinalReckoning:CooldownRemains() > Player:GCD() * 6 or S.FinalReckoning:CooldownRemains() > Player:GCD() * 4 and Player:HolyPower() >= 4 or (not S.Seraphim:IsAvailable()) and S.FinalReckoning:CooldownRemains() > Player:GCD() * 2) or S.HolyAvenger:IsAvailable() and S.HolyAvenger:CooldownRemains() < Player:GCD() * 3 or Player:BuffUp(S.HolyAvenger) or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10)) then
+  if S.DivineStorm:IsReady() and (VarDSCastable and (Player:BuffDown(S.EmpyreanLegacyBuff) or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10) and (((not S.Crusade:IsAvailable() or not CDsON()) or S.Crusade:CooldownRemains() > Player:GCD() * 3) and ((not S.ExecutionSentence) or S.ExecutionSentence:CooldownRemains() > Player:GCD() * 6 or S.ExecutionSentence:CooldownRemains() > Player:GCD() * 4 and Player:HolyPower() >= 4 or Target:TimeToDie() < 8 or EnemiesCount8y >= 5 or (not S.Seraphim:IsAvailable() or not CDsON()) and S.ExecutionSentence:CooldownRemains() > Player:GCD() * 2) and ((not S.FinalReckoning:IsAvailable() or not CDsON()) or S.FinalReckoning:CooldownRemains() > Player:GCD() * 6 or S.FinalReckoning:CooldownRemains() > Player:GCD() * 4 and Player:HolyPower() >= 4 or (not S.Seraphim:IsAvailable() or not CDsON()) and S.FinalReckoning:CooldownRemains() > Player:GCD() * 2) or S.HolyAvenger:IsAvailable() and CDsON() and S.HolyAvenger:CooldownRemains() < Player:GCD() * 3 or Player:BuffUp(S.HolyAvenger) or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10)) then
     if Press(S.DivineStorm, not Target:IsInRange(8)) then return "divine_storm finishers 8" end
   end
   -- justicars_vengeance,if=((!talent.crusade|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence|cooldown.execution_sentence.remains>gcd*6|cooldown.execution_sentence.remains>gcd*4&holy_power>=4|target.time_to_die<8|!talent.seraphim&cooldown.execution_sentence.remains>gcd*2)&(!talent.final_reckoning|cooldown.final_reckoning.remains>gcd*6|cooldown.final_reckoning.remains>gcd*4&holy_power>=4|!talent.seraphim&cooldown.final_reckoning.remains>gcd*2)|talent.holy_avenger&cooldown.holy_avenger.remains<gcd*3|buff.holy_avenger.up|buff.crusade.up&buff.crusade.stack<10)&!buff.empyrean_legacy.up
-  if S.JusticarsVengeance:IsReady() and ((((not S.Crusade:IsAvailable()) or S.Crusade:CooldownRemains() > Player:GCD() * 3) and ((not S.ExecutionSentence:IsAvailable()) or S.ExecutionSentence:CooldownRemains() > Player:GCD() * 6 or S.ExecutionSentence:CooldownRemains() > Player:GCD() * 4 and Player:HolyPower() >= 4 or Target:TimeToDie() < 8 or (not S.Seraphim:IsAvailable()) and S.ExecutionSentence:CooldownRemains() > Player:GCD() * 2) and ((not S.FinalReckoning:IsAvailable()) or S.FinalReckoning:CooldownRemains() > Player:GCD() * 6 or S.FinalReckoning:CooldownRemains() > Player:GCD() * 4 and Player:HolyPower() >= 4 or (not S.Seraphim:IsAvailable()) and S.FinalReckoning:CooldownRemains() > Player:GCD() * 2) or S.HolyAvenger:IsAvailable() and S.HolyAvenger:CooldownRemains() < Player:GCD() * 3 or Player:BuffUp(S.HolyAvenger) or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10) and Player:BuffDown(S.EmpyreanLegacyBuff)) then
+  if S.JusticarsVengeance:IsReady() and ((((not S.Crusade:IsAvailable() or not CDsON()) or S.Crusade:CooldownRemains() > Player:GCD() * 3) and ((not S.ExecutionSentence:IsAvailable() or not CDsON()) or S.ExecutionSentence:CooldownRemains() > Player:GCD() * 6 or S.ExecutionSentence:CooldownRemains() > Player:GCD() * 4 and Player:HolyPower() >= 4 or Target:TimeToDie() < 8 or (not S.Seraphim:IsAvailable() or not CDsON()) and S.ExecutionSentence:CooldownRemains() > Player:GCD() * 2) and ((not S.FinalReckoning:IsAvailable() or not CDsON()) or S.FinalReckoning:CooldownRemains() > Player:GCD() * 6 or S.FinalReckoning:CooldownRemains() > Player:GCD() * 4 and Player:HolyPower() >= 4 or (not S.Seraphim:IsAvailable() or not CDsON()) and S.FinalReckoning:CooldownRemains() > Player:GCD() * 2) or S.HolyAvenger:IsAvailable() and CDsON() and S.HolyAvenger:CooldownRemains() < Player:GCD() * 3 or Player:BuffUp(S.HolyAvenger) or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10) and Player:BuffDown(S.EmpyreanLegacyBuff)) then
     if Press(S.JusticarsVengeance, not Target:IsInMeleeRange(5)) then return "justicars_vengeance finishers 10"; end
   end
   -- templars_verdict,if=(!talent.crusade|cooldown.crusade.remains>gcd*3)&(!talent.execution_sentence|cooldown.execution_sentence.remains>gcd*6|cooldown.execution_sentence.remains>gcd*4&holy_power>=4|target.time_to_die<8|!talent.seraphim&cooldown.execution_sentence.remains>gcd*2)&(!talent.final_reckoning|cooldown.final_reckoning.remains>gcd*6|cooldown.final_reckoning.remains>gcd*4&holy_power>=4|!talent.seraphim&cooldown.final_reckoning.remains>gcd*2)|talent.holy_avenger&cooldown.holy_avenger.remains<gcd*3|buff.holy_avenger.up|buff.crusade.up&buff.crusade.stack<10
-  if VerdictSpell:IsReady() and (((not S.Crusade:IsAvailable()) or S.Crusade:CooldownRemains() > Player:GCD() * 3) and ((not S.ExecutionSentence:IsAvailable()) or S.ExecutionSentence:CooldownRemains() > Player:GCD() * 6 or S.ExecutionSentence:CooldownRemains() > Player:GCD() * 4 and Player:HolyPower() >= 4 or Target:TimeToDie() < 8 or (not S.Seraphim:IsAvailable()) and S.ExecutionSentence:CooldownRemains() > Player:GCD() * 2) and ((not S.FinalReckoning:IsAvailable()) or S.FinalReckoning:CooldownRemains() > Player:GCD() * 6 or S.FinalReckoning:CooldownRemains() > Player:GCD() * 4 and Player:HolyPower() >= 4 or (not S.Seraphim:IsAvailable()) and S.FinalReckoning:CooldownRemains() > Player:GCD() * 2) or S.HolyAvenger:IsAvailable() and S.HolyAvenger:CooldownRemains() < Player:GCD() * 3 or Player:BuffUp(S.HolyAvenger) or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10) then
+  if VerdictSpell:IsReady() and (((not S.Crusade:IsAvailable() or not CDsON()) or S.Crusade:CooldownRemains() > Player:GCD() * 3) and ((not S.ExecutionSentence:IsAvailable() or not CDsON()) or S.ExecutionSentence:CooldownRemains() > Player:GCD() * 6 or S.ExecutionSentence:CooldownRemains() > Player:GCD() * 4 and Player:HolyPower() >= 4 or Target:TimeToDie() < 8 or (not S.Seraphim:IsAvailable() or not CDsON()) and S.ExecutionSentence:CooldownRemains() > Player:GCD() * 2) and ((not S.FinalReckoning:IsAvailable() or not CDsON()) or S.FinalReckoning:CooldownRemains() > Player:GCD() * 6 or S.FinalReckoning:CooldownRemains() > Player:GCD() * 4 and Player:HolyPower() >= 4 or (not S.Seraphim:IsAvailable() or not CDsON()) and S.FinalReckoning:CooldownRemains() > Player:GCD() * 2) or S.HolyAvenger:IsAvailable() and CDsON() and S.HolyAvenger:CooldownRemains() < Player:GCD() * 3 or Player:BuffUp(S.HolyAvenger) or Player:BuffUp(S.CrusadeBuff) and Player:BuffStack(S.CrusadeBuff) < 10) then
     if Press(VerdictSpell, not Target:IsInMeleeRange(5)) then return "either verdict finishers 12" end
   end
 end
@@ -295,7 +295,7 @@ local function ESFRActive()
     if Press(S.Fireblood, not Target:IsInMeleeRange(8)) then return "fireblood es_fr_active 2"; end
   end
   -- call_action_list,name=finishers,if=holy_power=5|debuff.judgment.up|debuff.final_reckoning.up&(debuff.final_reckoning.remains<gcd.max|spell_targets.divine_storm>=2&!talent.execution_sentence)|debuff.execution_sentence.up&debuff.execution_sentence.remains<gcd.max
-  if (Player:HolyPower() == 5 or Target:DebuffUp(S.JudgmentDebuff) or Target:DebuffUp(S.FinalReckoning) and (Target:DebuffRemains(S.FinalReckoning) < Player:GCD() + 0.5 or EnemiesCount8y >= 2 and not S.ExecutionSentence:IsAvailable()) or Target:DebuffUp(S.ExecutionSentence) and Target:DebuffRemains(S.ExecutionSentence) < Player:GCD() + 0.5) then
+  if (Player:HolyPower() == 5 or Target:DebuffUp(S.JudgmentDebuff) or Target:DebuffUp(S.FinalReckoning) and (Target:DebuffRemains(S.FinalReckoning) < Player:GCD() + 0.5 or EnemiesCount8y >= 2 and (not S.ExecutionSentence:IsAvailable() or not CDsON())) or Target:DebuffUp(S.ExecutionSentence) and Target:DebuffRemains(S.ExecutionSentence) < Player:GCD() + 0.5) then
     local ShouldReturn = Finishers(); if ShouldReturn then return ShouldReturn; end
   end
   -- divine_toll,if=holy_power<=2
@@ -413,6 +413,19 @@ end
 
 --- ======= MAIN =======
 local function APL()
+  -- revive
+  if Target and Target:Exists() and Target:IsAPlayer() and Target:IsDeadOrGhost() and not Player:CanAttack(Target) then
+    if Player:AffectingCombat() then
+      if S.Intercession:IsCastable() then
+        if Press(S.Intercession, nil, true) then return "intercession"; end
+      end
+    else
+      if S.Redemption:IsCastable() then
+        if Press(S.Redemption, not Target:IsInRange(40), true) then return "redemption"; end
+      end
+    end
+  end
+
   -- Enemies Update
   if AoEON() then
     Enemies8y = Player:GetEnemiesInMeleeRange(8) -- Divine Storm
@@ -462,12 +475,15 @@ local function APL()
     if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
       if Press(M.Healthstone, nil, nil, true) then return "healthstone defensive"; end
     end
+    if Player:HealthPercentage() <= Settings.Retribution.HP.DS and S.DivineShield:IsCastable() then
+      if Press(S.DivineShield) then return "divine_shield defensive"; end
+    end
     -- call_action_list,name=cooldowns
     if (CDsON()) then
       local ShouldReturn = Cooldowns(); if ShouldReturn then return "Cooldowns: " .. ShouldReturn; end
     end
     -- call_action_list,name=es_fr_pooling,if=(!raid_event.adds.exists|raid_event.adds.up|raid_event.adds.in<9|raid_event.adds.in>30)&(talent.execution_sentence&cooldown.execution_sentence.remains<9&spell_targets.divine_storm<5|talent.final_reckoning&cooldown.final_reckoning.remains<9)&(!buff.crusade.up|buff.crusade.stack=10)&target.time_to_die>8
-    if ((S.ExecutionSentence:IsAvailable() and S.ExecutionSentence:CooldownRemains() < 9 and EnemiesCount8y < 5 or S.FinalReckoning:IsAvailable() and S.FinalReckoning:CooldownRemains() < 9) and (Player:BuffDown(S.CrusadeBuff) or Player:BuffStack(S.CrusadeBuff) == 10) and Target:TimeToDie() > 8) then
+    if ((CDsON() and S.ExecutionSentence:IsAvailable() and S.ExecutionSentence:CooldownRemains() < 9 and EnemiesCount8y < 5 or CDsON() and S.FinalReckoning:IsAvailable() and S.FinalReckoning:CooldownRemains() < 9) and (Player:BuffDown(S.CrusadeBuff) or Player:BuffStack(S.CrusadeBuff) == 10) and Target:TimeToDie() > 8) then
       local ShouldReturn = ESFRPooling(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=es_fr_active,if=debuff.execution_sentence.up|debuff.final_reckoning.up
@@ -490,6 +506,7 @@ local function AutoBind()
   Bind(S.Consecration)
   Bind(S.CrusaderStrike)
   Bind(S.Crusade)
+  Bind(S.DivineShield)
   Bind(S.DivineStorm)
   Bind(S.DivineToll)
   Bind(S.ExecutionSentence)
@@ -499,9 +516,11 @@ local function AutoBind()
   Bind(S.HammerofJustice)
   Bind(S.HammerofWrath)
   Bind(S.HolyAvenger)
+  Bind(S.Intercession)
   Bind(S.JusticarsVengeance)
   Bind(S.Judgment)
   Bind(S.RadiantDecree)
+  Bind(S.Redemption)
   Bind(S.RetributionAura)
   Bind(S.Seraphim)
   Bind(S.ShieldofVengeance)

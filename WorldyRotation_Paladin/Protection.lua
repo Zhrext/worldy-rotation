@@ -98,6 +98,9 @@ local function Precombat()
 end
 
 local function Defensives()
+  if Player:HealthPercentage() <= Settings.Protection.HP.DS and S.DivineShield:IsCastable() then
+    if Press(S.DivineShield) then return "divine_shield defensive"; end
+  end
   if Player:HealthPercentage() <= Settings.Protection.HP.LoH and S.LayonHands:IsCastable() then
     if Press(M.LayonHandsPlayer) then return "lay_on_hands defensive 2"; end
   end

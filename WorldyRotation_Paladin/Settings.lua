@@ -22,6 +22,7 @@ WR.GUISettings.APL.Paladin = {
   },
   Protection = {
     HP = {
+      DS = 20,
       LoH = 15,
       GoAK = 40,
       WordofGlory = 50,
@@ -30,6 +31,9 @@ WR.GUISettings.APL.Paladin = {
     },
   },
   Retribution = {
+    HP = {
+      DS = 35,
+    },
   },
   Holy = {
     Enabled = {
@@ -37,10 +41,12 @@ WR.GUISettings.APL.Paladin = {
       DivineTollOffensively = true,
       HolyShockOffensively = true,
       HolyShockCycle = true,
+      HolyShockRefreshOnly = true,
     },
     HP = {
       LoH = 15,
-      DP = 40,
+      DP = 50,
+      DS = 35,
       WoG = 60,
     },
     Healing = {

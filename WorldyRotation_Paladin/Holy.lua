@@ -71,10 +71,16 @@ local function ConsecrationTimeRemaining()
 end
 
 local function EvaluateCycleGlimmer(TargetUnit)
-  return TargetUnit:DebuffRefreshable(S.GlimmerofLightBuff)
+  return TargetUnit:DebuffRefreshable(S.GlimmerofLightBuff) or not Settings.Holy.Enabled.HolyShockRefreshOnly
 end
 
 local function HandleNightFaeBlessings()
+  if (S.BlessingofSummer:IsCastable() and Player:IsInParty() and not Player:IsInRaid()) then
+    if Focus and Focus:Exists() and Everyone.UnitGroupRole(Focus) == "DAMAGER" then
+      if Press(M.BlessingofSummerFocus) then return "blessing_of_summer"; end
+    end
+  end
+  
   local Seasons = {S.BlessingofSpring, S.BlessingofSummer, S.BlessingofAutumn, S.BlessingofWinter}
   for _, i in pairs(Seasons) do
     if i:IsCastable() then
@@ -118,7 +124,7 @@ local function Precombat()
   -- potion
   -- Manually removed, as potion is not needed in precombat any longer
   -- Manually added: consecration if in melee
-  if S.Consecration:IsCastable() and Target:IsInMeleeRange(9) then
+  if S.Consecration:IsCastable() and Target:IsInMeleeRange(5) then
     if Press(S.Consecration) then return "consecrate precombat 4"; end
   end
   -- Manually added: judgment if at range
@@ -128,6 +134,9 @@ local function Precombat()
 end
 
 local function Defensive()
+  if Player:HealthPercentage() <= Settings.Holy.HP.DS and S.DivineShield:IsCastable() then
+    if Press(S.DivineShield) then return "divine_shield defensive"; end
+  end
   if Player:HealthPercentage() <= Settings.Holy.HP.LoH and S.LayonHands:IsCastable() then
     if Press(M.LayonHandsPlayer) then return "lay_on_hands defensive"; end
   end
@@ -145,13 +154,13 @@ end
 
 local function CooldownDamage()
   -- avenging_wrath
-  if Settings.Holy.Enabled.AvengingWrathOffensively and S.AvengingWrath:IsCastable() then
+  if Settings.Holy.Enabled.AvengingWrathOffensively and CDsON() and S.AvengingWrath:IsCastable() and not Player:BuffUp(S.AvengingWrathBuff) then
     if Press(S.AvengingWrath) then return "avenging_wrath cooldowns 4"; end
   end
   -- blessing_of_the_seasons
   local ShouldReturn = HandleNightFaeBlessings(); if ShouldReturn then return ShouldReturn; end
   -- divine_toll
-  if Settings.Holy.Enabled.DivineTollOffensively and S.DivineToll:IsCastable() then
+  if Settings.Holy.Enabled.DivineTollOffensively and CDsON() and S.DivineToll:IsCastable() and Player:BuffUp(S.AvengingWrathBuff) then
     if Press(S.DivineToll) then return "divine_toll cooldowns 8"; end
   end
   -- potion,if=buff.avenging_wrath.up
@@ -196,7 +205,7 @@ local function Damage()
   end
   -- consecration,if=spell_targets.consecration>=2&!consecration.up
   if S.Consecration:IsCastable() and (EnemiesCount8y >= 2 and ConsecrationTimeRemaining() <= 0) then
-    if Press(S.Consecration, not Target:IsInMeleeRange(8)) then return "consecration priority 8"; end
+    if Press(S.Consecration, not Target:IsInMeleeRange(5)) then return "consecration priority 8"; end
   end
   -- light_of_dawn,if=talent.awakening.enabled&spell_targets.consecration<=5&(holy_power>=5|(buff.holy_avenger.up&holy_power>=3))
   if S.LightofDawn:IsReady() and (S.Awakening:IsAvailable() and EnemiesCount8y <= 5 and (Player:HolyPower() >= 5 or (Player:BuffUp(S.HolyAvenger) and Player:HolyPower() >= 3))) then
@@ -220,7 +229,7 @@ local function Damage()
   end
   -- consecration,if=!consecration.up
   if S.Consecration:IsCastable() and (ConsecrationTimeRemaining() <= 0) then
-    if Press(S.Consecration, not Target:IsInMeleeRange(8)) then return "consecration priority 20"; end
+    if Press(S.Consecration, not Target:IsInMeleeRange(5)) then return "consecration priority 20"; end
   end
   -- holy_shock
   if Settings.Holy.Enabled.HolyShockOffensively and S.HolyShock:IsReady() and (not S.GlimmerofLight:IsAvailable() or EvaluateCycleGlimmer(Target)) then
@@ -256,7 +265,7 @@ local function Damage()
   end
   -- consecration
   if S.Consecration:IsReady() then
-    if Press(S.Consecration, not Target:IsInMeleeRange(8)) then return "consecration priority 36"; end
+    if Press(S.Consecration, not Target:IsInMeleeRange(5)) then return "consecration priority 36"; end
   end
 end
 
@@ -270,7 +279,7 @@ local function CooldownHealing()
     if Press(S.AuraMastery) then return "aura_mastery cooldown_healing"; end
   end
   -- avenging_wrath
-  if S.AvengingWrath:IsCastable() and Everyone.AreUnitsBelowHealthPercentage(Settings.Holy.Healing, "AvengingWrath") then
+  if S.AvengingWrath:IsCastable() and not Player:BuffUp(S.AvengingWrathBuff) and Everyone.AreUnitsBelowHealthPercentage(Settings.Holy.Healing, "AvengingWrath") then
     if Press(S.AvengingWrath) then return "avenging_wrath cooldown_healing"; end
   end
   -- beacon_of_virtue
@@ -315,7 +324,7 @@ local function AoEHealing()
   if Everyone.TargetIsValid() then
     -- consecration
     if S.Consecration:IsCastable() and S.GoldenPath:IsAvailable() and ConsecrationTimeRemaining() <= 0 then
-      if Press(S.Consecration, not Target:IsInMeleeRange(8)) then return "consecration aoe_healing"; end
+      if Press(S.Consecration, not Target:IsInMeleeRange(5)) then return "consecration aoe_healing"; end
     end
     -- judgment
     if S.Judgment:IsReady() and S.JudgmentofLight:IsAvailable() and Target:DebuffDown(S.JudgmentofLightDebuff) then
@@ -398,6 +407,21 @@ end
 -- APL Main
 local function APL()
   if Player:IsMounted() then return; end
+  -- revive
+  if Target and Target:Exists() and Target:IsAPlayer() and Target:IsDeadOrGhost() and not Player:CanAttack(Target) then
+    local DeadFriendlyUnitsCount = Everyone.DeadFriendlyUnitsCount()
+    if Player:AffectingCombat() then
+      if S.Intercession:IsCastable() then
+        if Press(S.Intercession, nil, true) then return "intercession"; end
+      end
+    else
+      if DeadFriendlyUnitsCount > 1 then
+        if Press(S.Absolution, nil, true) then return "absolution"; end
+      else
+        if Press(S.Redemption, not Target:IsInRange(40), true) then return "redemption"; end
+      end
+    end
+  end
   
   -- FocusUnit
   if Player:AffectingCombat() or Settings.General.Enabled.DispelDebuffs then
@@ -416,22 +440,6 @@ local function APL()
   if Settings.General.Enabled.HandleExplosives then
     local ShouldReturn = Everyone.HandleExplosive(S.CrusaderStrike, M.CrusaderStrikeMouseover, 8); if ShouldReturn then return ShouldReturn; end
     ShouldReturn = Everyone.HandleExplosive(S.Judgment, M.JudgmentMouseover, 30); if ShouldReturn then return ShouldReturn; end
-  end
-    
-  -- revive
-  if Target and Target:Exists() and Target:IsAPlayer() and Target:IsDeadOrGhost() and not Player:CanAttack(Target) then
-    local DeadFriendlyUnitsCount = Everyone.DeadFriendlyUnitsCount()
-    if Player:AffectingCombat() then
-      if S.Intercession:IsReady() then
-        if Press(S.Intercession, nil, true) then return "intercession"; end
-      end
-    else
-      if DeadFriendlyUnitsCount > 1 then
-        if Press(S.Absolution, nil, true) then return "absolution"; end
-      else
-        if Press(S.Redemption, not Target:IsInRange(40), true) then return "redemption"; end
-      end
-    end
   end
 
   if not Player:IsChanneling() then
@@ -484,6 +492,7 @@ local function AutoBind()
   Bind(M.BlessingofFreedomMouseover)
   Bind(M.BlessingofProtectionMouseover)
   Bind(M.BlessingofSummerPlayer)
+  Bind(M.BlessingofSummerFocus)
   Bind(M.BlessingofSacrificeFocus)
   Bind(M.FlashofLightFocus)
   Bind(M.CleanseMouseover)
