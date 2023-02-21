@@ -118,7 +118,7 @@ local function Defensives()
         if Press(M.WordofGloryFocus) then return "word_of_glory standard party 28"; end
       end
     else
-      if S.WordofGlory:IsReady() and (Player:HealthPercentage() <= Settings.Protection.HP.WordofGlory) then
+      if Player:HealthPercentage() <= Settings.Protection.HP.WordofGlory then
         if Press(M.WordofGloryPlayer) then return "word_of_glory defensive 8"; end
       end
     end
@@ -225,7 +225,7 @@ local function Standard()
     if Press(S.CrusaderStrike, not Target:IsInMeleeRange(5)) then return "crusader_strike standard 26"; end
   end
   -- word_of_glory,if=buff.shining_light_free.up
-  if S.WordofGlory:IsReady() and (Player:BuffUp(S.ShiningLightFreeBuff)) then
+  if S.WordofGlory:IsReady() and Player:BuffUp(S.ShiningLightFreeBuff) then
     if Player:HealthPercentage() > 90 and Player:IsInParty() and not Player:IsInRaid() then
       local ShouldReturn = Everyone.FocusUnit(false, M); if ShouldReturn then return ShouldReturn; end
       if Focus and Focus:Exists() and Focus:HealthPercentage() < 100 then
