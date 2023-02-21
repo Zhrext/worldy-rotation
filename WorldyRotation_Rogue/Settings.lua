@@ -4,19 +4,19 @@
 local addonName, addonTable = ...
   -- HeroLib
 local HL = HeroLib
--- HeroRotation
-local HR = HeroRotation
+-- WorldyRotation
+local WR = WorldyRotation
 -- File Locals
 local GUI = HL.GUI
 local CreateChildPanel = GUI.CreateChildPanel
 local CreatePanelOption = GUI.CreatePanelOption
-local CreateARPanelOption = HR.GUI.CreateARPanelOption
-local CreateARPanelOptions = HR.GUI.CreateARPanelOptions
+local CreateARPanelOption = WR.GUI.CreateARPanelOption
+local CreateARPanelOptions = WR.GUI.CreateARPanelOptions
 
 
 --- ============================ CONTENT ============================
 -- Default settings
-HR.GUISettings.APL.Rogue = {
+WR.GUISettings.APL.Rogue = {
   Commons = {
     PoisonRefresh = 15,
     PoisonRefreshCombat = 3,
@@ -118,10 +118,10 @@ HR.GUISettings.APL.Rogue = {
   }
 }
 
-HR.GUI.LoadSettingsRecursively(HR.GUISettings)
+WR.GUI.LoadSettingsRecursively(WR.GUISettings)
 
 -- Child Panels
-local ARPanel = HR.GUI.Panel
+local ARPanel = WR.GUI.Panel
 local CP_Rogue = CreateChildPanel(ARPanel, "Rogue")
 local CP_Rogue2 = CreateChildPanel(ARPanel, "Rogue 2")
 local CP_Assassination = CreateChildPanel(ARPanel, "Assassination")

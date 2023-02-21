@@ -180,6 +180,7 @@ Spell.Rogue.Outlaw = MergeTableByKey(Spell.Rogue.Commons, {
   GreenskinsWickersBuff   = Spell(394131),
   HiddenOpportunity       = Spell(383281),
   ImprovedAdrenalineRush  = Spell(395422),
+  ImprovedBetweenTheEyes  = Spell(235484),
   KeepItRolling           = Spell(381989),
   KillingSpree            = Spell(51690),
   LoadedDice              = Spell(256170),
@@ -201,6 +202,8 @@ Spell.Rogue.Outlaw = MergeTableByKey(Spell.Rogue.Commons, {
   RuthlessPrecision       = Spell(193357),
   SkullandCrossbones      = Spell(199603),
   TrueBearing             = Spell(193359),
+  -- Set Bonuses
+  ViciousFollowup         = Spell(394879),
 })
 
 Spell.Rogue.Subtlety = MergeTableByKey(Spell.Rogue.Commons, {
@@ -228,6 +231,7 @@ Spell.Rogue.Subtlety = MergeTableByKey(Spell.Rogue.Commons, {
   Flagellation            = Spell(384631),
   FlagellationPersistBuff = Spell(394758),
   Gloomblade              = Spell(200758),
+  ImprovedShurikenStorm   = Spell(319951),
   LingeringShadow         = Spell(382524),
   LingeringShadowBuff     = Spell(385960),
   MasterofShadows         = Spell(196976),
@@ -243,6 +247,7 @@ Spell.Rogue.Subtlety = MergeTableByKey(Spell.Rogue.Commons, {
   TheRotten               = Spell(382015),
   TheRottenBuff           = Spell(394203),
   Weaponmaster            = Spell(193537),
+  SilentStorm             = Spell(385722),
   SilentStormBuff         = Spell(385722),
   -- PvP
 })
@@ -283,17 +288,25 @@ Macro.Rogue.Commons = {
   BlindMouseover                              = Macro("BlindMouseover", "/cast [@mouseover] Blind"),
   CheapShotMouseover                          = Macro("CheapShotMouseover", "/cast [@mouseover] Cheap Shot"),
   KidneyShotMouseover                         = Macro("KidneyShotMouseover", "/cast [@mouseover] Kidney Shot"),
+  WindscarWhetstone                           = Macro("WindscarWhetstone", "/use Windscar Whetstone"),
 }
 
 Macro.Rogue.Outlaw = MergeTableByKey(Macro.Rogue.Commons, {
   PistolShotMouseover                     = Macro("PistolShotMouseover", "/cast [@mouseover] Pistol Shot"),
-  --Dispatch                                = Macro("Dispatch", "/cast Cold Blood\n /stopcasting\n /cast Dispatch"),
+  Dispatch                                = Macro("Dispatch", "/cast Cold Blood" .."\n" .."/cast Dispatch"),
 
   
 })
 
 Macro.Rogue.Subtlety = MergeTableByKey(Macro.Rogue.Commons, {
-  SymbolsofDeathShadowDance             = Macro("SymbolsofDeathShadowDance", "/cast Symbols of Death /cast Shadow Dance"),
+  SecretTechnique                       = Macro("SecretTechnique", "/cast Cold Blood" .."\n" .."/cast Secret Technique"),
+  ShadowDance                           = Macro("ShadowDance", "/cast Shadow Dance" .."\n" .."/cast Thistle Tea" .."\n" .."/cast Shadowstrike"),
+  --ShadowDanceSymbol                     = Macro("ShadowDanceSymbol", "/cast Symbols of Death" .."\n" .."/cast Shadow Dance" .."\n" .."/cast Shadowstrike"),
+  VanishShadowstrike                    = Macro("VanishShadowstrike", "/cast Vanish" .."\n" .."/cast Shadowstrike"),
+  ShurikenStormSD                       = Macro("ShurikenStormSD", "/cast Shadow Dance" .."\n" .."/cast Shuriken Storm"),
+  ShurikenStormVanish                   = Macro("ShurikenStormVanish", "/cast Vanish" .."\n" .."/cast Shuriken Storm "),
+  GloombladeSD                          = Macro("GloombladeSD", "/cast Shadow Dance" .."\n" .."/cast Gloomblade"),
+  GloombladeVanish                      = Macro("GloombladeVanish", "/cast Vanish" .."\n" .."/cast Gloomblade"),
 })
 
 Macro.Rogue.Assassination = MergeTableByKey(Macro.Rogue.Commons, {

@@ -1,4 +1,4 @@
-## Interface: 100005
+## Interface: 100002
 
 ## Title: Worldy|cFFA330C9Rotation|r [|cFFFFF569Rogue|r]
 ## Author: Gabbz
@@ -12,4 +12,5 @@ Settings.lua
 Rogue.lua
 Events.lua
 Outlaw.lua
+Subtlety.lua
 Overrides.lua
