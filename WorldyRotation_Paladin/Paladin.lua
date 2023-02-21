@@ -242,11 +242,6 @@ Macro.Paladin.Holy = MergeTableByKey(Macro.Paladin.Commons, {
   LightsHammerPlayer               = Macro("LightsHammerPlayer", "/cast [@player] " .. Spell.Paladin.Holy.LightsHammer:Name()),
   -- Focus
   FocusTarget                      = Macro("FocusTarget", "/focus target"),
-  FocusPlayer                      = Macro("FocusPlayer", "/focus player"),
-  FocusParty1                      = Macro("FocusParty1", "/focus party1"),
-  FocusParty2                      = Macro("FocusParty2", "/focus party2"),
-  FocusParty3                      = Macro("FocusParty3", "/focus party3"),
-  FocusParty4                      = Macro("FocusParty4", "/focus party4"),
   FocusRaid1                       = Macro("FocusRaid1", "/focus raid1"),
   FocusRaid2                       = Macro("FocusRaid2", "/focus raid2"),
   FocusRaid3                       = Macro("FocusRaid3", "/focus raid3"),
