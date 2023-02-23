@@ -436,6 +436,10 @@ local function APL()
         if Press(S.ImpendingVictory, not TargetInMeleeRange) then return "impending_victory heal"; end
       end
     end
+    -- healthstone
+    if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
+      if Press(M.Healthstone, nil, nil, true) then return "healthstone"; end
+    end
     -- auto_attack
     -- potion,if=gcd.remains=0&debuff.colossus_smash.remains>8|target.time_to_die<25
     -- use_item,name=manic_grieftorch,if=!buff.avatar.up&!debuff.colossus_smash.up

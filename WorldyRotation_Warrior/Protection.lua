@@ -152,6 +152,10 @@ local function Defensive()
       if Press(S.ImpendingVictory) then return "impending_victory defensive"; end
     end
   end
+  -- healthstone
+  if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
+    if Press(M.Healthstone, nil, nil, true) then return "healthstone"; end
+  end
 end
 
 local function Aoe()
@@ -282,7 +286,7 @@ local function APL()
     -- charge,if=time=0
     -- Note: Above 2 lines handled in Precombat
     -- use_items,if=talent.avatar&(cooldown.avatar.remains<=gcd|buff.avatar.up)|!talent.avatar
-    if CDsON() and Settings.Commons.Enabled.Trinkets and (S.Avatar:IsAvailable() and (S.Avatar:CooldownRemains() <= Player:GCD() or Player:BuffUp(S.AvatarBuff)) or not S.Avatar:IsAvailable()) and TargetInMeleeRange then
+    if CDsON() and Settings.General.Enabled.Trinkets and (S.Avatar:IsAvailable() and (S.Avatar:CooldownRemains() <= Player:GCD() or Player:BuffUp(S.AvatarBuff)) or not S.Avatar:IsAvailable()) and TargetInMeleeRange then
       -- use_item,slot=trinket1
       local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
       if Trinket1ToUse then
@@ -422,7 +426,11 @@ local function AutoBind()
   Bind(S.ShieldWall)
   Bind(S.RallyingCry)
   Bind(S.DemoralizingShout)
-  -- Macros
+  Bind(S.Pummel)
+  -- Bind Items
+  Bind(M.Trinket1)
+  Bind(M.Trinket2)
+  Bind(M.Healthstone)
   Bind(M.RavagerPlayer)
   Bind(M.SpearofBastionPlayer)
 end

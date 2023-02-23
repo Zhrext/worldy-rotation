@@ -346,9 +346,13 @@ local function APL()
         if Press(S.ImpendingVictory, not TargetInMeleeRange) then return "impending_victory heal"; end
       end
     end
+    -- healthstone
+    if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
+      if Press(M.Healthstone, nil, nil, true) then return "healthstone"; end
+    end
     if CDsON() then
       --use_item,name=manic_grieftorch,if=buff.recklessness.down&buff.avatar.down
-      if Settings.Commons.Enabled.Trinkets and Target:IsInMeleeRange(8) then
+      if Settings.General.Enabled.Trinkets and Target:IsInMeleeRange(8) then
         if I.ManicGrieftorch:IsEquippedAndReady() and Player:BuffDown(S.RecklessnessBuff) and Player:BuffDown(S.Avatar) then
           if Press(I.ManicGrieftorch) then return "manic_grieftorch main 8"; end
         end

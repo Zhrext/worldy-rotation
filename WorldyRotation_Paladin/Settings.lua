@@ -22,7 +22,7 @@ WR.GUISettings.APL.Paladin = {
   },
   Protection = {
     HP = {
-      DS = 20,
+      DS = 25,
       LoH = 15,
       GoAK = 40,
       WordofGlory = 50,
