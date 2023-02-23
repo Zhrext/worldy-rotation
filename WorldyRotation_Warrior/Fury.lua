@@ -60,7 +60,7 @@ local function Precombat()
   -- snapshot_stats
   -- avatar,if=!talent.titans_torment
   if CDsON() and S.Avatar:IsCastable() and (not S.TitansTorment:IsAvailable()) then
-    if Press(S.Avatar) then return "avatar precombat 6"; end
+    if Press(S.Avatar, not TargetInMeleeRange) then return "avatar precombat 6"; end
   end
   -- recklessness,if=!talent.reckless_abandon
   if CDsON() and S.Recklessness:IsCastable() and (not S.RecklessAbandon:IsAvailable()) then
@@ -350,6 +350,10 @@ local function APL()
     if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
       if Press(M.Healthstone, nil, nil, true) then return "healthstone"; end
     end
+    -- rallying_cry
+    if Player:HealthPercentage() < Settings.Commons.HP.RallyingCry and S.RallyingCry:IsCastable() then
+      if Press(S.RallyingCry) then return "rallying_cry defensive"; end
+    end
     if CDsON() then
       --use_item,name=manic_grieftorch,if=buff.recklessness.down&buff.avatar.down
       if Settings.General.Enabled.Trinkets and Target:IsInMeleeRange(8) then
@@ -374,11 +378,11 @@ local function APL()
       end
       -- blood_fury
       if S.BloodFury:IsCastable() then
-        if Press(S.BloodFury) then return "blood_fury main 12"; end
+        if Press(S.BloodFury, not TargetInMeleeRange) then return "blood_fury main 12"; end
       end
       -- berserking,if=buff.recklessness.up
       if S.Berserking:IsCastable() and Player:BuffUp(S.RecklessnessBuff) then
-        if Press(S.Berserking) then return "berserking main 14"; end
+        if Press(S.Berserking, not TargetInMeleeRange) then return "berserking main 14"; end
       end
       -- lights_judgment,if=buff.recklessness.down
       if S.LightsJudgment:IsCastable() and Player:BuffDown(S.RecklessnessBuff) then
@@ -386,11 +390,11 @@ local function APL()
       end
       -- fireblood
       if S.Fireblood:IsCastable() then
-        if Press(S.Fireblood) then return "fireblood main 18"; end
+        if Press(S.Fireblood, not TargetInMeleeRange) then return "fireblood main 18"; end
       end
       -- ancestral_call
       if S.AncestralCall:IsCastable() then
-        if Press(S.AncestralCall) then return "ancestral_call main 20"; end
+        if Press(S.AncestralCall, not TargetInMeleeRange) then return "ancestral_call main 20"; end
       end
       -- bag_of_tricks,if=buff.recklessness.down&buff.enrage.up
       -- if S.BagofTricks:IsCastable() and Player:BuffDown(S.RecklessnessBuff) and EnrageUp then
@@ -398,7 +402,7 @@ local function APL()
       -- end
       -- avatar,if=talent.titans_torment&buff.enrage.up&raid_event.adds.in>15|!talent.titans_torment&(buff.recklessness.up|target.time_to_die<20)
       if S.Avatar:IsCastable() and (S.TitansTorment:IsAvailable() and EnrageUp or not S.TitansTorment:IsAvailable() and (Player:BuffUp(S.RecklessnessBuff) or HL.FightRemains() < 20)) then
-        if Press(S.Avatar) then return "avatar main 24"; end
+        if Press(S.Avatar, not TargetInMeleeRange) then return "avatar main 24"; end
       end
       -- recklessness,if=!raid_event.adds.exists&(talent.annihilator&cooldown.avatar.remains<1|cooldown.avatar.remains>40|!talent.avatar|target.time_to_die<12)
       if S.Recklessness:IsCastable() and (S.Annihilator:IsAvailable() and S.Avatar:CooldownRemains() < 1 or S.Avatar:CooldownRemains() > 40 or (not S.Avatar:IsAvailable()) or HL.FightRemains() < 12) then
@@ -448,6 +452,8 @@ local function AutoBind()
   Bind(S.Pummel)
   Bind(S.VictoryRush)
   Bind(S.Whirlwind)
+  Bind(S.WarStomp)
+  Bind(S.RallyingCry)
   
   -- Bind Items
   Bind(M.Trinket1)

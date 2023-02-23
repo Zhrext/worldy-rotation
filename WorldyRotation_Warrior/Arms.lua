@@ -440,6 +440,10 @@ local function APL()
     if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
       if Press(M.Healthstone, nil, nil, true) then return "healthstone"; end
     end
+    -- rallying_cry
+    if Player:HealthPercentage() < Settings.Commons.HP.RallyingCry and S.RallyingCry:IsCastable() then
+      if Press(S.RallyingCry) then return "rallying_cry defensive"; end
+    end
     -- auto_attack
     -- potion,if=gcd.remains=0&debuff.colossus_smash.remains>8|target.time_to_die<25
     -- use_item,name=manic_grieftorch,if=!buff.avatar.up&!debuff.colossus_smash.up
@@ -533,6 +537,10 @@ local function AutoBind()
   Bind(S.SpearofBastion)
   Bind(S.ThunderClap)
   Bind(S.ThunderousRoar)
+  Bind(S.WarStomp)
+  Bind(S.RallyingCry)
+  Bind(S.StormBolt)
+  Bind(S.Pummel)
   
   -- Bind Items
   Bind(M.Trinket1)

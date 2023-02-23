@@ -22,6 +22,7 @@ WR.GUISettings.APL.Warrior = {
     },
     HP = {
       VictoryRush = 80,
+      RallyingCry = 40,
     },
   },
   Arms = {
@@ -35,7 +36,6 @@ WR.GUISettings.APL.Warrior = {
     HP = {
       ShieldWall = 35,
       LastStand = 40,
-      RallyingCry = 42,
     },
   },
 }

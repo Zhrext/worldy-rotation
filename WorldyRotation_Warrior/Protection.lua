@@ -136,7 +136,7 @@ local function Defensive()
     if Press(S.LastStand) then return "last_stand defensive"; end
   end
   -- rallying_cry,if=!buff.last_stand.up&!buff.shield_wall.up
-  if Player:HealthPercentage() < Settings.Protection.HP.RallyingCry and S.RallyingCry:IsCastable() and (Player:BuffDown(S.LastStandBuff) and Player:BuffDown(S.ShieldWallBuff)) then
+  if Player:HealthPercentage() < Settings.Commons.HP.RallyingCry and S.RallyingCry:IsCastable() and (Player:BuffDown(S.LastStandBuff) and Player:BuffDown(S.ShieldWallBuff)) then
     if Press(S.RallyingCry) then return "rallying_cry defensive"; end
   end
   --demoralizing_shout,if=talent.booming_voice.enabled
@@ -427,6 +427,7 @@ local function AutoBind()
   Bind(S.RallyingCry)
   Bind(S.DemoralizingShout)
   Bind(S.Pummel)
+  Bind(S.WarStomp)
   -- Bind Items
   Bind(M.Trinket1)
   Bind(M.Trinket2)

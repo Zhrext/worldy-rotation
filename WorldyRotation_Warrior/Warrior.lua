@@ -32,6 +32,7 @@ Spell.Warrior.Commons = {
   BloodFury                             = Spell(20572),
   Fireblood                             = Spell(265221),
   LightsJudgment                        = Spell(255647),
+  WarStomp                              = Spell(20549),
   -- Abilities
   BattleShout                           = Spell(6673),
   Charge                                = Spell(100),
