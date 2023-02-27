@@ -9,7 +9,7 @@ local HL          = HeroLib
 local Cache       = HeroCache
 local Unit        = HL.Unit
 local Player      = Unit.Player
-local Mouseover     = Unit.MouseOver
+local Mouseover   = Unit.MouseOver
 local Pet         = Unit.Pet
 local Target      = Unit.Target
 local Spell       = HL.Spell
@@ -544,6 +544,7 @@ local function APL()
     -- Interrupts
     if not Player:IsCasting() and not Player:IsChanneling() then
       local ShouldReturn = Everyone.Interrupt(S.SkullBash, 10, true); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.Interrupt(S.SkullBash, 10, true, Mouseover, M.SkullBashMouseover); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.InterruptWithStun(S.MightyBash, 8); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.InterruptWithStun(S.IncapacitatingRoar, 8); if ShouldReturn then return ShouldReturn; end
     end
@@ -673,6 +674,7 @@ local function AutoBind()
   Bind(M.PrimalWrathMouseover)
   Bind(M.MarkOfTheWildPlayer)
   Bind(M.MoonfireMouseover)
+  Bind(M.SkullBashMouseover)
   -- Bind Items
   Bind(M.Trinket1)
   Bind(M.Trinket2)

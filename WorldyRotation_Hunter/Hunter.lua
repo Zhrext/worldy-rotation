@@ -194,6 +194,7 @@ Macro.Hunter.Commons = {
   Trinket1                         = Macro("Trinket1", "/use 13"),
   Trinket2                         = Macro("Trinket2", "/use 14"),
   Healthstone                      = Macro("Healthstone", "/use item:5512"),
+  AlgetharPuzzleBox                = Macro("AlgetharPuzzleBox", "/use item:193701"),
   
   -- Spells
   ArcaneShotMouseover              = Macro("ArcaneShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.ArcaneShot:Name()),
@@ -209,6 +210,7 @@ Macro.Hunter.Commons = {
 Macro.Hunter.BeastMastery = MergeTableByKey(Macro.Hunter.Commons, {
   BarbedShotMouseover              = Macro("BarbedShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.BeastMastery.BarbedShot:Name()),
   CobraShotMouseover               = Macro("CobraShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.BeastMastery.CobraShot:Name()),
+  CobraShotPetAttack               = Macro("CobraShotPetAttack", "/cast " .. Spell.Hunter.BeastMastery.CobraShot:Name() .. "\n/petattack"),
 })
 
 Macro.Hunter.Marksmanship = MergeTableByKey(Macro.Hunter.Commons, {

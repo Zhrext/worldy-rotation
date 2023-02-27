@@ -49,6 +49,7 @@ local SummonPetSpells = { S.SummonPet, S.SummonPet2, S.SummonPet3, S.SummonPet4,
 -- Items
 local I = Item.Hunter.BeastMastery;
 local OnUseExcludes = {
+  I.AlgetharPuzzleBox:ID(),
 }
 
 -- Macros
@@ -157,7 +158,7 @@ local function Precombat()
   -- snapshot_stats
   -- use_item,name=algethar_puzzle_box
   if I.AlgetharPuzzleBox:IsEquippedAndReady() then
-    if Cast(I.AlgetharPuzzleBox, nil, Settings.Commons.DisplayStyle.Trinkets) then return "algethar_puzzle_box precombat 1"; end
+    if Press(M.AlgetharPuzzleBox, nil, true) then return "algethar_puzzle_box precombat 1"; end
   end
   -- misdirection
   if Focus:Exists() and S.Misdirection:IsReady() then
@@ -188,7 +189,7 @@ local function Precombat()
   else
     -- Cobra Shot
     if S.CobraShot:IsReady()  then
-      if Press(S.CobraShot) then return "cobra_shot precombat 16"; end
+      if Press(M.CobraShotPetAttack) then return "cobra_shot precombat 16"; end
     end
   end
 end
@@ -226,6 +227,10 @@ local function Trinkets()
   if Trinket2ToUse and (Player:BuffUp(S.CalloftheWildBuff) or (not S.CalloftheWild:IsAvailable()) and (Player:BuffUp(S.BestialWrathBuff) and (Player:BloodlustUp() or Target:HealthPercentage() < 20)) or FightRemains < 31) then
     if Press(M.Trinket2, nil, nil, true) then return "trinket2 trinket 4"; end
   end
+  -- use_item,name=algethar_puzzle_box
+  if I.AlgetharPuzzleBox:IsEquippedAndReady() then
+    if Press(M.AlgetharPuzzleBox, nil, true) then return "algethar_puzzle_box trinkets"; end
+  end
 end
 
 local function Cleave()
@@ -262,7 +267,7 @@ local function Cleave()
     if Press(S.Bloodshed, not Target:IsSpellInRange(S.Bloodshed)) then return "bloodshed cleave 16"; end
   end
   -- death_chakram
-  if S.DeathChakram:IsCastable() then
+  if S.DeathChakram:IsCastable() and CDsON() then
     if Press(S.DeathChakram, not Target:IsSpellInRange(S.DeathChakram)) then return "death_chakram cleave 18"; end
   end
   -- bestial_wrath
@@ -274,7 +279,7 @@ local function Cleave()
     if Press(S.SteelTrap) then return "steel_trap cleave 22"; end
   end
   -- a_murder_of_crows
-  if S.AMurderofCrows:IsReady() then
+  if S.AMurderofCrows:IsReady() and CDsON() then
     if Press(S.AMurderofCrows, not Target:IsSpellInRange(S.AMurderofCrows)) then return "a_murder_of_crows cleave 24"; end
   end
   -- barbed_shot,target_if=max:debuff.latent_poison.stack,if=debuff.latent_poison.stack>9&(talent.wild_instincts&buff.call_of_the_wild.up|fight_remains<9|talent.wild_call&charges_fractional>1.2)
@@ -315,7 +320,7 @@ local function Cleave()
   end
   -- cobra_shot,if=focus.time_to_max<gcd*2|buff.aspect_of_the_wild.up&focus.time_to_max<gcd*4
   if S.CobraShot:IsReady() and (Player:FocusTimeToMax() < GCDMax * 2 or Player:BuffUp(S.AspectoftheWildBuff) and Player:FocusTimeToMax() < GCDMax * 4) then
-    if Press(S.CobraShot, not Target:IsSpellInRange(S.CobraShot)) then return "cobra_shot cleave 42"; end
+    if Press(M.CobraShotPetAttack, not Target:IsSpellInRange(S.CobraShot)) then return "cobra_shot cleave 42"; end
   end
   -- wailing_arrow,if=pet.main.buff.frenzy.remains>execute_time|fight_remains<5
   if S.WailingArrow:IsReady() and (Pet:BuffRemains(S.FrenzyPetBuff) > S.WailingArrow:ExecuteTime() or FightRemains < 5) then
@@ -345,7 +350,7 @@ local function ST()
     if Press(S.CalloftheWild) then return "call_of_the_wild st 6"; end
   end
   -- death_chakram
-  if S.DeathChakram:IsCastable() then
+  if S.DeathChakram:IsCastable() and CDsON() then
     if Press(S.DeathChakram, not Target:IsSpellInRange(S.DeathChakram)) then return "death_chakram st 8"; end
   end
   -- bloodshed
@@ -357,7 +362,7 @@ local function ST()
     if Press(S.Stampede, not Target:IsSpellInRange(S.Stampede)) then return "stampede st 12"; end
   end
   -- a_murder_of_crows
-  if S.AMurderofCrows:IsCastable() then
+  if S.AMurderofCrows:IsCastable() and CDsON() then
     if Press(S.AMurderofCrows, not Target:IsSpellInRange(S.AMurderofCrows)) then return "a_murder_of_crows st 14"; end
   end
   -- steel_trap
@@ -398,7 +403,7 @@ local function ST()
   end
   -- cobra_shot
   if S.CobraShot:IsReady() then
-    if Press(S.CobraShot, not Target:IsSpellInRange(S.CobraShot)) then return "cobra_shot st 34"; end
+    if Press(M.CobraShotPetAttack, not Target:IsSpellInRange(S.CobraShot)) then return "cobra_shot st 34"; end
   end
   -- wailing_arrow,if=pet.main.buff.frenzy.remains>execute_time|target.time_to_die<5
   if S.WailingArrow:IsReady() and (Pet:BuffRemains(S.FrenzyPetBuff) > S.WailingArrow:ExecuteTime() or FightRemains < 5) then
@@ -508,7 +513,7 @@ local function APL()
     end
     -- Manually added: call_action_list,name=trinkets
     -- Note: Shifted Trinket usage from CDs() to its own function so Trinket usage isn't reliant upon CDsON()
-    if (Settings.Commons.Enabled.Trinkets) then
+    if Settings.General.Enabled.Trinkets and CDsON() then
       local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=st,if=active_enemies<2|!talent.beast_cleave&active_enemies<3
@@ -576,10 +581,13 @@ local function AutoBind()
   Bind(M.Trinket2)
   Bind(M.Healthstone)
   
+  Bind(M.AlgetharPuzzleBox)
+  
   -- Macros
   Bind(M.BarbedShotMouseover)
   Bind(M.BindingShotCursor)
   Bind(M.CobraShotMouseover)
+  Bind(M.CobraShotPetAttack)
   Bind(M.CounterShotMouseover)
   Bind(M.IntimidationMouseover)
   Bind(M.KillShotMouseover)

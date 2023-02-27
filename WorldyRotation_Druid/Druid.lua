@@ -247,6 +247,7 @@ Macro.Druid.Commons = {
   RejuvenationMouseover            = Macro("RejuvenationMouseover", "/cast [@mouseover] " .. Spell.Druid.Commons.Rejuvenation:Name()),
   SunfireMouseover                 = Macro("SunfireMouseover", "/cast [@mouseover] " .. Spell.Druid.Commons.Sunfire:Name()),
   SwiftmendFocus                   = Macro("SwiftmendFocus", "/cast [@focus] " .. Spell.Druid.Commons.Swiftmend:Name()),
+  SkullBashMouseover               = Macro("SkullBashMouseover", "/cast [@mouseover] " .. Spell.Druid.Commons.SkullBash:Name()),
   WildgrowthFocus                  = Macro("WildgrowthFocus", "/cast [@focus] " .. Spell.Druid.Commons.Wildgrowth:Name()),
   UrsolsVortexCursor               = Macro("UrsolsVortexCursor", "/cast [@cursor] " .. Spell.Druid.Commons.UrsolsVortex:Name()),
   -- Items

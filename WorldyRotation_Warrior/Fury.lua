@@ -454,6 +454,7 @@ local function AutoBind()
   Bind(S.Whirlwind)
   Bind(S.WarStomp)
   Bind(S.RallyingCry)
+  Bind(S.ThunderousRoar)
   
   -- Bind Items
   Bind(M.Trinket1)
