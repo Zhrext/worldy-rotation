@@ -248,7 +248,7 @@ local function Cleave()
   end
   -- kill_command,if=full_recharge_time<gcd&talent.alpha_predator&talent.kill_cleave
   if S.KillCommand:IsReady() and (S.KillCommand:FullRechargeTime() < GCDMax and S.AlphaPredator:IsAvailable() and S.KillCleave:IsAvailable()) then
-    if Press(S.KillCommand, not Target:IsInRange(50)) then return "kill_command cleave 8"; end
+    if Press(S.KillCommand, not TargetInRangePet30y) then return "kill_command cleave 8"; end
   end
   -- call_of_the_wild
   if S.CalloftheWild:IsCastable() and CDsON() then
@@ -292,7 +292,7 @@ local function Cleave()
   end
   -- kill_command
   if S.KillCommand:IsReady() then
-    if Press(S.KillCommand, not Target:IsInRange(50)) then return "kill_command cleave 30"; end
+    if Press(S.KillCommand, not TargetInRangePet30y) then return "kill_command cleave 30"; end
   end
   -- dire_beast
   if S.DireBeast:IsCastable() then
@@ -343,7 +343,7 @@ local function ST()
   end
   -- kill_command,if=full_recharge_time<gcd&talent.alpha_predator
   if S.KillCommand:IsReady() and (S.KillCommand:FullRechargeTime() < GCDMax and S.AlphaPredator:IsAvailable()) then
-    if Press(S.KillCommand, not Target:IsInRange(50)) then return "kill_command st 4"; end
+    if Press(S.KillCommand, not TargetInRangePet30y) then return "kill_command st 4"; end
   end
   -- call_of_the_wild
   if S.CalloftheWild:IsCastable() and CDsON() then
@@ -379,7 +379,7 @@ local function ST()
   end
   -- kill_command
   if S.KillCommand:IsReady() then
-    if Press(S.KillCommand, not Target:IsInRange(50)) then return "kill_command st 22"; end
+    if Press(S.KillCommand, not TargetInRangePet30y) then return "kill_command st 22"; end
   end
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=talent.wild_instincts&buff.call_of_the_wild.up|talent.wild_call&charges_fractional>1.4|full_recharge_time<gcd&cooldown.bestial_wrath.remains|talent.scent_of_blood&(cooldown.bestial_wrath.remains<12+gcd|full_recharge_time+gcd<8&cooldown.bestial_wrath.remains<24+(8-gcd)+full_recharge_time)|fight_remains<9
   if S.BarbedShot:IsCastable() then
@@ -447,12 +447,12 @@ local function APL()
   end
 
   -- Enemies Update
-  local PetCleaveAbility = (S.BloodBolt:IsPetKnown() and Action.FindBySpellID(S.BloodBolt:ID()) and S.BloodBolt)
-    or (S.Bite:IsPetKnown() and Action.FindBySpellID(S.Bite:ID()) and S.Bite)
-    or (S.Claw:IsPetKnown() and Action.FindBySpellID(S.Claw:ID()) and S.Claw)
-    or (S.Smack:IsPetKnown() and Action.FindBySpellID(S.Smack:ID()) and S.Smack)
+  local PetCleaveAbility = (S.BloodBolt:IsPetKnown() and S.BloodBolt)
+    or (S.Bite:IsPetKnown() and S.Bite)
+    or (S.Claw:IsPetKnown() and S.Claw)
+    or (S.Smack:IsPetKnown() and S.Smack)
     or nil
-  local PetRangeAbility = (S.Growl:IsPetKnown() and Action.FindBySpellID(S.Growl:ID()) and S.Growl) or nil
+  local PetRangeAbility = (S.Growl:IsPetKnown() and S.Growl) or nil
   if AoEON() then
     Enemies8y = Player:GetEnemiesInRange(8)
     Enemies40y = Player:GetEnemiesInRange(40) -- Barbed Shot Cycle
