@@ -174,7 +174,7 @@ end
     WR.SetupFreeBinds = true;
     HL:RegisterForEvent(function()
       WR.Rebind();
-    end, "PLAYER_TALENT_UPDATE")
+    end, "ACTIVE_PLAYER_SPECIALIZATION_CHANGED");
     function WR.Bind (Object)
       if WR.SetupFreeBinds then
         WR.AddFreeBinds(CommonKeys);
