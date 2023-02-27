@@ -97,7 +97,6 @@ do
     152818,
     -- 154327, -- Domination Manual Interrupt
     156776,
-    156722,
     398206,
     156718,
     153524,
@@ -122,6 +121,15 @@ do
   };
   Commons.StunWhitelistIDs = {
     210261,
+    198959,
+    398206,
+    388392,
+    395859,
+    397889,
+    397914,
+    153524,
+    215433,
+    396812,
     372749,
     372735,
     370225,
@@ -134,6 +142,7 @@ do
     387564,
     386546,
     385536,
+    387910,
   };
   function Commons.Interrupt(Spell, Range, OffGCD, Unit, Macro)
     if not Unit then

@@ -548,6 +548,10 @@ local function APL()
       ShouldReturn = Everyone.InterruptWithStun(S.MightyBash, 8); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.InterruptWithStun(S.IncapacitatingRoar, 8); if ShouldReturn then return ShouldReturn; end
     end
+    -- Dispels
+    if Settings.General.Enabled.DispelBuffs and S.Soothe:IsReady() and not Player:IsCasting() and not Player:IsChanneling() and Everyone.UnitHasEnrageBuff(Target) then
+      if Press(S.Soothe, not Target:IsInMeleeRange(8)) then return "dispel"; end
+    end
     -- prowl
     if S.Prowl:IsCastable() then
       if Press(S.Prowl) then return "prowl main 2"; end
@@ -663,6 +667,7 @@ local function AutoBind()
   Bind(S.Sunfire)
   Bind(S.StampedingRoar)
   Bind(S.SkullBash)
+  Bind(S.Soothe)
   Bind(S.TigersFury)
   Bind(S.Thrash)
   Bind(S.Typhoon)

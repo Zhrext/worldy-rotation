@@ -40,6 +40,7 @@ Spell.Druid.Commons = {
   Rejuvenation                          = Spell(774),
   Revive                                = Spell(50769),
   Shred                                 = Spell(5221),
+  Soothe                                = Spell(2908),
   -- Talents
   AstralCommunion                       = Spell(202359),
   ConvokeTheSpirits                     = Spell(391528),
