@@ -61,7 +61,7 @@ Spell.Monk.Commons = {
   EyeoftheTiger                         = Spell(196607),
   InnerStrengthBuff                     = Spell(261769),
   Paralysis                             = Spell(115078),
-  RingofPeace                           = Spell(116844),
+  RingOfPeace                           = Spell(116844),
   RushingJadeWind                       = Spell(116847),
   SpearHandStrike                       = Spell(116705),
   SummonWhiteTigerStatue                = Spell(388686),
@@ -195,6 +195,10 @@ Spell.Monk.Mistweaver = MergeTableByKey(Spell.Monk.Commons, {
 -- Items
 if not Item.Monk then Item.Monk = {}; end
 Item.Monk.Commons = {
+  -- Potions
+  Healthstone                           = Item(5512),
+  --Trinkets
+  AlgetharPuzzleBox                     = Item(193701, {13, 14}),
 }
 
 Item.Monk.Windwalker = MergeTableByKey(Item.Monk.Commons, {
@@ -209,16 +213,25 @@ Item.Monk.Mistweaver = MergeTableByKey(Item.Monk.Commons, {
 -- Macro
 if not Macro.Monk then Macro.Monk = {}; end
 Macro.Monk.Commons = {
-  Healthstone                      = Macro("Healthstone", "/use Healthstone"),
+  -- Items
+  Trinket1                         = Macro("Trinket1", "/use 13"),
+  Trinket2                         = Macro("Trinket2", "/use 14"),
+  Healthstone                      = Macro("Healthstone", "/use item:5512"),
+  AlgetharPuzzleBox                = Macro("AlgetharPuzzleBox", "/use item:193701"),
+  -- Spells
+  BoneDustBrewPlayer               = Macro("BoneDustBrewPlayer", "/cast [@player] " .. Spell.Monk.Commons.BonedustBrew:Name()),
+  RingOfPeaceCursor                = Macro("RingOfPeaceCursor", "/cast [@cursor] " .. Spell.Monk.Commons.RingOfPeace:Name()),
+  SpearHandStrikeMouseover         = Macro("SpearHandStrikeMouseover", "/cast [@mouseover] " .. Spell.Monk.Commons.SpearHandStrike:Name()),
+  TigerPalmMouseover               = Macro("TigerPalmMouseover", "/cast [@mouseover] " .. Spell.Monk.Commons.TigerPalm:Name()),
 }
 
-Macro.Monk.Windwalker = MergeTableByKey(Item.Monk.Commons, {
+Macro.Monk.Windwalker = MergeTableByKey(Macro.Monk.Commons, {
   SummonWhiteTigerStatueM                      = Macro("SummonWhiteTigerStatue", "/cast [@player] Summon White Tiger Statue"),
   BonedustBrewM                                = Macro("BoneDustBrew", "/cast [@player] Bonedust Brew"),
 })
 
-Macro.Monk.Brewmaster = MergeTableByKey(Item.Monk.Commons, {
+Macro.Monk.Brewmaster = MergeTableByKey(Macro.Monk.Commons, {
 })
 
-Macro.Monk.Mistweaver = MergeTableByKey(Item.Monk.Commons, {
+Macro.Monk.Mistweaver = MergeTableByKey(Macro.Monk.Commons, {
 })

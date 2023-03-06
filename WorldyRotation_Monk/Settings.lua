@@ -17,56 +17,8 @@ local CreateARPanelOptions = WR.GUI.CreateARPanelOptions
 -- All settings here should be moved into the GUI someday.
 WR.GUISettings.APL.Monk = {
   Commons = {
-    Enabled = {
-      Trinkets = true,
-      Potions = true,
-      Items = true,
-    },
-    DisplayStyle = {
-      Potions = "Suggested",
-      Covenant = "Suggested",
-      Trinkets = "Suggested",
-      Items = "Suggested"
-    },
-    -- {Display GCD as OffGCD, ForceReturn}
-    GCDasOffGCD = {
-      -- Abilities
-      LegSweep = true,
-      RingOfPeace = true,
-      Paralysis = true,
-      -- Racials
-      Racials = true,
-    },
-    -- {Display OffGCD as OffGCD, ForceReturn}
-    OffGCDasOffGCD = {
-      -- Abilities
-      Interrupts = true,
-    }
   },
   Brewmaster = {
-    PotionType = {
-      Selected = "Power",
-    },
-    -- DisplayStyle for Brewmaster-only stuff
-    DisplayStyle = {
-      CelestialBrew = "Suggested",
-      DampenHarm = "Suggested",
-      FortifyingBrew = "Suggested",
-      Purify = "SuggestedRight"
-    },
-    -- {Display GCD as OffGCD, ForceReturn}
-    GCDasOffGCD = {
-      -- Abilities
-      InvokeNiuzaoTheBlackOx = true,
-      TouchOfDeath           = true,
-    },
-    -- {Display OffGCD as OffGCD, ForceReturn}
-    OffGCDasOffGCD = {
-      -- Racials
-      -- Abilities
-      BlackOxBrew            = true,
-      PurifyingBrew          = true,
-    }
   },
   Windwalker = {
     ShowFortifyingBrewCD = false,

@@ -337,9 +337,9 @@ local EnabledRotation = {
   ---- Mage
   --  [62]    = "WorldyRotation_Mage",          -- Arcane
   --  [63]    = "WorldyRotation_Mage",          -- Fire
-  --  [64]    = "WorldyRotation_Mage",          -- Frost
+  [64]    = "WorldyRotation_Mage",          -- Frost
   ---- Monk
-  --  [268]   = "WorldyRotation_Monk",          -- Brewmaster
+    [268]   = "WorldyRotation_Monk",          -- Brewmaster
       [269]   = "WorldyRotation_Monk",          -- Windwalker
   --  [270]   = "WorldyRotation_Monk",          -- Mistweaver
   ---- Paladin

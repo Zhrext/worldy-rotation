@@ -508,7 +508,7 @@ local function APL()
     end
     -- auto_shot
     -- call_action_list,name=cds
-    if (CDsON()) then
+    if CDsON() then
       local ShouldReturn = CDs(); if ShouldReturn then return ShouldReturn; end
     end
     -- Manually added: call_action_list,name=trinkets
