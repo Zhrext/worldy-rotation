@@ -74,6 +74,7 @@ Spell.Paladin.Commons = {
   -- Debuffs
   ConsecrationDebuff                    = Spell(204242),
   JudgmentDebuff                        = Spell(197277),
+  Forbearance                           = Spell(25771),
   -- Pool
   Pool                                  = Spell(999910),
 }
@@ -89,6 +90,8 @@ Spell.Paladin.Protection = MergeTableByKey(Spell.Paladin.Commons, {
   CrusadersJudgment                     = Spell(204023),
   DivineToll                            = Spell(375576),
   EyeofTyr                              = Spell(387174),
+  GiftoftheGoldenValkyr                 = Spell(378279),
+  GiftoftheGoldenValkyrDebuff           = Spell(393879),
   GuardianofAncientKings                = Spell(86659),
   HammeroftheRighteous                  = Spell(53595),
   MomentofGlory                         = Spell(327193),
@@ -178,8 +181,11 @@ if not Item.Paladin then Item.Paladin = {} end
 Item.Paladin.Commons = {
   -- Potion
   Healthstone                           = Item(5512),
+  ElementalPotionOfPower                = Item(191389),
+  RefreshingHealingPotion               = Item(191380), 
   -- Trinkets
   AlgetharPuzzleBox                     = Item(193701, {13, 14}),
+  WindscarWhetstone                     = Item(137486, {13, 14}),
 }
 
 Item.Paladin.Protection = MergeTableByKey(Item.Paladin.Commons, {
