@@ -147,6 +147,7 @@ Spell.Monk.Brewmaster = MergeTableByKey(Spell.Monk.Commons, {
   SpecialDelivery                       = Spell(196730),
   Spitfire                              = Spell(242580),
   SummonBlackOxStatue                   = Spell(115315),
+  WeaponsOfOrder                        = Spell(387184),
   -- Defensive
   CelestialBrew                         = Spell(322507),
   ElusiveBrawlerBuff                    = Spell(195630),
@@ -220,8 +221,10 @@ Macro.Monk.Commons = {
   AlgetharPuzzleBox                = Macro("AlgetharPuzzleBox", "/use item:193701"),
   -- Spells
   BoneDustBrewPlayer               = Macro("BoneDustBrewPlayer", "/cast [@player] " .. Spell.Monk.Commons.BonedustBrew:Name()),
+  DetoxMouseover                   = Macro("DetoxMouseover", "/cast [@mouseover] " .. Spell.Monk.Commons.Detox:Name()),
   RingOfPeaceCursor                = Macro("RingOfPeaceCursor", "/cast [@cursor] " .. Spell.Monk.Commons.RingOfPeace:Name()),
   SpearHandStrikeMouseover         = Macro("SpearHandStrikeMouseover", "/cast [@mouseover] " .. Spell.Monk.Commons.SpearHandStrike:Name()),
+  SummonWhiteTigerStatuePlayer     = Macro("SummonWhiteTigerStatuePlayer", "/cast [@player] " .. Spell.Monk.Commons.SummonWhiteTigerStatue:Name()),
   TigerPalmMouseover               = Macro("TigerPalmMouseover", "/cast [@mouseover] " .. Spell.Monk.Commons.TigerPalm:Name()),
 }
 
@@ -231,6 +234,7 @@ Macro.Monk.Windwalker = MergeTableByKey(Macro.Monk.Commons, {
 })
 
 Macro.Monk.Brewmaster = MergeTableByKey(Macro.Monk.Commons, {
+  ExplodingKegPlayer               = Macro("ExplodingKegPlayer", "/cast [@player] " .. Spell.Monk.Brewmaster.ExplodingKeg:Name()),
 })
 
 Macro.Monk.Mistweaver = MergeTableByKey(Macro.Monk.Commons, {

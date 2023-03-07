@@ -145,6 +145,9 @@ local function Defensives()
   if S.PurifyingBrew:IsCastable() and ShouldPurify() then
     if Press(S.PurifyingBrew) then return "Purifying Brew"; end
   end
+  if S.ExpelHarm:IsCastable() and Player:HealthPercentage() <= 80 then
+    if Press(S.ExpelHarm) then return "Expel Harm"; end
+  end
   if S.DampenHarm:IsCastable() and Player:BuffDown(S.FortifyingBrewBuff) and Player:HealthPercentage() <= 35 then
     if Press(S.DampenHarm) then return "Dampen Harm"; end
   end
@@ -183,33 +186,14 @@ local function APL()
     if IsTanking then
       local ShouldReturn = Defensives(); if ShouldReturn then return ShouldReturn; end
     end
-    -- use_item,name=scars_of_fraternal_strife,if=!buff.scars_of_fraternal_strife_4.up&time>1
-    --[[if I.ScarsofFraternalStrife:IsEquippedAndReady() and Settings.Commons.Enabled.Trinkets and (Player:BuffDown(S.ScarsofFraternalStrifeBuff4) and HL.CombatTime() > 1) then
-      if Cast(I.ScarsofFraternalStrife, nil, Settings.Commons.DisplayStyle.Trinkets) then return "scars_of_fraternal_strife main 1"; end
-    end
-    -- use_item,name=cache_of_acquired_treasures,if=buff.acquired_axe.up|fight_remains<25
-    if I.CacheofAcquiredTreasures:IsEquippedAndReady() and (Player:BuffUp(S.AcquiredAxeBuff) or HL.FilteredFightRemains(Enemies8y, "<", 25)) then
-      if Cast(I.CacheofAcquiredTreasures, nil, Settings.Commons.DisplayStyle.Trinkets) then return "cache_of_acquired_treasures main 2"; end
-    end
-    -- use_item,name=jotungeirr_destinys_call
-    if I.Jotungeirr:IsEquippedAndReady() then
-      if Cast(I.Jotungeirr, nil, Settings.Commons.DisplayStyle.Items) then return "jotungeirr_destinys_call main 3"; end
-    end]]
-    -- use_items
-    if Settings.General.Enabled.Trinkets and CDsON() then
-      local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
-    end
-    -- gift_of_the_ox
-    -- TODO: Find a way to track gift orbs
-    -- dampen_harm,if=incoming_damage_1500ms&buff.fortifying_brew.down
-    -- Note: Handled via Defensives()
-    -- fortifying_brew,if=incoming_damage_1500ms&(buff.dampen_harm.down|buff.diffuse_magic.down)
-    -- Note: Handled via Defensives()
-    -- potion
-    --[[if I.PotionofPhantomFire:IsReady() and Settings.Commons.Enabled.Potions then
-      if Cast(I.PotionofPhantomFire, nil, Settings.Commons.DisplayStyle.Potions) then return "potion main 4"; end
-    end]]
     if CDsON() then
+      if S.SummonWhiteTigerStatue:IsCastable() then
+        if Press(M.SummonWhiteTigerStatuePlayer, not Target:IsInMeleeRange(5)) then return "summon_white_tiger_statue main 4"; end
+      end
+      -- use_items
+      if Settings.General.Enabled.Trinkets and CDsON() then
+        local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
+      end
       -- blood_fury
       if S.BloodFury:IsCastable() then
         if Press(S.BloodFury) then return "blood_fury main 6"; end
@@ -244,6 +228,10 @@ local function APL()
       if S.TouchofDeath:IsCastable() and (Target:HealthPercentage() <= 15) then
         if Press(S.TouchofDeath, not Target:IsInMeleeRange(5)) then return "touch_of_death main 20"; end
       end
+      -- weapons_of_order
+      if S.WeaponsOfOrder:IsCastable() then
+        if Press(S.WeaponsOfOrder) then return "weapons_of_order main 22"; end
+      end
       -- bonedust_brew,if=!debuff.bonedust_brew_debuff.up
       if S.BonedustBrew:IsCastable() and (Target:DebuffDown(S.BonedustBrew)) then
         if Press(M.BoneDustBrewPlayer, not Target:IsInMeleeRange(8)) then return "bonedust_brew main 26"; end
@@ -271,7 +259,7 @@ local function APL()
     -- Handled via Defensives()
     -- exploding_keg
     if S.ExplodingKeg:IsCastable() then
-      if Press(S.ExplodingKeg, not Target:IsInRange(40)) then return "exploding_keg 39"; end
+      if Press(M.ExplodingKegPlayer, not Target:IsInMeleeRange(8)) then return "exploding_keg 39"; end
     end
     -- tiger_palm,if=talent.rushing_jade_wind.enabled&buff.blackout_combo.up&buff.rushing_jade_wind.up
     if S.TigerPalm:IsReady() and (S.RushingJadeWind:IsAvailable() and Player:BuffUp(S.BlackoutComboBuff) and Player:BuffUp(S.RushingJadeWind)) then
@@ -284,6 +272,10 @@ local function APL()
     -- blackout_kick
     if S.BlackoutKick:IsCastable() then
       if Press(S.BlackoutKick, not Target:IsInMeleeRange(5)) then return "blackout_kick main 44"; end
+    end
+    -- rising_sun_kick
+    if S.RisingSunKick:IsCastable() then
+      if Press(S.RisingSunKick, not Target:IsInMeleeRange(5)) then return "rising_sun_kick main 46"; end
     end
     --keg_smash
     if S.KegSmash:IsReady() then
@@ -350,17 +342,19 @@ local function AutoBind()
   Bind(S.ChiBurst)
   Bind(S.ChiWave)
   Bind(S.DampenHarm)
-  Bind(S.ExplodingKeg)
+  Bind(S.ExpelHarm)
   Bind(S.FortifyingBrew)
   Bind(S.InvokeNiuzaoTheBlackOx)
   Bind(S.LegSweep)
   Bind(S.KegSmash)
+  Bind(S.RisingSunKick)
   Bind(S.RushingJadeWind)
   Bind(S.PurifyingBrew)
   Bind(S.TigerPalm)
   Bind(S.SpearHandStrike)
   Bind(S.SpinningCraneKick)
   Bind(S.TouchofDeath)
+  Bind(S.WeaponsOfOrder)
   -- Bind Items
   Bind(M.Trinket1)
   Bind(M.Trinket2)
@@ -368,8 +362,11 @@ local function AutoBind()
   Bind(M.AlgetharPuzzleBox)
   -- Macros
   Bind(M.BoneDustBrewPlayer)
+  Bind(M.DetoxMouseover)
+  Bind(M.ExplodingKegPlayer)
   Bind(M.RingOfPeaceCursor)
   Bind(M.SpearHandStrikeMouseover)
+  Bind(M.SummonWhiteTigerStatuePlayer)
   Bind(M.TigerPalmMouseover)
 end
 
