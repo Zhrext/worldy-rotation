@@ -356,6 +356,19 @@ local function APL()
       local ShouldReturn = Everyone.Interrupt(S.Counterspell, 40, true); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.Interrupt(S.Counterspell, 40, true, Mouseover, M.CounterspellMouseover); if ShouldReturn then return ShouldReturn; end
     end
+    -- Defensives
+    -- ice_block
+    if S.IceBlock:IsCastable() and Player:HealthPercentage() <= Settings.Commons.HP.IceBlock then
+      if Press(S.IceBlock) then return "IceBlock"; end
+    end
+    -- ice_barrier
+    if S.IceBarrier:IsCastable() and Player:BuffDown(S.IceBarrier) and Player:HealthPercentage() <= Settings.Frost.HP.IceBarrier then
+      if Press(S.IceBarrier) then return "IceBarrier"; end
+    end
+    -- healthstone
+    if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
+      if Press(M.Healthstone, nil, nil, true) then return "healthstone"; end
+    end
     -- water_jet,if=cooldown.flurry.charges_fractional<1
     if Pet:IsActive() and S.WaterJet:IsReady() and (S.Flurry:ChargesFractional() < 1) then
       if Press(S.WaterJet, not Target:IsSpellInRange(S.WaterJet)) then return "water_jet main 2"; end
@@ -395,6 +408,8 @@ local function AutoBind()
   Bind(S.FrozenOrb)
   Bind(S.Flurry)
   Bind(S.GlacialSpike)
+  Bind(S.IceBarrier)
+  Bind(S.IceBlock)
   Bind(S.IceLance)
   Bind(S.IceFloes)
   Bind(S.IceNova)

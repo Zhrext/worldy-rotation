@@ -22,8 +22,14 @@ WR.GUISettings.APL.Mage = {
       MovingRotation = true,
       StayDistance = true,
     },
+    HP = {
+      IceBlock = 20,
+    },
   },
   Frost = {
+    HP = {
+      IceBarrier = 60,
+    },
   },
 }
 
