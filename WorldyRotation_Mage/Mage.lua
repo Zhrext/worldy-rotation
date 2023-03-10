@@ -31,7 +31,7 @@ local Mage = WR.Commons.Mage
 -- Spells
 if not Spell.Mage then Spell.Mage = {} end
 Spell.Mage.Commons = {
---   -- Racials
+  -- Racials
   AncestralCall                         = Spell(274738),
   BagofTricks                           = Spell(312411),
   Berserking                            = Spell(26297),
@@ -118,15 +118,10 @@ Spell.Mage.Frost = MergeTableByKey(Spell.Mage.Commons, {
 if not Item.Mage then Item.Mage = {} end
 Item.Mage.Commons = {
   -- Potion
-  Healthstone                      = Item(5512),
-  -- Spells
-  ArcaneIntellectPlayer            = Macro("ArcaneIntellectPlayer", "/cast [@player] " .. Spell.Mage.Commons.ArcaneIntellect:Name()),
-  CounterspellMouseover            = Macro("CounterspellMouseover", "/cast [@mouseover] " .. Spell.Mage.Commons.Counterspell:Name()),
+--   Healthstone                      = Item(5512),
 }
 
 Item.Mage.Frost = MergeTableByKey(Item.Mage.Commons, {
-  BlizzardCursor                   = Macro("BlizzardCursor", "/cast [@cursor] " .. Spell.Mage.Frost.Blizzard:Name()),
-  IceLanceMouseover                = Macro("IceLanceMouseover", "/cast [@mouseover] " .. Spell.Mage.Frost.IceLance:Name()),
 })
 
 -- Macros
@@ -136,9 +131,14 @@ Macro.Mage.Commons = {
   Trinket1                         = Macro("Trinket1", "/use 13"),
   Trinket2                         = Macro("Trinket2", "/use 14"),
   Healthstone                      = Macro("Healthstone", "/use item:5512"),
+  -- Spells
+  ArcaneIntellectPlayer            = Macro("ArcaneIntellectPlayer", "/cast [@player] " .. Spell.Mage.Commons.ArcaneIntellect:Name()),
+  CounterspellMouseover            = Macro("CounterspellMouseover", "/cast [@mouseover] " .. Spell.Mage.Commons.Counterspell:Name()),
 }
 
 Macro.Mage.Frost = MergeTableByKey(Macro.Mage.Commons, {
+  BlizzardCursor                   = Macro("BlizzardCursor", "/cast [@cursor] " .. Spell.Mage.Frost.Blizzard:Name()),
+  IceLanceMouseover                = Macro("IceLanceMouseover", "/cast [@mouseover] " .. Spell.Mage.Frost.IceLance:Name()),
 })
 
 -- Variables

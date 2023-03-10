@@ -288,8 +288,28 @@ local function Single()
     if Press(S.Frostbolt, not Target:IsSpellInRange(S.Frostbolt), true) then return "frostbolt single 42"; end
   end
   -- Manually added: ice_lance as a fallthrough when MovingRotation is true
+end
+
+local function Movement()
+  -- ice_floes,if=buff.ice_floes.down
+  if S.IceFloes:IsCastable() and Player:BuffDown(S.IceFloes) then
+    if Press(S.IceFloes) then return "ice_floes movement"; end
+  end
+  -- ice_nova
+  if S.IceNova:IsCastable() then
+    if Press(S.IceNova, not Target:IsSpellInRange(S.IceNova)) then return "ice_nova movement"; end
+  end
+  -- arcane_explosion,if=mana.pct>30&active_enemies>=2
+  if S.ArcaneExplosion:IsCastable() and (Player:ManaPercentage() > 30 and EnemiesCount16ySplash >= 2) then
+    if Press(S.ArcaneExplosion, not Target:IsInRange(10)) then return "arcane_explosion movement"; end
+  end
+  -- fire_blast
+  if S.FireBlast:IsCastable() then
+    if Press(S.FireBlast, not Target:IsSpellInRange(S.FireBlast)) then return "fire_blast movement"; end
+  end
+  -- ice_lance
   if S.IceLance:IsCastable() then
-    if Press(S.IceLance, not Target:IsSpellInRange(S.IceLance)) then return "ice_lance single 44"; end
+    if Press(S.IceLance, not Target:IsSpellInRange(S.IceLance)) then return "ice_lance movement"; end
   end
 end
 
@@ -353,6 +373,7 @@ local function APL()
       local ShouldReturn = Single(); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=movement
+    local ShouldReturn = Movement(); if ShouldReturn then return ShouldReturn; end
   end
 end
 
@@ -368,12 +389,14 @@ local function AutoBind()
   Bind(S.DragonsBreath)
   Bind(S.Ebonbolt)
   Bind(S.Fireblood)
+  Bind(S.FireBlast)
   Bind(S.Freeze)
   Bind(S.Frostbolt)
   Bind(S.FrozenOrb)
   Bind(S.Flurry)
   Bind(S.GlacialSpike)
   Bind(S.IceLance)
+  Bind(S.IceFloes)
   Bind(S.IceNova)
   Bind(S.IcyVeins)
   Bind(S.Meteor)

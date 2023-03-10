@@ -32,10 +32,6 @@ end
 -- Mage
 local RopDuration = SpellFrost.RuneofPower:BaseDuration()
 
-local function ROPRemains(ROP)
-  return math.max(RopDuration - ROP:TimeSinceLastAppliedOnPlayer() - Player:GCD(),0)
-end
-
 -- Frost, ID: 64
 local FrostOldSpellIsCastable
 FrostOldSpellIsCastable = HL.AddCoreOverride("Spell.IsCastable",
