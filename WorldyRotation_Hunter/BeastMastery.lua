@@ -456,7 +456,7 @@ local function APL()
   if AoEON() then
     Enemies8y = Player:GetEnemiesInRange(8)
     Enemies40y = Player:GetEnemiesInRange(40) -- Barbed Shot Cycle
-    PetEnemiesMixedyCount = (PetCleaveAbility and #Player:GetEnemiesInSpellActionRange(PetCleaveAbility)) or Target:GetEnemiesInSplashRangeCount(8) -- Beast Cleave (through Multi-Shot)
+    PetEnemiesMixedyCount = (PetCleaveAbility and #Player:GetEnemiesInSpellActionRange(PetCleaveAbility) > 0 and #Player:GetEnemiesInSpellActionRange(PetCleaveAbility)) or Target:GetEnemiesInSplashRangeCount(8) -- Beast Cleave (through Multi-Shot)
   else
     Enemies8y = {}
     Enemies40y = {}
