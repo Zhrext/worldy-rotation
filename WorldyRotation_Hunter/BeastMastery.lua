@@ -57,14 +57,10 @@ local M = Macro.Hunter.BeastMastery;
 
 -- Usable Item Objects
 local equip = Player:GetEquipment()
-local finger1 = (equip[11]) and Item(equip[11]) or Item(0)
-local finger2 = (equip[12]) and Item(equip[12]) or Item(0)
 
 -- Check for equipment changes
 HL:RegisterForEvent(function()
   equip = Player:GetEquipment()
-  finger1 = (equip[11]) and Item(equip[11]) or Item(0)
-  finger2 = (equip[12]) and Item(equip[12]) or Item(0)
 end, "PLAYER_EQUIPMENT_CHANGED")
 
 -- Rotation Variables
@@ -171,25 +167,25 @@ local function Precombat()
   -- Manually added opener abilities
   -- Barbed Shot
   if S.BarbedShot:IsCastable() and S.BarbedShot:Charges() >= 2 then
-    if Press(S.BarbedShot) then return "barbed_shot precombat 8"; end
+    if Press(S.BarbedShot, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot precombat 8"; end
   end
   -- Kill Shot
   if S.KillShot:IsReady() then
-    if Press(S.KillShot) then return "kill_shot precombat 10"; end
+    if Press(S.KillShot, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot precombat 10"; end
   end
   -- Kill Command
   if S.KillCommand:IsReady() and TargetInRangePet30y then
-    if Press(S.KillCommand) then return "kill_command precombat 12"; end
+    if Press(S.KillCommand, not Target:IsSpellInRange(S.KillCommand)) then return "kill_command precombat 12"; end
   end
   if PetEnemiesMixedyCount > 1 then
     -- Multi Shot
     if S.MultiShot:IsReady()  then
-      if Press(S.MultiShot) then return "multishot precombat 14"; end
+      if Press(S.MultiShot, not Target:IsSpellInRange(S.MultiShot)) then return "multishot precombat 14"; end
     end
   else
     -- Cobra Shot
     if S.CobraShot:IsReady()  then
-      if Press(M.CobraShotPetAttack) then return "cobra_shot precombat 16"; end
+      if Press(M.CobraShotPetAttack, not Target:IsSpellInRange(S.CobraShot)) then return "cobra_shot precombat 16"; end
     end
   end
 end
@@ -341,6 +337,9 @@ local function ST()
   if S.BarbedShot:IsCastable() then
     if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotST, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot st 2"; end
   end
+  if S.BarbedShot:IsCastable() and EvaluateTargetIfBarbedShotST(Target) then
+    if Press(S.BarbedShot, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot st mt_backup 3"; end
+  end
   -- kill_command,if=full_recharge_time<gcd&talent.alpha_predator
   if S.KillCommand:IsReady() and (S.KillCommand:FullRechargeTime() < GCDMax and S.AlphaPredator:IsAvailable()) then
     if Press(S.KillCommand, not TargetInRangePet30y) then return "kill_command st 4"; end
@@ -384,6 +383,9 @@ local function ST()
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=talent.wild_instincts&buff.call_of_the_wild.up|talent.wild_call&charges_fractional>1.4|full_recharge_time<gcd&cooldown.bestial_wrath.remains|talent.scent_of_blood&(cooldown.bestial_wrath.remains<12+gcd|full_recharge_time+gcd<8&cooldown.bestial_wrath.remains<24+(8-gcd)+full_recharge_time)|fight_remains<9
   if S.BarbedShot:IsCastable() then
     if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotST2, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot st 24"; end
+  end
+  if S.BarbedShot:IsCastable() and EvaluateTargetIfBarbedShotST2(Target) then
+    if Press(S.BarbedShot, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot st mt_backup 25"; end
   end
   -- dire_beast
   if S.DireBeast:IsCastable() then
