@@ -356,7 +356,7 @@ local EnabledRotation = {
   [260]   = "WorldyRotation_Rogue",         -- Outlaw
   ---- Shaman
   --  [262]   = "WorldyRotation_Shaman",        -- Elemental
-  --  [263]   = "WorldyRotation_Shaman",        -- Enhancement
+    [263]   = "WorldyRotation_Shaman",        -- Enhancement
   --  [264]   = "WorldyRotation_Shaman",        -- Restoration
   ---- Warlock
   --  [265]   = "WorldyRotation_Warlock",       -- Affliction
