@@ -132,7 +132,7 @@ local function Defensive()
     if Press(S.ShieldWall) then return "shield_wall defensive"; end
   end
   -- last_stand,if=(target.health.pct>=90&talent.unnerving_focus.enabled|target.health.pct<=20&talent.unnerving_focus.enabled)|talent.bolster.enabled
-  if Player:HealthPercentage() < Settings.Protection.HP.LastStand and S.LastStand:IsCastable() and ((Target:HealthPercentage() >= 90 and S.UnnervingFocus:IsAvailable() or Target:HealthPercentage() <= 20 and S.UnnervingFocus:IsAvailable()) or S.Bolster:IsAvailable()) then
+  if Player:HealthPercentage() < Settings.Protection.HP.LastStand and S.LastStand:IsCastable() and Player:BuffDown(S.ShieldWallBuff) and ((Target:HealthPercentage() >= 90 and S.UnnervingFocus:IsAvailable() or Target:HealthPercentage() <= 20 and S.UnnervingFocus:IsAvailable()) or S.Bolster:IsAvailable()) then
     if Press(S.LastStand) then return "last_stand defensive"; end
   end
   -- rallying_cry,if=!buff.last_stand.up&!buff.shield_wall.up
