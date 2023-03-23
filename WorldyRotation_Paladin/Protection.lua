@@ -110,20 +110,9 @@ local function Defensives()
   if S.ArdentDefender:IsCastable() and (Player:HealthPercentage() <= Settings.Protection.HP.ArdentDefender and Player:BuffDown(S.GuardianofAncientKingsBuff)) then
     if Press(S.ArdentDefender) then return "ardent_defender defensive 6"; end
   end
-  -- word_of_glory,if=buff.shining_light_free.up
-  if S.WordofGlory:IsReady() then
-    if Player:HealthPercentage() > 90 and Player:IsInParty() and not Player:IsInRaid() then
-      local ShouldReturn = Everyone.FocusUnit(false, M); if ShouldReturn then return ShouldReturn; end
-      if Focus and Focus:Exists() and Focus:HealthPercentage() < Settings.Protection.HP.WordofGlory then
-        if Press(M.WordofGloryFocus) then return "word_of_glory standard party 28"; end
-      end
-    else
-      if Player:HealthPercentage() <= Settings.Protection.HP.WordofGlory then
-        if Press(M.WordofGloryPlayer) then return "word_of_glory defensive 8"; end
-      end
-    end
-  end
-  
+  if S.WordofGlory:IsReady() and (Player:HealthPercentage() <= Settings.Protection.HP.WordofGlory and not Player:HealingAbsorbed()) then
+    if Press(M.WordofGloryPlayer) then return "word_of_glory defensive 8"; end
+  end  
   if S.ShieldoftheRighteous:IsReady() and (Player:BuffRefreshable(S.ShieldoftheRighteousBuff) and (ActiveMitigationNeeded or Player:HealthPercentage() <= Settings.Protection.HP.ShieldoftheRighteous)) then
     if Press(S.ShieldoftheRighteous) then return "shield_of_the_righteous defensive 12"; end
   end
@@ -134,15 +123,12 @@ local function Defensives()
 end
 
 local function Cooldowns()
-  -- seraphim
-  if S.Seraphim:IsReady() then
-    if Press(S.Seraphim, not Target:IsInMeleeRange(8)) then return "seraphim cooldowns 2"; end
-  end
-  -- avenging_wrath,if=(buff.seraphim.up|!talent.seraphim.enabled)
-  if S.AvengingWrath:IsCastable() and (Player:BuffUp(S.SeraphimBuff) or not S.Seraphim:IsAvailable()) then
+  -- avenging_wrath
+  if S.AvengingWrath:IsCastable() then
     if Press(S.AvengingWrath, not Target:IsInMeleeRange(8)) then return "avenging_wrath cooldowns 4"; end
   end
   -- potion,if=buff.avenging_wrath.up
+  -- TODO
   -- moment_of_glory,if=(buff.avenging_wrath.remains<15|(time>10|(cooldown.avenging_wrath.remains>15))&(cooldown.avengers_shield.remains&cooldown.judgment.remains&cooldown.hammer_of_wrath.remains))
   if S.MomentofGlory:IsCastable() and (Player:BuffRemains(S.AvengingWrathBuff) < 15 or (HL.CombatTime() > 10 or (S.AvengingWrath:CooldownRemains() > 15)) and (S.AvengersShield:CooldownDown() and S.Judgment:CooldownDown() and S.HammerofWrath:CooldownDown())) then
     if Press(S.MomentofGlory, not Target:IsInMeleeRange(8)) then return "moment_of_glory cooldowns 8"; end
@@ -172,8 +158,9 @@ local function Trinkets()
 end
 
 local function Standard()
-  -- shield_of_the_righteous,if=(cooldown.seraphim.remains>=5|!talent.seraphim.enabled)&(((holy_power=3&!buff.blessing_of_dusk.up&!buff.holy_avenger.up)|(holy_power=5)|buff.bastion_of_light.up|buff.divine_purpose.up))
-  if S.ShieldoftheRighteous:IsReady() and ((S.Seraphim:CooldownRemains() >= 5 or not S.Seraphim:IsAvailable()) and ((Player:HolyPower() == 3 and Player:BuffDown(S.BlessingofDuskBuff) and Player:BuffDown(S.HolyAvengerBuff)) or (Player:HolyPower() == 5) or Player:BuffUp(S.BastionofLightBuff) or Player:BuffUp(S.DivinePurposeBuff))) then
+  -- shield_of_the_righteous,if=(!talent.righteous_protector.enabled|cooldown.righteous_protector_icd.remains=0)&(buff.bastion_of_light.up|buff.divine_purpose.up|holy_power>2)
+  -- TODO: Find a way to track RighteousProtector ICD.
+  if S.ShieldoftheRighteous:IsReady() and (Player:BuffUp(S.BastionofLightBuff) or Player:BuffUp(S.DivinePurposeBuff) or Player:HolyPower() > 2) then
     if Press(S.ShieldoftheRighteous) then return "shield_of_the_righteous standard 2"; end
   end
   -- avengers_shield,if=buff.moment_of_glory.up|!talent.moment_of_glory.enabled
@@ -188,8 +175,8 @@ local function Standard()
   if S.Judgment:IsReady() and (S.Judgment:Charges() == 2 or not S.CrusadersJudgment:IsAvailable()) then
     if Everyone.CastTargetIf(S.Judgment, Enemies30y, "min", EvaluateTargetIfFilterJudgment, nil, not Target:IsSpellInRange(S.Judgment), nil, nil, M.JudgmentMouseover) then return "judgment standard 8"; end
   end
-  -- divine_toll,if=time>20|((!talent.seraphim.enabled|buff.seraphim.up)&(buff.avenging_wrath.up|!talent.avenging_wrath.enabled)&(buff.moment_of_glory.up|!talent.moment_of_glory.enabled))
-  if CDsON() and S.DivineToll:IsReady() and (HL.CombatTime() > 20 or (((not S.Seraphim:IsAvailable()) or Player:BuffUp(S.SeraphimBuff)) and (Player:BuffUp(S.AvengingWrathBuff) or not S.AvengingWrath:IsAvailable()) and (Player:BuffUp(S.MomentofGloryBuff) or not S.MomentofGlory:IsAvailable()))) then
+  -- divine_toll,if=time>20|((buff.avenging_wrath.up|!talent.avenging_wrath.enabled)&(buff.moment_of_glory.up|!talent.moment_of_glory.enabled))
+  if CDsON() and S.DivineToll:IsReady() and (HL.CombatTime() > 20 or ((Player:BuffUp(S.AvengingWrathBuff) or not S.AvengingWrath:IsAvailable()) and (Player:BuffUp(S.MomentofGloryBuff) or not S.MomentofGlory:IsAvailable()))) then
     if Press(S.DivineToll, not Target:IsInRange(30)) then return "divine_toll standard 10"; end
   end
   -- avengers_shield
@@ -228,7 +215,7 @@ local function Standard()
   if S.WordofGlory:IsReady() and Player:BuffUp(S.ShiningLightFreeBuff) then
     if Player:HealthPercentage() > 90 and Player:IsInParty() and not Player:IsInRaid() then
       local ShouldReturn = Everyone.FocusUnit(false, M); if ShouldReturn then return ShouldReturn; end
-      if Focus and Focus:Exists() and Focus:HealthPercentage() < 100 then
+      if Focus and Focus:Exists() and Focus:HealthPercentage() < 80 then
         if Press(M.WordofGloryFocus) then return "word_of_glory standard party 28"; end
       end
     else
@@ -325,7 +312,6 @@ local function AutoBind()
   Bind(S.ShieldoftheRighteous)
   Bind(S.WordofGlory)
   Bind(S.HolyAvenger)
-  Bind(S.Seraphim)
   Bind(S.ZealotsParagon)
   -- Macros
   Bind(M.BlessingofFreedomMouseover)
