@@ -70,6 +70,14 @@ Spell.Rogue.Commons = {
   Shadowstep              = Spell(36554),
   Sprint                  = Spell(2983),
   TricksoftheTrade        = Spell(57934),
+  -- Poisons
+  CripplingPoison         = Spell(3408),
+  DeadlyPoison            = Spell(2823),
+  InstantPoison           = Spell(315584),
+  AmplifyingPoison        = Spell(381664),
+  NumbingPoison           = Spell(5761),
+  WoundPoison             = Spell(8679),
+  AtrophicPoison          = Spell(381637),
   -- Talents
   AcrobaticStrikes        = Spell(196924),
   Alacrity                = Spell(193539),
@@ -110,11 +118,9 @@ Spell.Rogue.Commons = {
 Spell.Rogue.Assassination = MergeTableByKey(Spell.Rogue.Commons, {
   -- Abilities
   Ambush                  = Spell(8676),
-  AmplifyingPoison        = Spell(381664),
   AmplifyingPoisonDebuff  = Spell(383414),
   AmplifyingPoisonDebuffDeathmark = Spell(394328),
   CripplingPoisonDebuff   = Spell(3409),
-  DeadlyPoison            = Spell(2823),
   DeadlyPoisonDebuff      = Spell(2818),
   DeadlyPoisonDebuffDeathmark = Spell(394324),
   Envenom                 = Spell(32645),
@@ -125,9 +131,9 @@ Spell.Rogue.Assassination = MergeTableByKey(Spell.Rogue.Commons, {
   PoisonedKnife           = Spell(185565),
   Rupture                 = Spell(1943),
   RuptureDeathmark        = Spell(360826),
-  WoundPoison             = Spell(8679),
   WoundPoisonDebuff       = Spell(8680),
   -- Talents
+  ArterialPrecision       = Spell(400783),
   AtrophicPoisonDebuff    = Spell(392388),
   BlindsideBuff           = Spell(121153),
   CrimsonTempest          = Spell(121411),
@@ -152,8 +158,6 @@ Spell.Rogue.Assassination = MergeTableByKey(Spell.Rogue.Commons, {
   SerratedBoneSpikeDebuff = Spell(394036),
   ShivDebuff              = Spell(319504),
   VenomRush               = Spell(152152),
-  -- PvP
-  DeathfromAbove          = Spell(269513),
 })
 
 Spell.Rogue.Outlaw = MergeTableByKey(Spell.Rogue.Commons, {
@@ -244,11 +248,11 @@ Spell.Rogue.Subtlety = MergeTableByKey(Spell.Rogue.Commons, {
   SecretTechnique         = Spell(280719),
   ShadowFocus             = Spell(108209),
   ShurikenTornado         = Spell(277925),
+  SilentStorm             = Spell(385722),
+  SilentStormBuff         = Spell(385722),
   TheRotten               = Spell(382015),
   TheRottenBuff           = Spell(394203),
   Weaponmaster            = Spell(193537),
-  SilentStorm             = Spell(385722),
-  SilentStormBuff         = Spell(385722),
   -- PvP
 })
 
@@ -279,34 +283,38 @@ Item.Rogue.Subtlety = MergeTableByKey(Item.Rogue.Commons, {
 -- Macro
 if not Macro.Rogue then Macro.Rogue = {}; end
 Macro.Rogue.Commons = {
-  Healthstone                                 = Macro("Healthstone", "/use Healthstone"),
-  ManicGrieftorch                             = Macro("ManicGrieftorch", "/use Manic Grieftorch"),
+  Trinket1                                    = Macro("Trinket1", "/use 13"),
+  Trinket2                                    = Macro("Trinket2", "/use 14"),
+  Healthstone                                 = Macro("Healthstone", "/use item:5512"),
+  AlgetharPuzzleBox                           = Macro("AlgetharPuzzleBox", "/use item:193701"),
+  ManicGrieftorch                             = Macro("ManicGrieftorch", "/use item:194308"),
+  WindscarWhetstone                           = Macro("WindscarWhetstone", "/use item:137486"),
   ElementalPotionOfPower                      = Macro("ElementalPotionOfPower", "/use Elemental Potion of Power"),
   RefreshingHealingPotion                     = Macro("RefreshingHealingPotion", "/use Refreshing Healing Potion"),
-  SinisterStrikeMouseover                     = Macro("SinisterStrikeMouseover", "/cast [@mouseover] Sinister Strike"),
-  KickMouseover                               = Macro("KickMouseover", "/cast [@mouseover] Kick"),
-  BlindMouseover                              = Macro("BlindMouseover", "/cast [@mouseover] Blind"),
-  CheapShotMouseover                          = Macro("CheapShotMouseover", "/cast [@mouseover] Cheap Shot"),
-  KidneyShotMouseover                         = Macro("KidneyShotMouseover", "/cast [@mouseover] Kidney Shot"),
-  WindscarWhetstone                           = Macro("WindscarWhetstone", "/use Windscar Whetstone"),
+  BlindMouseover                              = Macro("BlindMouseover", "/cast [@mouseover] " .. Spell.Rogue.Commons.Blind:Name()),
+  CheapShotMouseover                          = Macro("CheapShotMouseover", "/cast [@mouseover] " .. Spell.Rogue.Commons.CheapShot:Name()),
+  KickMouseover                               = Macro("KickMouseover", "/cast [@mouseover] " .. Spell.Rogue.Commons.Kick:Name()),
+  KidneyShotMouseover                         = Macro("KidneyShotMouseover", "/cast [@mouseover] " .. Spell.Rogue.Commons.KidneyShot:Name()),
+  TricksoftheTradeFocus                       = Macro("TricksoftheTradeFocus", "/cast [@focus] " .. Spell.Rogue.Commons.TricksoftheTrade:Name()),
 }
 
 Macro.Rogue.Outlaw = MergeTableByKey(Macro.Rogue.Commons, {
-  PistolShotMouseover                     = Macro("PistolShotMouseover", "/cast [@mouseover] Pistol Shot"),
-  Dispatch                                = Macro("Dispatch", "/cast Cold Blood" .."\n" .."/cast Dispatch"),
-
-  
+  Dispatch                                    = Macro("Dispatch", "/cast " .. Spell.Rogue.Commons.ColdBlood:Name() .. "\n" .. "/cast " .. Spell.Rogue.Outlaw.Dispatch:Name()),
+  PistolShotMouseover                         = Macro("PistolShotMouseover", "/cast [@mouseover] " .. Spell.Rogue.Outlaw.PistolShot:Name()),
+  SinisterStrikeMouseover                     = Macro("SinisterStrikeMouseover", "/cast [@mouseover] " .. Spell.Rogue.Outlaw.SinisterStrike:Name()),
 })
 
 Macro.Rogue.Subtlety = MergeTableByKey(Macro.Rogue.Commons, {
-  SecretTechnique                       = Macro("SecretTechnique", "/cast Cold Blood" .."\n" .."/cast Secret Technique"),
-  ShadowDance                           = Macro("ShadowDance", "/cast Shadow Dance" .."\n" .."/cast Thistle Tea" .."\n" .."/cast Shadowstrike"),
-  --ShadowDanceSymbol                     = Macro("ShadowDanceSymbol", "/cast Symbols of Death" .."\n" .."/cast Shadow Dance" .."\n" .."/cast Shadowstrike"),
-  VanishShadowstrike                    = Macro("VanishShadowstrike", "/cast Vanish" .."\n" .."/cast Shadowstrike"),
-  ShurikenStormSD                       = Macro("ShurikenStormSD", "/cast Shadow Dance" .."\n" .."/cast Shuriken Storm"),
-  ShurikenStormVanish                   = Macro("ShurikenStormVanish", "/cast Vanish" .."\n" .."/cast Shuriken Storm "),
-  GloombladeSD                          = Macro("GloombladeSD", "/cast Shadow Dance" .."\n" .."/cast Gloomblade"),
-  GloombladeVanish                      = Macro("GloombladeVanish", "/cast Vanish" .."\n" .."/cast Gloomblade"),
+  SecretTechnique                       = Macro("SecretTechnique", "/cast " .. Spell.Rogue.Commons.ColdBlood:Name() .. "\n" .. "/cast " .. Spell.Rogue.Subtlety.SecretTechnique:Name()),
+  ShadowDance                           = Macro("ShadowDance", "/cast " .. Spell.Rogue.Subtlety.ShadowDance:Name() .. "\n" .."/cast " .. Spell.Rogue.Subtlety.ThistleTea:Name() .. "\n" .."/cast " .. Spell.Rogue.Subtlety.Shadowstrike:Name()),
+  --ShadowDanceSymbol                     = Macro("ShadowDanceSymbol", "/cast " .. Spell.Rogue.Subtlety.SymbolsofDeath:Name() .. "\n" .. "/cast " .. Spell.Rogue.Subtlety.ShadowDance:Name() .. "\n" .. "/cast " .. Spell.Rogue.Subtlety.Shadowstrike:Name()),
+  VanishShadowstrike                    = Macro("VanishShadowstrike", "/cast " .. Spell.Rogue.Commons.Vanish:Name() .. "\n" .. "/cast " .. Spell.Rogue.Subtlety.Shadowstrike:Name()),
+  ShurikenStormSD                       = Macro("ShurikenStormSD", "/cast " .. Spell.Rogue.Subtlety.ShadowDance:Name() .. "\n" .. "/cast " .. Spell.Rogue.Subtlety.ShurikenStorm:Name()),
+  ShurikenStormVanish                   = Macro("ShurikenStormVanish", "/cast " .. Spell.Rogue.Commons.Vanish:Name() .. "\n" .. "/cast " .. Spell.Rogue.Subtlety.ShurikenStorm:Name()),
+  GloombladeSD                          = Macro("GloombladeSD", "/cast " .. Spell.Rogue.Subtlety.ShadowDance:Name() .. "\n" .. "/cast " .. Spell.Rogue.Subtlety.Gloomblade:Name()),
+  GloombladeVanish                      = Macro("GloombladeVanish", "/cast " .. Spell.Rogue.Commons.Vanish:Name() .. "\n" .. "/cast " .. Spell.Rogue.Subtlety.Gloomblade:Name()),
+  BackstabMouseover                     = Macro("BackstabMouseover", "/cast [@mouseover] " .. Spell.Rogue.Subtlety.Backstab:Name()),
+  RuptureMouseover                      = Macro("RuptureMouseover", "/cast [@mouseover] " .. Spell.Rogue.Subtlety.Rupture:Name()),
 })
 
 Macro.Rogue.Assassination = MergeTableByKey(Macro.Rogue.Commons, {
@@ -356,60 +364,48 @@ end
 
 -- Poisons
 do
-  local CripplingPoison     = Spell(3408)
-  local DeadlyPoison        = Spell(2823)
-  local InstantPoison       = Spell(315584)
-  local AmplifyingPoison    = Spell(381664)
-  local NumbingPoison       = Spell(5761)
-  local WoundPoison         = Spell(8679)
-  local AtrophicPoison      = Spell(381637)
-
   local PoisonRemains = 0
   local UsingWoundPoison = false
-  
   local function CastPoison(Poison)
-    PoisonRemains = Player:BuffRemains(Poison)
-    if PoisonRemains < (Player:AffectingCombat() and Settings.Commons.PoisonRefreshCombat * 60 or Settings.Commons.PoisonRefresh * 60) then
-      --WR.Cast(Poison)
+    if not Player:AffectingCombat() and Player:BuffRefreshable(Poison) then
+      if WR.Press(Poison, nil, true) then return "poison" end
     end
   end
-
+  
   function Commons.Poisons()
-    local PoisonRefreshTime = Player:AffectingCombat() and Settings.Commons.PoisonRefreshCombat * 60 or Settings.Commons.PoisonRefresh * 60
-    local PoisonRemains
     -- Lethal Poison
-    UsingWoundPoison = Player:BuffUp(WoundPoison)
+    UsingWoundPoison = Player:BuffUp(Spell.Rogue.Commons.WoundPoison)
 
     if Spell.Rogue.Assassination.DragonTemperedBlades:IsAvailable() then
-      CastPoison(UsingWoundPoison and WoundPoison or DeadlyPoison)
+      local ShouldReturn = CastPoison(UsingWoundPoison and Spell.Rogue.Commons.WoundPoison or Spell.Rogue.Commons.DeadlyPoison); if ShouldReturn then return ShouldReturn end
       if AmplifyingPoison:IsAvailable() then
-        CastPoison(AmplifyingPoison)
+        ShouldReturn = CastPoison(Spell.Rogue.Commons.AmplifyingPoison); if ShouldReturn then return ShouldReturn end
       else
-        CastPoison(InstantPoison)
+        ShouldReturn = CastPoison(Spell.Rogue.Commons.InstantPoison); if ShouldReturn then return ShouldReturn end
       end
     else
       if UsingWoundPoison then
-        CastPoison(WoundPoison)
-      elseif AmplifyingPoison:IsAvailable() and Player:BuffDown(DeadlyPoison) then
-        CastPoison(AmplifyingPoison)
-      elseif DeadlyPoison:IsAvailable() then
-        CastPoison(DeadlyPoison)
+        local ShouldReturn = CastPoison(Spell.Rogue.Commons.WoundPoison); if ShouldReturn then return ShouldReturn end
+      elseif Spell.Rogue.Commons.AmplifyingPoison:IsAvailable() and Player:BuffDown(Spell.Rogue.Commons.DeadlyPoison) then
+        local ShouldReturn = CastPoison(Spell.Rogue.Commons.AmplifyingPoison); if ShouldReturn then return ShouldReturn end
+      elseif Spell.Rogue.Commons.DeadlyPoison:IsAvailable() then
+        local ShouldReturn = CastPoison(Spell.Rogue.Commons.DeadlyPoison); if ShouldReturn then return ShouldReturn end
       else
-        CastPoison(InstantPoison)
+        local ShouldReturn = CastPoison(Spell.Rogue.Commons.InstantPoison); if ShouldReturn then return ShouldReturn end
       end
     end
 
     -- Non-Lethal Poisons
-    if Player:BuffDown(CripplingPoison) then
-      if AtrophicPoison:IsAvailable() then
-        CastPoison(AtrophicPoison)
-      elseif NumbingPoison:IsAvailable() then
-        CastPoison(NumbingPoison)
+    if Player:BuffDown(Spell.Rogue.Commons.CripplingPoison) then
+      if Spell.Rogue.Commons.AtrophicPoison:IsAvailable() then
+        local ShouldReturn = CastPoison(Spell.Rogue.Commons.AtrophicPoison); if ShouldReturn then return ShouldReturn end
+      elseif Spell.Rogue.Commons.NumbingPoison:IsAvailable() then
+        local ShouldReturn = CastPoison(Spell.Rogue.Commons.NumbingPoison); if ShouldReturn then return ShouldReturn end
       else
-        CastPoison(CripplingPoison)
+        local ShouldReturn = CastPoison(Spell.Rogue.Commons.CripplingPoison); if ShouldReturn then return ShouldReturn end
       end
     else
-      CastPoison(CripplingPoison)
+      local ShouldReturn = CastPoison(Spell.Rogue.Commons.CripplingPoison); if ShouldReturn then return ShouldReturn end
     end
   end
 end
