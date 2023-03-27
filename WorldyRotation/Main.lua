@@ -359,7 +359,7 @@ local EnabledRotation = {
     [263]   = "WorldyRotation_Shaman",        -- Enhancement
   --  [264]   = "WorldyRotation_Shaman",        -- Restoration
   ---- Warlock
-  --  [265]   = "WorldyRotation_Warlock",       -- Affliction
+  [265]   = "WorldyRotation_Warlock",       -- Affliction
   [266]   = "WorldyRotation_Warlock",       -- Demonology
   --  [267]   = "WorldyRotation_Warlock",       -- Destruction
   ---- Warrior

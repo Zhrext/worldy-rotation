@@ -207,6 +207,8 @@ Macro.Warlock.Commons = {
   Trinket1                              = Macro("Trinket1", "/use 13"),
   Trinket2                              = Macro("Trinket2", "/use 14"),
   Healthstone                           = Macro("Healthstone", "/use item:5512"),
+  ConjuredChillglobe                    = Macro("ConjuredChillglobe", "/use item:194300"),
+  DesperateInvokersCodex                = Macro("DesperateInvokersCodex", "/use item:194310"),
   TimebreachingTalon                    = Macro("TimebreachingTalon", "/use item:193791"),
   -- Spells
   AxeTossMouseover                      = Macro("AxeTossMouseover", "/cast [@mouseover] " .. Spell.Warlock.Commons.AxeToss:Name()),
@@ -215,6 +217,9 @@ Macro.Warlock.Commons = {
 }
 
 Macro.Warlock.Affliction = MergeTableByKey(Macro.Warlock.Commons, {
+  AgonyMouseover                        = Macro("AgonyMouseover", "/cast [@mouseover] " .. Spell.Warlock.Affliction.Agony:Name()),
+  CorruptionMouseover                   = Macro("CorruptionMouseover", "/cast [@mouseover] " .. Spell.Warlock.Affliction.Corruption:Name()),
+  VileTaintCursor                       = Macro("VileTaintCursor", "/cast [@cursor] " .. Spell.Warlock.Affliction.VileTaint:Name()),
 })
 
 Macro.Warlock.Demonology = MergeTableByKey(Macro.Warlock.Commons, {

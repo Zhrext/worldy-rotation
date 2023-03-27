@@ -270,12 +270,12 @@ local function APL()
     if not Player:AffectingCombat() and (not Player:IsCasting(S.Demonbolt)) then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
     end
-    
-    -- Interrupts
     -- Interrupts
     if not Player:IsCasting() and not Player:IsChanneling() then
       local ShouldReturn = Everyone.Interrupt(S.SpellLock, 40, true); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.Interrupt(S.SpellLock, 40, true, Mouseover, M.SpellLockMouseover); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.Interrupt(S.AxeToss, 40, true); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.Interrupt(S.AxeToss, 40, true, Mouseover, M.AxeTossMouseover); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.InterruptWithStun(S.AxeToss, 40, true); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.InterruptWithStun(S.AxeToss, 40, true, Mouseover, M.AxeTossMouseover); if ShouldReturn then return ShouldReturn; end
     end

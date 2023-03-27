@@ -22,6 +22,9 @@ WR.GUISettings.APL.Warlock = {
     },
   },
   Affliction = {
+    Enabled = {
+      VileTaint = true,
+    },
   },
   Demonology = {
     HP = {

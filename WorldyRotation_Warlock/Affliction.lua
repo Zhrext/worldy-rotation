@@ -155,11 +155,11 @@ local function Items()
   end
   -- use_item,name=desperate_invokers_codex
   if I.DesperateInvokersCodex:IsEquippedAndReady() then
-    if Press(I.DesperateInvokersCodex, not Target:IsInRange(45)) then return "desperate_invokers_codex items 2"; end
+    if Press(M.DesperateInvokersCodex, not Target:IsInRange(45)) then return "desperate_invokers_codex items 2"; end
   end
   -- use_item,name=conjured_chillglobe
   if I.ConjuredChillglobe:IsEquippedAndReady() then
-    if Press(I.ConjuredChillglobe) then return "conjured_chillglobe items 4"; end
+    if Press(M.ConjuredChillglobe) then return "conjured_chillglobe items 4"; end
   end
 end
 
@@ -198,8 +198,8 @@ local function AoE()
     if Press(S.Haunt, not Target:IsSpellInRange(S.Haunt), true) then return "haunt aoe 2"; end
   end
   -- vile_taint
-  if CDsON() and S.VileTaint:IsReady() then
-    if Press(S.VileTaint, not Target:IsInRange(40)) then return "vile_taint aoe 4"; end
+  if CDsON() and S.VileTaint:IsReady() and Mouseover and Mouseover:Exists() and Mouseover:GUID() == Target:GUID() and Settings.Affliction.Enabled.VileTaint then
+    if Press(M.VileTaintCursor, not Target:IsInRange(40)) then return "vile_taint aoe 4"; end
   end
   -- phantom_singularity
   if CDsON() and S.PhantomSingularity:IsCastable() then
@@ -215,7 +215,7 @@ local function AoE()
   end
   -- agony,target_if=remains<5,if=active_dot.agony<5
   if S.Agony:IsReady() then
-    if Everyone.CastCycle(S.Agony, Enemies40y, EvaluateAgony, not Target:IsSpellInRange(S.Agony)) then return "agony aoe 12"; end
+    if Everyone.CastCycle(S.Agony, Enemies40y, EvaluateAgony, not Target:IsSpellInRange(S.Agony), nil, nil, M.AgonyMouseover) then return "agony aoe 12"; end
   end
   -- summon_darkglare
   if CDsON() and S.SummonDarkglare:IsCastable() then
@@ -227,7 +227,7 @@ local function AoE()
   end
   -- malefic_rapture
   if S.MaleficRapture:IsReady() then
-    if Press(S.MaleficRapture, not Target:IsInRange(100)) then return "malefic_rapture aoe 18"; end
+    if Press(S.MaleficRapture, not Target:IsInRange(100), true) then return "malefic_rapture aoe 18"; end
   end
   -- drain_life,if=(buff.soul_rot.up|!talent.soul_rot)&buff.inevitable_demise.stack>10
   if S.DrainLife:IsReady() and (Target:DebuffUp(S.SoulRotDebuff) or not S.SoulRot:IsAvailable()) and Player:BuffStack(S.InevitableDemiseBuff) > 10 then
@@ -247,7 +247,7 @@ local function AoE()
   end
   -- shadow_bolt
   if S.ShadowBolt:IsReady() then
-    if Press(S.ShadowBolt, not Target:IsSpellInRange(S.ShadowBolt), true) then return "shadow_bolt aoe 28"; end
+    if Press(M.ShadowBoltPetAttack, not Target:IsSpellInRange(S.ShadowBolt), true) then return "shadow_bolt aoe 28"; end
   end
 end
 
@@ -274,7 +274,7 @@ local function Cleave()
   end
   -- agony,target_if=!(target=self.target)&remains<5
   if S.Agony:IsReady() then
-    if Everyone.CastCycle(S.Agony, Enemies40y, EvaluateAgony, not Target:IsSpellInRange(S.Agony)) then return "agony cleave 10"; end
+    if Everyone.CastCycle(S.Agony, Enemies40y, EvaluateAgony, not Target:IsSpellInRange(S.Agony), nil, nil, M.AgonyMouseover) then return "agony cleave 10"; end
   end
   -- siphon_life,if=remains<5
   if S.SiphonLife:IsCastable() and (Target:DebuffRemains(S.SiphonLifeDebuff) < 5) then
@@ -290,15 +290,15 @@ local function Cleave()
   end
   -- corruption,target_if=remains<5&(talent.absolute_corruption|!talent.seed_of_corruption)
   if S.Corruption:IsCastable() and (S.AbsoluteCorruption:IsAvailable() or not S.SeedofCorruption:IsAvailable()) then
-    if Everyone.CastCycle(S.Corruption, Enemies40y, EvaluateCorruption, not Target:IsSpellInRange(S.Corruption)) then return "corruption cleave 18"; end
+    if Everyone.CastCycle(S.Corruption, Enemies40y, EvaluateCorruption, not Target:IsSpellInRange(S.Corruption), nil, nil, M.CorruptionMouseover) then return "corruption cleave 18"; end
   end
   -- phantom_singularity
   if CDsON() and S.PhantomSingularity:IsCastable() then
     if Press(S.PhantomSingularity, not Target:IsSpellInRange(S.PhantomSingularity)) then return "phantom_singularity cleave 20"; end
   end
   -- vile_taint
-  if CDsON() and S.VileTaint:IsReady() then
-    if Press(S.VileTaint, not Target:IsInRange(40)) then return "vile_taint cleave 22"; end
+  if CDsON() and S.VileTaint:IsReady() and Mouseover and Mouseover:Exists() and Mouseover:GUID() == Target:GUID() and Settings.Affliction.Enabled.VileTaint then
+    if Press(M.VileTaintCursor, not Target:IsInRange(40)) then return "vile_taint cleave 22"; end
   end
   -- soul_rot
   if CDsON() and S.SoulRot:IsReady() then
@@ -310,19 +310,19 @@ local function Cleave()
   end
   -- malefic_rapture,if=talent.malefic_affliction&buff.malefic_affliction.stack<3
   if S.MaleficRapture:IsReady() and S.MaleficAffliction:IsAvailable() and Player:BuffStack(S.MaleficAfflictionBuff) < 3 then
-    if Press(S.MaleficRapture, not Target:IsInRange(100)) then return "malefic_rapture cleave 28"; end
+    if Press(S.MaleficRapture, not Target:IsInRange(100), true) then return "malefic_rapture cleave 28"; end
   end
   -- malefic_rapture,if=talent.dread_touch&debuff.dread_touch.remains<gcd
   if S.MaleficRapture:IsReady() and S.DreadTouch:IsAvailable() and Target:DebuffRemains(S.DreadTouchDebuff) < Player:GCD() then
-    if Press(S.MaleficRapture, not Target:IsInRange(100)) then return "malefic_rapture cleave 30"; end
+    if Press(S.MaleficRapture, not Target:IsInRange(100), true) then return "malefic_rapture cleave 30"; end
   end
   -- malefic_rapture,if=!talent.dread_touch&buff.tormented_crescendo.up
   if S.MaleficRapture:IsReady() and not S.DreadTouch:IsAvailable() and Player:BuffUp(S.TormentedCrescendoBuff) then
-    if Press(S.MaleficRapture, not Target:IsInRange(100)) then return "malefic_rapture cleave 32"; end
+    if Press(S.MaleficRapture, not Target:IsInRange(100), true) then return "malefic_rapture cleave 32"; end
   end
   -- malefic_rapture,if=!talent.dread_touch&(dot.soul_rot.remains>cast_time|dot.phantom_singularity.remains>cast_time|dot.vile_taint_dot.remains>cast_time|pet.darkglare.active)
   if S.MaleficRapture:IsReady() and not S.DreadTouch:IsAvailable() and (Target:DebuffRemains(S.SoulRotDebuff) > S.MaleficRapture:CastTime() or Target:DebuffRemains(S.PhantomSingularityDebuff) > S.MaleficRapture:CastTime() or Target:DebuffRemains(S.VileTaintDebuff) > S.MaleficRapture:CastTime() or HL.GuardiansTable.DarkglareDuration > 0) then
-    if Press(S.MaleficRapture, not Target:IsInRange(100)) then return "malefic_rapture cleave 34"; end
+    if Press(S.MaleficRapture, not Target:IsInRange(100), true) then return "malefic_rapture cleave 34"; end
   end
   -- drain_soul,if=buff.nightfall.react
   if S.DrainSoul:IsReady() and Player:BuffUp(S.NightfallBuff) then
@@ -330,7 +330,7 @@ local function Cleave()
   end
   -- shadow_bolt,if=buff.nightfall.react
   if S.ShadowBolt:IsReady() and Player:BuffUp(S.NightfallBuff) then
-    if Press(S.ShadowBolt, not Target:IsSpellInRange(S.ShadowBolt), true) then return "shadow_bolt cleave 38"; end
+    if Press(M.ShadowBoltPetAttack, not Target:IsSpellInRange(S.ShadowBolt), true) then return "shadow_bolt cleave 38"; end
   end
   -- drain_life,if=buff.inevitable_demise.stack>48|buff.inevitable_demise.stack>20&time_to_die<4
   if S.DrainLife:IsReady() and (Player:BuffStack(S.InevitableDemiseBuff) > 48 or Player:BuffStack(S.InevitableDemiseBuff) > 20 and FightRemains < 4) then
@@ -342,11 +342,11 @@ local function Cleave()
   end
   -- agony,target_if=refreshable
   if S.Agony:IsReady() then
-    if Everyone.CastCycle(S.Agony, Enemies40y, EvaluateAgonyRefreshable, not Target:IsSpellInRange(S.Agony)) then return "agony cleave 44"; end
+    if Everyone.CastCycle(S.Agony, Enemies40y, EvaluateAgonyRefreshable, not Target:IsSpellInRange(S.Agony), nil, nil, M.AgonyMouseover) then return "agony cleave 44"; end
   end
   -- corruption,target_if=refreshable
   if S.Corruption:IsCastable() then
-    if Everyone.CastCycle(S.Corruption, Enemies40y, EvaluateCorruptionRefreshable, not Target:IsSpellInRange(S.Corruption)) then return "corruption cleave 46"; end
+    if Everyone.CastCycle(S.Corruption, Enemies40y, EvaluateCorruptionRefreshable, not Target:IsSpellInRange(S.Corruption), nil, nil, M.CorruptionMouseover) then return "corruption cleave 46"; end
   end
   -- drain_soul,interrupt_global=1
   if S.DrainSoul:IsReady() then
@@ -354,7 +354,7 @@ local function Cleave()
   end
   -- shadow_bolt
   if S.ShadowBolt:IsReady() then
-    if Press(S.ShadowBolt, not Target:IsSpellInRange(S.ShadowBolt), true) then return "shadow_bolt cleave 50"; end
+    if Press(M.ShadowBoltPetAttack, not Target:IsSpellInRange(S.ShadowBolt), true) then return "shadow_bolt cleave 50"; end
   end
 end
 
@@ -387,6 +387,15 @@ local function APL()
     -- Precombat
     if (not Player:AffectingCombat()) then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
+    end
+    -- Interrupts
+    if not Player:IsCasting() and not Player:IsChanneling() then
+      local ShouldReturn = Everyone.Interrupt(S.SpellLock, 40, true); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.Interrupt(S.SpellLock, 40, true, Mouseover, M.SpellLockMouseover); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.Interrupt(S.AxeToss, 40, true); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.Interrupt(S.AxeToss, 40, true, Mouseover, M.AxeTossMouseover); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.InterruptWithStun(S.AxeToss, 40, true); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.InterruptWithStun(S.AxeToss, 40, true, Mouseover, M.AxeTossMouseover); if ShouldReturn then return ShouldReturn; end
     end
     -- call_action_list,name=variables
     Variables()
@@ -432,15 +441,15 @@ local function APL()
     end
     -- shadow_bolt,if=talent.shadow_embrace&(debuff.shadow_embrace.stack<3|debuff.shadow_embrace.remains<3)
     if S.ShadowBolt:IsReady() and (S.ShadowEmbrace:IsAvailable() and (Target:DebuffStack(S.ShadowEmbraceDebuff) < 3 or Target:DebuffRemains(S.ShadowEmbraceDebuff) < 3)) then
-      if Press(S.ShadowBolt, not Target:IsSpellInRange(S.ShadowBolt), true) then return "shadow_bolt main 16"; end
+      if Press(M.ShadowBoltPetAttack, not Target:IsSpellInRange(S.ShadowBolt), true) then return "shadow_bolt main 16"; end
     end
     -- phantom_singularity,if=!talent.soul_rot|cooldown.soul_rot.remains<=execute_time|!talent.summon_darkglare
     if CDsON() and S.PhantomSingularity:IsCastable() and ((not S.SoulRot:IsAvailable()) or S.SoulRot:CooldownRemains() <= S.PhantomSingularity:ExecuteTime() or not S.SummonDarkglare:IsAvailable()) then
       if Press(S.PhantomSingularity, not Target:IsSpellInRange(S.PhantomSingularity)) then return "phantom_singularity main 18"; end
     end
     -- vile_taint,if=!talent.soul_rot|cooldown.soul_rot.remains<=execute_time|talent.souleaters_gluttony.rank<2&cooldown.soul_rot.remains>=12
-    if CDsON() and S.VileTaint:IsReady() and ((not S.SoulRot:IsAvailable()) or S.SoulRot:CooldownRemains() <= S.VileTaint:ExecuteTime() or S.SouleatersGluttony:TalentRank() < 2 and S.SoulRot:CooldownRemains() >= 12) then
-      if Press(S.VileTaint, not Target:IsInRange(40)) then return "vile_taint main 20"; end
+    if CDsON() and Mouseover and Mouseover:Exists() and Mouseover:GUID() == Target:GUID() and Settings.Affliction.Enabled.VileTaint and S.VileTaint:IsReady() and ((not S.SoulRot:IsAvailable()) or S.SoulRot:CooldownRemains() <= S.VileTaint:ExecuteTime() or S.SouleatersGluttony:TalentRank() < 2 and S.SoulRot:CooldownRemains() >= 12) then
+      if Press(M.VileTaintCursor, not Target:IsInRange(40)) then return "vile_taint main 20"; end
     end
     -- soul_rot,if=variable.ps_up&variable.vt_up|!talent.summon_darkglare
     if CDsON() and S.SoulRot:IsReady() and (VarPSUp and VarVTUp or not S.SummonDarkglare:IsAvailable()) then
@@ -467,7 +476,7 @@ local function APL()
       -- malefic_rapture,if=talent.tormented_crescendo&talent.nightfall&buff.tormented_crescendo.react&buff.nightfall.react
       (S.TormentedCrescendo:IsAvailable() and S.Nightfall:IsAvailable() and Player:BuffUp(S.TormentedCrescendoBuff) and Player:BuffUp(S.NightfallBuff))
     ) then
-        if Press(S.MaleficRapture, not Target:IsInRange(100)) then return "malefic_rapture main 26"; end
+        if Press(S.MaleficRapture, not Target:IsInRange(100), true) then return "malefic_rapture main 26"; end
     end
     -- drain_life,if=buff.inevitable_demise.stack>48|buff.inevitable_demise.stack>20&time_to_die<4
     if S.DrainLife:IsReady() and (Player:BuffStack(S.InevitableDemiseBuff) > 48 or Player:BuffStack(S.InevitableDemiseBuff) > 20 and FightRemains < 4) then
@@ -479,7 +488,7 @@ local function APL()
     end
     -- shadow_bolt,if=buff.nightfall.react
     if S.ShadowBolt:IsReady() and (Player:BuffUp(S.NightfallBuff)) then
-      if Press(S.ShadowBolt, not Target:IsSpellInRange(S.ShadowBolt), true) then return "shadow_bolt main 32"; end
+      if Press(M.ShadowBoltPetAttack, not Target:IsSpellInRange(S.ShadowBolt), true) then return "shadow_bolt main 32"; end
     end
     -- agony,if=refreshable
     if S.Agony:IsCastable() and (Target:DebuffRefreshable(S.AgonyDebuff)) then
@@ -495,12 +504,46 @@ local function APL()
     end
     -- shadow_bolt
     if S.ShadowBolt:IsReady() then
-      if Press(S.ShadowBolt, not Target:IsSpellInRange(S.ShadowBolt), true) then return "shadow_bolt main 42"; end
+      if Press(M.ShadowBoltPetAttack, not Target:IsSpellInRange(S.ShadowBolt), true) then return "shadow_bolt main 42"; end
     end
   end
 end
 
 local function AutoBind()
+  Bind(S.Agony)
+  Bind(S.Berserking)
+  Bind(S.BloodFury)
+  Bind(S.Corruption)
+  Bind(S.DrainLife)
+  Bind(S.DrainSoul)
+  Bind(S.Fireblood)
+  Bind(S.GrimoireofSacrifice)
+  Bind(S.Haunt)
+  Bind(S.MaleficRapture)
+  Bind(S.PhantomSingularity)
+  Bind(S.ShadowBolt)
+  Bind(S.SeedofCorruption)
+  Bind(S.SiphonLife)
+  Bind(S.SoulRot)
+  Bind(S.SpellLock)
+  Bind(S.SummonPet)
+  Bind(S.SummonDarkglare)
+  Bind(S.SummonSoulkeeper)
+  Bind(S.UnstableAffliction)
+  
+  -- Bind Items
+  Bind(M.Trinket1)
+  Bind(M.Trinket2)
+  Bind(M.Healthstone)
+  Bind(M.ConjuredChillglobe)
+  Bind(M.DesperateInvokersCodex)
+  Bind(M.TimebreachingTalon)
+  
+  Bind(M.AgonyMouseover)
+  Bind(M.CorruptionMouseover)
+  Bind(M.SpellLockMouseover)
+  Bind(M.ShadowBoltPetAttack)
+  Bind(M.VileTaintCursor)
 end
 
 local function OnInit()
