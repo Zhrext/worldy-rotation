@@ -182,7 +182,7 @@ local function Precombat()
     if Press(M.MisdirectionFocus) then return "misdirection opener"; end
   end
   -- summon_pet,if=!talent.lone_wolf
-  if S.SummonPet:IsCastable() and (not S.LoneWolf:IsAvailable()) then
+  if S.SummonPet:IsCastable() and (not S.LoneWolf:IsAvailable()) and Settings.Commons.Enabled.SummonPet then
     if Press(SummonPetSpells[Settings.Commons2.SummonPetSlot]) then return "Summon Pet opener"; end
   end
   -- snapshot_stats
@@ -241,7 +241,7 @@ local function St()
     if Press(S.KillShot, not TargetInRange40y) then return "kill_shot st 4"; end
   end
   -- volley,if=buff.salvo.up
-  if Settings.Marksmanship.UseVolley and S.Volley:IsReady() and Mouseover:GUID() == Target:GUID() and (Player:BuffUp(S.SalvoBuff)) then
+  if Settings.Marksmanship.Enabled.Volley and S.Volley:IsReady() and Mouseover:GUID() == Target:GUID() and (Player:BuffUp(S.SalvoBuff)) then
     if Press(M.VolleyCursor, not TargetInRange40y)  then return "volley st 5"; end
   end
   -- kill_shot_mouseover
@@ -249,7 +249,7 @@ local function St()
     if Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover cleave 38"; end
   end
   -- steel_trap
-  if Settings.Commons.UseSteelTrap and S.SteelTrap:IsCastable() and Target:GUID() == Mouseover:GUID() and (Player:BuffDown(S.TrueshotBuff)) then
+  if Settings.Commons.Enabled.SteelTrap and S.SteelTrap:IsCastable() and Target:GUID() == Mouseover:GUID() and (Player:BuffDown(S.TrueshotBuff)) then
     if Press(M.SteelTrapCursor, not Target:IsInRange(40)) then return "steel_trap st 6"; end
   end
   -- serpent_sting,target_if=min:dot.serpent_sting.remains,if=refreshable&!talent.serpentstalkers_trickery&buff.trueshot.down
@@ -273,7 +273,7 @@ local function St()
     if Press(S.WailingArrow, not TargetInRange40y, true) then return "wailing_arrow st 18"; end
   end
   -- volley
-  if Settings.Marksmanship.UseVolley and S.Volley:IsReady() and Mouseover:GUID() == Target:GUID() then
+  if Settings.Marksmanship.Enabled.Volley and S.Volley:IsReady() and Mouseover:GUID() == Target:GUID() then
     if Press(M.VolleyCursor, not TargetInRange40y)  then return "volley st 20"; end
   end
   -- rapid_fire,if=talent.surging_shots|buff.double_tap.up&talent.streamline&!ca_active
@@ -369,7 +369,7 @@ local function Trickshots()
     if Press(S.Barrage, not TargetInRange40y) then return "barrage trickshots 18"; end
   end
   -- volley
-  if Settings.Marksmanship.UseVolley and S.Volley:IsReady() and Mouseover:GUID() == Target:GUID() then
+  if Settings.Marksmanship.Enabled.Volley and S.Volley:IsReady() and Mouseover:GUID() == Target:GUID() then
     if Press(M.VolleyCursor)  then return "volley trickshots 20"; end
   end
   -- trueshot
@@ -405,7 +405,7 @@ local function Trickshots()
     if Everyone.CastTargetIf(S.SerpentSting, Enemies40y, "min", EvaluateTargetIfFilterSerpentRemains, EvaluateTargetIfSerpentSting3, not TargetInRange40y, nil, nil, M.SerpentStingMouseover) then return "serpent_sting trickshots 36"; end
   end
   -- steel_trap
-  if Settings.Commons.UseSteelTrap and S.SteelTrap:IsCastable() and Target:GUID() == Mouseover:GUID() then
+  if Settings.Commons.Enabled.SteelTrap and S.SteelTrap:IsCastable() and Target:GUID() == Mouseover:GUID() then
     if Press(M.SteelTrapCursor, not Target:IsInRange(40)) then return "steel_trap trickshots 38"; end
   end
   -- kill_shot,if=focus>cost+action.aimed_shot.cost
@@ -464,7 +464,7 @@ local function APL()
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
     end
     -- Self heal, if below setting value
-    if S.Exhilaration:IsReady() and Player:HealthPercentage() <= Settings.Commons2.ExhilarationHP then
+    if S.Exhilaration:IsReady() and Player:HealthPercentage() <= Settings.Commons.HP.Exhilaration then
       if Press(S.Exhilaration) then return "exhilaration"; end
     end
     -- healthstone
@@ -479,7 +479,7 @@ local function APL()
       ShouldReturn = Everyone.InterruptWithStun(S.Intimidation, 40, false, Mouseover, M.IntimidationMouseover); if ShouldReturn then return ShouldReturn; end
     end
     -- Explosives
-    if (Settings.General.Enabled.HandleExplosives) then
+    if Settings.General.Enabled.HandleExplosives then
       local ShouldReturn = Everyone.HandleExplosive(S.ArcaneShot, M.ArcaneShotMouseover); if ShouldReturn then return ShouldReturn; end
     end
     -- Dispels

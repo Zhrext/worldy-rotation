@@ -186,7 +186,6 @@ Item.Hunter.BeastMastery = MergeTableByKey(Item.Hunter.Commons, {
 Item.Hunter.Marksmanship = MergeTableByKey(Item.Hunter.Commons, {
 })
 
-
 -- Macros
 if not Macro.Hunter then Macro.Hunter = {}; end
 Macro.Hunter.Commons = {

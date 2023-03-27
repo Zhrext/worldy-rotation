@@ -432,7 +432,7 @@ local function StealthMacro(StealthSpell, EnergyThreshold)
   elseif StealthSpell == S.Shadowmeld and (not Settings.Subtlety.StealthMacro.Shadowmeld or not MacroAbility) then
     if WR.Cast(S.Shadowmeld, true) then return "Cast Shadowmeld" end
     return false
-  elseif StealthSpell == S.ShadowDance and (not Settings.Subtlety.StealthMacro.ShadowDance or not MacroAbility) then
+  elseif StealthSpell == S.ShadowDance and (not Settings.Subtlety.StealthMacro.ShadowDance or not MacroAbility) and CDsON() then
     if WR.Cast(M.ShadowDance, true) then return "Cast Shadow Dance" end
     return false
   end
@@ -443,7 +443,7 @@ local function StealthMacro(StealthSpell, EnergyThreshold)
     
   --Need to create macros or handle this seperatly
   -- For now only cast the stealthspell
-  if MacroTable[1] == S.ShadowDance then   
+  if MacroTable[1] == S.ShadowDance and CDsON() then   
     ShouldReturn = WR.Cast(M.ShadowDance, true)
     if ShouldReturn then return "|" end
   elseif  MacroTable[1] == S.Vanish then
@@ -539,7 +539,7 @@ local function CDs()
       end
     end
     -- actions.cds+=/shadow_dance,if=!buff.shadow_dance.up&fight_remains<=8+talent.subterfuge.enabled
-    if S.ShadowDance:IsCastable() and MayBurnShadowDance() and not Player:BuffUp(S.ShadowDanceBuff) and HL.BossFilteredFightRemains("<=", 8) then
+    if S.ShadowDance:IsCastable() and MayBurnShadowDance() and not Player:BuffUp(S.ShadowDanceBuff) and HL.BossFilteredFightRemains("<=", 8) and CDsON() then
       ShouldReturn = StealthMacro(S.ShadowDance)
       if ShouldReturn then return "Shadow Dance Macro (Low TTD) " .. ShouldReturn end
     end
@@ -608,7 +608,7 @@ local function Stealth_CDs(EnergyThreshold)
       if ShouldReturn then return "Vanish Macro " .. ShouldReturn end
     end
   end
-  if TargetInMeleeRange and S.ShadowDance:IsCastable() and S.ShadowDance:Charges() >= 1 and S.Vanish:TimeSinceLastDisplay() > 0.3 and S.Shadowmeld:TimeSinceLastDisplay() > 0.3 and (WR.CDsON() or (S.ShadowDance:ChargesFractional() >= Settings.Subtlety.ShDEcoCharge - (not S.ShadowDanceTalent:IsAvailable() and 0.75 or 0))) then
+  if TargetInMeleeRange and CDsON() and S.ShadowDance:IsCastable() and S.ShadowDance:Charges() >= 1 and S.Vanish:TimeSinceLastDisplay() > 0.3 and S.Shadowmeld:TimeSinceLastDisplay() > 0.3 and (WR.CDsON() or (S.ShadowDance:ChargesFractional() >= Settings.Subtlety.ShDEcoCharge - (not S.ShadowDanceTalent:IsAvailable() and 0.75 or 0))) then
     -- actions.stealth_cds+=/shadow_dance,if=(variable.shd_combo_points&(buff.symbols_of_death.remains>=(2.2-talent.flagellation.enabled)|variable.shd_threshold)|buff.flagellation.up|buff.flagellation_persist.remains>=6|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)&!buff.the_rotten.up
     if (ShD_Combo_Points() and (Player:BuffRemains(S.SymbolsofDeath) >= (2.2 - BoolToInt(S.Flagellation:IsAvailable())) or ShD_Threshold()) or Player:BuffUp(S.Flagellation) or Player:BuffRemains(S.FlagellationPersistBuff) >= 6 or MeleeEnemies10yCount >= 4 and S.SymbolsofDeath:CooldownRemains() > 10) and Player:BuffDown(S.TheRottenBuff) then
       ShouldReturn = StealthMacro(S.ShadowDance, EnergyThreshold)
@@ -792,7 +792,7 @@ local function APL ()
       if Target:DebuffDown(S.Rupture) and MeleeEnemies10yCount <= 1 and ComboPoints > 0 then
         if WR.Cast(S.Rupture) then return "Opener Rupture" end
       end
-      if S.ShadowDance:IsCastable() and WR.Cast(M.ShadowDance, true) then return "Opener ShadowDance" end
+      if S.ShadowDance:IsCastable() and CDsON() and WR.Cast(M.ShadowDance, true) then return "Opener ShadowDance" end
     end
     -- # Check CDs at first
     -- actions=call_action_list,name=cds

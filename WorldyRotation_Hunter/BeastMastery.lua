@@ -470,7 +470,7 @@ local function APL()
 
   -- Defensives
   -- Exhilaration
-  if S.Exhilaration:IsCastable() and Player:HealthPercentage() <= Settings.Commons2.ExhilarationHP then
+  if S.Exhilaration:IsCastable() and Player:HealthPercentage() <= Settings.Commons.HP.Exhilaration then
     if Press(S.Exhilaration) then return "Exhilaration"; end
   end
   -- healthstone
@@ -479,13 +479,13 @@ local function APL()
   end
   -- Pet Management
   if not (Player:IsMounted() or Player:IsInVehicle()) then
-    if Pet:IsDeadOrGhost() and S.RevivePet:IsCastable() then
+    if Pet:IsDeadOrGhost() and S.RevivePet:IsCastable() and Settings.Commons.Enabled.RevivePet then
       if Press(S.RevivePet) then return "Revive Pet"; end
     end
-    if S.SummonPet:IsCastable() then
-      if Press(SummonPetSpells[Settings.Commons2.SummonPetSlot]) then return "Summon Pet"; end
+    if S.SummonPet:IsCastable() and Settings.Commons.Enabled.SummonPet then
+      if Press(SummonPetSpells[Settings.Commons.SummonPetSlot]) then return "Summon Pet"; end
     end
-    if (not Pet:IsDeadOrGhost()) and S.MendPet:IsCastable() and Pet:HealthPercentage() <= Settings.Commons2.MendPetHighHP then
+    if (not Pet:IsDeadOrGhost()) and S.MendPet:IsCastable() and Pet:HealthPercentage() <= Settings.Commons.HP.MendPetHigh and Settings.Commons.Enabled.MendPet then
       if Press(S.MendPet) then return "Mend Pet High Priority"; end
     end
   end
@@ -529,7 +529,7 @@ local function APL()
       local ShouldReturn = Cleave(); if ShouldReturn then return ShouldReturn; end
     end
     -- Manually added pet healing
-    if (not (Player:IsMounted() or Player:IsInVehicle())) and (not Pet:IsDeadOrGhost()) and S.MendPet:IsCastable() and Pet:HealthPercentage() <= Settings.Commons2.MendPetLowHP then
+    if (not (Player:IsMounted() or Player:IsInVehicle())) and (not Pet:IsDeadOrGhost()) and S.MendPet:IsCastable() and Pet:HealthPercentage() <= Settings.Commons.HP.MendPetLow and Settings.Commons.Enabled.MendPet then
       if Press(S.MendPet) then return "Mend Pet Low Priority (w/ Target)"; end
     end
     -- Pool Focus if nothing else to do
@@ -537,7 +537,7 @@ local function APL()
   end
 
   -- Note: We have to put it again in case we don't have a target but our pet is dying.
-  if (not (Player:IsMounted() or Player:IsInVehicle())) and (not Pet:IsDeadOrGhost()) and S.MendPet:IsCastable() and Pet:HealthPercentage() <= Settings.Commons2.MendPetLowHP then
+  if (not (Player:IsMounted() or Player:IsInVehicle())) and (not Pet:IsDeadOrGhost()) and S.MendPet:IsCastable() and Pet:HealthPercentage() <= Settings.Commons.HP.MendPetLow and Settings.Commons.Enabled.MendPet then
     if Press(S.MendPet) then return "Mend Pet Low Priority (w/o Target)"; end
   end
 end

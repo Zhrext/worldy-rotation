@@ -1,0 +1,17 @@
+## Interface: 100007
+
+## Title: Worldy|cFFA330C9Rotation|r [|cFF8787EDWarlock|r]
+## Author: Worldy
+## Notes: Worldy Rotation - Warlock Module.
+
+## DefaultState: Enabled
+## LoadOnDemand: 1
+## Dependencies: WorldyRotation
+
+Settings.lua
+Warlock.lua
+Events.lua
+Demonology.lua
+Affliction.lua
+Destruction.lua
+Overrides.lua

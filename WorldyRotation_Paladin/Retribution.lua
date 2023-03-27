@@ -406,6 +406,8 @@ local function AutoBind()
   Bind(S.WakeofAshes)
   Bind(S.FinalVerdict)
   Bind(S.TemplarsVerdict)
+  Bind(S.TemplarStrike)
+  Bind(S.TemplarSlash)
   Bind(S.FinalReckoning)
   -- Macros
   Bind(M.JudgmentMouseover)
