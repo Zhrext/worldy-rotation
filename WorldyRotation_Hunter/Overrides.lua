@@ -74,11 +74,7 @@ function (self, Range, AoESpell, ThisUnit, BypassRecovery, Offset)
   local BaseCheck = OldMMIsReady(self, Range, AoESpell, ThisUnit, BypassRecovery, Offset)
   if self == SpellMM.AimedShot then
     local ShouldCastAS = ((not Player:IsCasting(SpellMM.AimedShot)) and SpellMM.AimedShot:Charges() == 1 or SpellMM.AimedShot:Charges() > 1)
-    if WR.GUISettings.APL.Hunter.Marksmanship.HideAimedWhileMoving then
-      return BaseCheck and ShouldCastAS and ((not Player:IsMoving()) or Player:BuffUp(SpellMM.LockandLoadBuff))
-    else
-      return BaseCheck and ShouldCastAS
-    end
+    return BaseCheck and ShouldCastAS and ((not Player:IsMoving()) or Player:BuffUp(SpellMM.LockandLoadBuff))
   elseif self == SpellMM.WailingArrow then
     return BaseCheck and (not Player:IsCasting(self))
   else

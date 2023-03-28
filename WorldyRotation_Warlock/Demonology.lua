@@ -126,7 +126,7 @@ local function Precombat()
     if Press(S.PowerSiphon) then return "power_siphon precombat 2"; end
   end
   -- demonbolt,if=!buff.power_siphon.up
-  if S.Demonbolt:IsReady() and Player:BuffDown(S.DemonicCoreBuff) and (not Player:IsCasting(S.Demonbolt)) and S.Demonbolt:TimeSinceLastCast() >= 4 then
+  if S.Demonbolt:IsReady() and Settings.Demonology.Enabled.DemonboltOpener and Player:BuffDown(S.DemonicCoreBuff) and (not Player:IsCasting(S.Demonbolt)) and S.Demonbolt:TimeSinceLastCast() >= 4 then
     if Press(M.DemonboltPetAttack, not Target:IsSpellInRange(S.Demonbolt), true) then return "demonbolt precombat 4"; end
   end
   -- shadow_bolt
@@ -258,7 +258,10 @@ local function APL()
   end
 
   -- summon_pet
-  if S.SummonPet:IsCastable() and not (Player:IsMounted() or Player:IsInVehicle()) and Settings.Commons.Enabled.SummonPet then
+  if S.SummonPet:IsCastable() and (not (Player:IsMounted() or Player:IsInVehicle())) and Settings.Commons.Enabled.SummonPet then
+    if S.FelDomination:IsCastable() then
+      if Press(S.FelDomination, nil, nil, true) then return "fel_domination ooc"; end
+    end
     if Press(S.SummonPet, false, true) then return "summon_pet ooc"; end
   end
 
@@ -281,7 +284,11 @@ local function APL()
     end
     -- Manually added: unending_resolve
     if S.UnendingResolve:IsReady() and (Player:HealthPercentage() < Settings.Demonology.HP.UnendingResolve) then
-      if Press(S.UnendingResolve) then return "unending_resolve defensive"; end
+      if Press(S.UnendingResolve, nil, nil, true) then return "unending_resolve defensive"; end
+    end
+    -- Manually added: dark_pact
+    if S.DarkPact:IsReady() and (Player:HealthPercentage() < Settings.Commons.HP.DarkPact) then
+      if Press(S.DarkPact, nil, nil, true) then return "dark_pact defensive"; end
     end
     -- healthstone
     if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
@@ -335,12 +342,12 @@ local function APL()
     end
     -- guillotine,if=cooldown.demonic_strength.remains
     -- Added check to make sure that we're not suggesting this during pet's Felstorm or Demonic Strength
-    if S.Guillotine:IsReady() and S.Felstorm:CooldownRemains() < 30 - S.Felstorm:TickTime() * 5 and S.DemonicStrength:TimeSinceLastCast() > S.Felstorm:TickTime() * 5 and (S.DemonicStrength:CooldownDown() or not S.DemonicStrength:IsAvailable()) then
-      if Press(S.Guillotine, not Target:IsInRange(40)) then return "guillotine main 16"; end
+    if S.Guillotine:IsReady() and Mouseover and Mouseover:Exists() and Mouseover:GUID() == Target:GUID() and Settings.Demonology.Enabled.Guillotine and S.Felstorm:CooldownRemains() < 30 - S.Felstorm:TickTime() * 5 and S.DemonicStrength:TimeSinceLastCast() > S.Felstorm:TickTime() * 5 and (S.DemonicStrength:CooldownDown() or not S.DemonicStrength:IsAvailable()) then
+      if Press(M.GuillotineCursor, not Target:IsInRange(40)) then return "guillotine main 16"; end
     end
     -- demonic_strength
     -- Added check to make sure that we're not suggesting this during pet's Felstorm or Guillotine
-    if CDsON() and S.DemonicStrength:IsReady() and S.Felstorm:CooldownRemains() < S.Felstorm:TickTime() * 5 and S.Guillotine:TimeSinceLastCast() >= 8 then
+    if CDsON() and S.DemonicStrength:IsReady() and S.Felstorm:CooldownRemains() < 30 - S.Felstorm:TickTime() * 5 and S.Guillotine:TimeSinceLastCast() >= 8 then
       if Press(S.DemonicStrength) then return "demonic_strength main 18"; end
     end
     -- bilescourge_bombers,if=!pet.demonic_tyrant.active
@@ -385,7 +392,7 @@ local function APL()
     end
     -- doom,target_if=refreshable
     if S.Doom:IsReady() then
-      if Everyone.CastCycle(S.Doom, Enemies40y, EvaluateDoom, not Target:IsSpellInRange(S.Doom)) then return "doom main 40"; end
+      if Everyone.CastCycle(S.Doom, Enemies40y, EvaluateDoom, not Target:IsSpellInRange(S.Doom), nil, nil, M.DoomMouseover) then return "doom main 40"; end
     end
     -- soul_strike,if=soul_shard<5
     if S.SoulStrike:IsReady() and (Player:SoulShardsP() < 5) then
@@ -404,12 +411,13 @@ local function AutoBind()
   Bind(S.BilescourgeBombers)
   Bind(S.BloodFury)
   Bind(S.CallDreadstalkers)
+  Bind(S.DarkPact)
   Bind(S.Demonbolt)
   Bind(S.DemonicStrength)
   Bind(S.Doom)
+  Bind(S.FelDomination)
   Bind(S.Fireblood)
   Bind(S.GrimoireFelguard)
-  Bind(S.Guillotine)
   Bind(S.HandofGuldan)
   Bind(S.Implosion)
   Bind(S.NetherPortal)
@@ -422,6 +430,7 @@ local function AutoBind()
   Bind(S.SummonSoulkeeper)
   Bind(S.SummonVilefiend)
   Bind(S.SummonPet)
+  Bind(S.UnendingResolve)
   
   -- Bind Items
   Bind(M.Trinket1)
@@ -431,8 +440,10 @@ local function AutoBind()
   
   Bind(M.AxeTossMouseover)
   Bind(M.SpellLockMouseover)
+  Bind(M.DoomMouseover)
   Bind(M.DemonboltPetAttack)
   Bind(M.ShadowBoltPetAttack)
+  Bind(M.GuillotineCursor)
 end
 
 local function Init()

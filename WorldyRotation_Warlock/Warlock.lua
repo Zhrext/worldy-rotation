@@ -29,6 +29,8 @@ Spell.Warlock.Commons = {
   BloodFury                             = Spell(33702),
   Fireblood                             = Spell(265221),
   -- Abilities
+  Corruption                            = Spell(172),
+  DarkPact                              = Spell(108416),
   ShadowBolt                            = Spell(686),
   SummonDarkglare                       = Spell(205180),
   UnendingResolve                       = Spell(104773),
@@ -63,6 +65,7 @@ Spell.Warlock.Demonology = MergeTableByKey(Spell.Warlock.Commons, {
   DemonicCalling                        = Spell(205145),
   DemonicStrength                       = Spell(267171),
   Doom                                  = Spell(603),
+  FelDomination                         = Spell(333889),
   FelCovenant                           = Spell(387432),
   FromtheShadows                        = Spell(267170),
   GrimoireFelguard                      = Spell(111898),
@@ -92,7 +95,6 @@ Spell.Warlock.Demonology = MergeTableByKey(Spell.Warlock.Commons, {
 Spell.Warlock.Affliction = MergeTableByKey(Spell.Warlock.Commons, {
   -- Base Abilities
   Agony                                 = Spell(980),
-  Corruption                            = Spell(172),
   DrainLife                             = Spell(234153),
   SummonPet                             = Spell(688),
   -- Talents
@@ -212,18 +214,20 @@ Macro.Warlock.Commons = {
   TimebreachingTalon                    = Macro("TimebreachingTalon", "/use item:193791"),
   -- Spells
   AxeTossMouseover                      = Macro("AxeTossMouseover", "/cast [@mouseover] " .. Spell.Warlock.Commons.AxeToss:Name()),
+  CorruptionMouseover                   = Macro("CorruptionMouseover", "/cast [@mouseover] " .. Spell.Warlock.Commons.Corruption:Name()),
   SpellLockMouseover                    = Macro("SpellLockMouseover", "/cast [@mouseover] " .. Spell.Warlock.Commons.SpellLock:Name()),
   ShadowBoltPetAttack                   = Macro("ShadowBoltPetAttack", "/cast " .. Spell.Warlock.Commons.ShadowBolt:Name() .. "\n/petattack"),
 }
 
 Macro.Warlock.Affliction = MergeTableByKey(Macro.Warlock.Commons, {
   AgonyMouseover                        = Macro("AgonyMouseover", "/cast [@mouseover] " .. Spell.Warlock.Affliction.Agony:Name()),
-  CorruptionMouseover                   = Macro("CorruptionMouseover", "/cast [@mouseover] " .. Spell.Warlock.Affliction.Corruption:Name()),
   VileTaintCursor                       = Macro("VileTaintCursor", "/cast [@cursor] " .. Spell.Warlock.Affliction.VileTaint:Name()),
 })
 
 Macro.Warlock.Demonology = MergeTableByKey(Macro.Warlock.Commons, {
   DemonboltPetAttack                    = Macro("DemonboltPetAttack", "/cast " .. Spell.Warlock.Demonology.Demonbolt:Name() .. "\n/petattack"),
+  DoomMouseover                         = Macro("DoomMouseover", "/cast [@mouseover] " .. Spell.Warlock.Demonology.Doom:Name()),
+  GuillotineCursor                      = Macro("GuillotineCursor", "/cast [@cursor] " .. Spell.Warlock.Demonology.Guillotine:Name()),
 })
 
 Macro.Warlock.Destruction = MergeTableByKey(Macro.Warlock.Commons, {

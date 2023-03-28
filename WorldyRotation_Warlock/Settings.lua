@@ -20,6 +20,9 @@ WR.GUISettings.APL.Warlock = {
     Enabled = {
       SummonPet = true,
     },
+    HP ={
+      DarkPact = 40,
+    },
   },
   Affliction = {
     Enabled = {
@@ -27,8 +30,12 @@ WR.GUISettings.APL.Warlock = {
     },
   },
   Demonology = {
+    Enabled = {
+      DemonboltOpener = false,
+      Guillotine = true,
+    },
     HP = {
-      UnendingResolve = 20,
+      UnendingResolve = 35,
     },
   },
   Destruction = {
