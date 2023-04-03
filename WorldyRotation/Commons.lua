@@ -143,6 +143,14 @@ do
     386546,
     385536,
     387910,
+    396812,
+    388392,
+    212784,
+    199210,
+    114646,
+    397914,
+    397899,
+    397931,
   };
   function Commons.Interrupt(Spell, Range, OffGCD, Unit, Macro)
     if not Unit then
