@@ -231,4 +231,9 @@ Macro.Warlock.Demonology = MergeTableByKey(Macro.Warlock.Commons, {
 })
 
 Macro.Warlock.Destruction = MergeTableByKey(Macro.Warlock.Commons, {
+  HavocMouseover                        = Macro("HavocMouseover", "/cast [@mouseover] " .. Spell.Warlock.Destruction.Havoc:Name()),
+  ImmolateMouseover                     = Macro("ImmolateMouseover", "/cast [@mouseover] " .. Spell.Warlock.Destruction.Immolate:Name()),
+  ImmolatePetAttack                     = Macro("ImmolatePetAttack", "/cast " .. Spell.Warlock.Destruction.Immolate:Name() .. "\n/petattack"),
+  RainofFireCursor                      = Macro("RainofFireCursor", "/cast [@cursor] " .. Spell.Warlock.Destruction.RainofFire:Name()),
+  SummonInfernalCursor                  = Macro("SummonInfernalCursor", "/cast [@cursor] " .. Spell.Warlock.Destruction.SummonInfernal:Name()),
 })

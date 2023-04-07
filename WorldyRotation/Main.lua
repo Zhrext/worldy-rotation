@@ -361,7 +361,7 @@ local EnabledRotation = {
   ---- Warlock
   [265]   = "WorldyRotation_Warlock",       -- Affliction
   [266]   = "WorldyRotation_Warlock",       -- Demonology
-  --  [267]   = "WorldyRotation_Warlock",       -- Destruction
+  [267]   = "WorldyRotation_Warlock",       -- Destruction
   ---- Warrior
   [71]    = "WorldyRotation_Warrior",       -- Arms
   [72]    = "WorldyRotation_Warrior",       -- Fury
