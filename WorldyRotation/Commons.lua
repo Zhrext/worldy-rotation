@@ -40,6 +40,11 @@ function Commons.TargetIsValid()
   return Target:Exists() and Player:CanAttack(Target) and not Target:IsDeadOrGhost();
 end
 
+-- Is the current target also the mouseover?
+function Commons.TargetIsMouseover()
+  return Mouseover and Target and Mouseover:Exists() and Target:Exists() and Mouseover:GUID() == Target:GUID();
+end
+
 -- Is the current target a valid npc healable unit?
 do
   Commons.HealableNpcIDs = {};
