@@ -75,8 +75,8 @@ local BossFightRemains = 11111
 local FightRemains = 11111
 local GCDMax
 local Immovable
-local ESCastTime = 2.5
-local FBCastTime = 2.5
+local ESEmpower = 0
+local FBEmpower = 0
 
 -- Update Equipment
 HL:RegisterForEvent(function()
@@ -178,46 +178,36 @@ local function Trinkets()
 end
 
 local function ES()
-  local ESEmpower = 0
   -- eternity_surge,empower_to=1,if=spell_targets.pyre<=1+talent.eternitys_span|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste
   if (EnemiesCount8ySplash <= 1 + num(S.EternitysSpan:IsAvailable()) or VarDragonrageRemains < 1.75 * PlayerHaste and VarDragonrageRemains >= 1 * PlayerHaste) then
     ESEmpower = 1
-    ESCastTime = 1.2
   -- eternity_surge,empower_to=2,if=spell_targets.pyre<=2+2*talent.eternitys_span|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
   elseif (EnemiesCount8ySplash <= 2 + 2 * num(S.EternitysSpan:IsAvailable()) or VarDragonrageRemains < 2.5 * PlayerHaste and VarDragonrageRemains >= 1.75 * PlayerHaste) then
     ESEmpower = 2
-    ESCastTime = 1.5
   -- eternity_surge,empower_to=3,if=spell_targets.pyre<=3+3*talent.eternitys_span|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
   elseif (EnemiesCount8ySplash <= 3 + 3 * num(S.EternitysSpan:IsAvailable()) or (not S.FontofMagic:IsAvailable()) or VarDragonrageRemains <= 3.25 * PlayerHaste and VarDragonrageRemains >= 2.5 * PlayerHaste) then
     ESEmpower = 3
-    ESCastTime = 2
   -- eternity_surge,empower_to=4
   else
     ESEmpower = 4
-    ESCastTime = 2.5
   end
   if Press(M.EternitySurgeMacro, not Target:IsInRange(30), true) then return "eternity_surge empower " .. ESEmpower; end
 end
 
 local function FB()
-  local FBEmpower = 0
   local FBRemains = Target:DebuffRemains(S.FireBreath)
   -- fire_breath,empower_to=1,if=(20+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste|active_enemies<=2
   if ((20 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or VarDragonrageRemains < 1.75 * PlayerHaste and VarDragonrageRemains >= 1 * PlayerHaste or EnemiesCount8ySplash <= 2) then
     FBEmpower = 1
-    FBCastTime = 1.2
   -- fire_breath,empower_to=2,if=(14+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
   elseif ((14 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or VarDragonrageRemains < 2.5 * PlayerHaste and VarDragonrageRemains >= 1.75 * PlayerHaste) then
     FBEmpower = 2
-    FBCastTime = 1.5
   -- fire_breath,empower_to=3,if=(8+2*talent.blast_furnace.rank)+dot.fire_breath_damage.remains<(20+2*talent.blast_furnace.rank)*1.3|!talent.font_of_magic|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
   elseif ((8 + 2 * BFRank) + FBRemains < (20 + 2 * BFRank) * 1.3 or (not S.FontofMagic:IsAvailable()) or VarDragonrageRemains <= 3.25 * PlayerHaste and VarDragonrageRemains >= 2.5 * PlayerHaste) then
     FBEmpower = 3
-    FBCastTime = 2
   -- fire_breath,empower_to=4
   else
     FBEmpower = 4
-    FBCastTime = 2.5
   end
   if Press(M.FireBreathMacro, not Target:IsInRange(30), true) then return "fire_breath empower " .. FBEmpower; end
 end
@@ -237,24 +227,20 @@ local function Aoe()
   end
   -- Handle FireBreath
   if S.FireBreath:IsCastable() then
-    local FBEmpower = 0
+    FBEmpower = 0
     local SpellHaste = Player:SpellHaste()
     -- fire_breath,empower_to=1,if=buff.dragonrage.remains<1.75*spell_haste&buff.dragonrage.remains>=1*spell_haste|cooldown.dragonrage.remains>10&(spell_targets.pyre>=8|spell_targets.pyre<=3)&buff.dragonrage.up&buff.dragonrage.remains>=10|buff.dragonrage.up&spell_targets.pyre<=3&!talent.raging_inferno&talent.catalyze
     if (VarDragonrageRemains < 1.75 * SpellHaste and VarDragonrageRemains >= 1 * SpellHaste or S.Dragonrage:CooldownRemains() > 10 and (EnemiesCount8ySplash >= 8 or EnemiesCount8ySplash <= 3) and VarDragonrageUp and VarDragonrageRemains >= 10 or VarDragonrageUp and EnemiesCount8ySplash <= 3 and (not S.RagingInferno:IsAvailable()) and S.Catalyze:IsAvailable()) then
       FBEmpower = 1
-      FBCastTime = 1.2
     -- fire_breath,empower_to=2,if=buff.dragonrage.remains<2.5*spell_haste&buff.dragonrage.remains>=1.75*spell_haste
     elseif (VarDragonrageRemains < 2.5 * SpellHaste and VarDragonrageRemains >= 1.75 * SpellHaste) then
       FBEmpower = 2
-      FBCastTime = 1.5
     -- fire_breath,empower_to=3,if=(!talent.font_of_magic|(spell_targets.pyre==5&!talent.volatility&!talent.charged_blast&talent.catalyze&!talent.raging_inferno))&cooldown.dragonrage.remains>10|buff.dragonrage.remains<=3.25*spell_haste&buff.dragonrage.remains>=2.5*spell_haste
     elseif (((not S.FontofMagic:IsAvailable()) or (EnemiesCount8ySplash == 5 and (not S.Volatility:IsAvailable()) and (not S.ChargedBlast:IsAvailable()) and S.Catalyze:IsAvailable() and not S.RagingInferno:IsAvailable())) and S.Dragonrage:CooldownRemains() > 10 or VarDragonrageRemains <= 3.25 * SpellHaste and VarDragonrageRemains >= 2.5 * SpellHaste) then
       FBEmpower = 3
-      FBCastTime = 2
     -- fire_breath,empower_to=4,if=cooldown.dragonrage.remains>10
     elseif (S.Dragonrage:CooldownRemains() > 10) then
       FBEmpower = 4
-      FBCastTime = 2.5
     end
     if FBEmpower > 0 then
       if Press(M.FireBreathMacro, not Target:IsInRange(30), true) then return "fire_breath empower " .. FBEmpower .. " aoe 8"; end
@@ -402,13 +388,21 @@ end
 -- APL Main
 local function APL()
   if Player:IsChanneling(S.EternitySurge) then
-    if (GetTime() - Player:ChannelStart()) > ESCastTime then
+    local ESCastTime = (ESEmpower > 0 and GetUnitEmpowerStageDuration("player", 0) or 0)
+                        + (ESEmpower > 1 and GetUnitEmpowerStageDuration("player", 1) or 0)
+                        + (ESEmpower > 2 and GetUnitEmpowerStageDuration("player", 2) or 0)
+                        + (ESEmpower > 3 and GetUnitEmpowerStageDuration("player", 3) or 0)
+    if (GetTime() - Player:ChannelStart()) * 1000 > ESCastTime then
       if Press(M.EternitySurgeMacro, nil, nil, true) then return "ES " .. ESCastTime; end
     end
     if Press(S.Pool) then return "Pool for ES " .. ESCastTime; end
   end
   if Player:IsChanneling(S.FireBreath) then
-    if (GetTime() - Player:ChannelStart()) > FBCastTime then
+    local FBCastTime = (FBEmpower > 0 and GetUnitEmpowerStageDuration("player", 0) or 0)
+                        + (FBEmpower > 1 and GetUnitEmpowerStageDuration("player", 1) or 0)
+                        + (FBEmpower > 2 and GetUnitEmpowerStageDuration("player", 2) or 0)
+                        + (FBEmpower > 3 and GetUnitEmpowerStageDuration("player", 3) or 0)
+    if (GetTime() - Player:ChannelStart()) * 1000 > FBCastTime then
       if Press(M.FireBreathMacro, nil, nil, true) then return "FB " .. FBCastTime; end
     end
     if Press(S.Pool) then return "Pool for FB " .. FBCastTime; end

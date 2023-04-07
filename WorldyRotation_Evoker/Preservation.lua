@@ -32,6 +32,8 @@ local num           = WR.Commons.Everyone.num
 local bool          = WR.Commons.Everyone.bool
 -- lua
 local stringformat = string.format
+-- wow api
+local GetUnitEmpowerStageDuration = GetUnitEmpowerStageDuration
 
 --- ============================ CONTENT ===========================
 --- ======= APL LOCALS =======
@@ -66,9 +68,9 @@ local EnemiesCount8ySplash
 local BossFightRemains = 11111
 local FightRemains = 11111
 local Immovable
-local FBCastTime = 2.5
-local DBCastTime = 2.5
-local SBCastTime = 2.5
+local FBEmpower = 0
+local DBEmpower = 0
+local SBEmpower = 0
 local LowUnitsCount = 0
 
 -- Update Equipment
@@ -149,19 +151,14 @@ local function Damage()
   end
   -- fire_breath
   if S.FireBreath:IsReady() then
-    local FBEmpower = 0
     if EnemiesCount8ySplash <= 2 then
       FBEmpower = 1
-      FBCastTime = 1.2
     elseif EnemiesCount8ySplash <= 4 then
       FBEmpower = 2
-      FBCastTime = 1.5
     elseif EnemiesCount8ySplash <= 6 then
       FBEmpower = 3
-      FBCastTime = 2
     else
       FBEmpower = 4
-      FBCastTime = 2.5
     end
     if Press(M.FireBreathMacro, not Target:IsInRange(30), true, nil, true) then return "fire_breath damage " .. FBEmpower; end
   end
@@ -210,6 +207,19 @@ local function Cooldown()
   if S.TimeDilation:IsCastable() and Focus:HealthPercentage() <= Settings.Preservation.Healing.HP.TimeDilation then
     if Press(M.TimeDilationFocus) then return "time_dilation cooldown"; end
   end
+  -- fire_breath
+  if S.FireBreath:IsReady() then
+    if EnemiesCount8ySplash <= 2 then
+      FBEmpower = 1
+    elseif EnemiesCount8ySplash <= 4 then
+      FBEmpower = 2
+    elseif EnemiesCount8ySplash <= 6 then
+      FBEmpower = 3
+    else
+      FBEmpower = 4
+    end
+    if Press(M.FireBreathMacro, not Target:IsInRange(30), true, nil, true) then return "fire_breath cds " .. FBEmpower; end
+  end
 end
 
 local function AoEHealing()
@@ -224,18 +234,18 @@ local function AoEHealing()
   -- dream_breath
   if S.DreamBreath:IsReady() and Everyone.AreUnitsBelowHealthPercentage(Settings.Preservation.Healing, "DreamBreath") then
     if LowUnitsCount <= 2 then
-      DBCastTime = 1.2
+      DBEmpower = 1
     else
-      DBCastTime = 1.5
+      DBEmpower = 2
     end
     if Press(M.DreamBreathMacro, nil, true) then return "dream_breath aoe_healing"; end
   end
   -- spirit_bloom
   if S.Spiritbloom:IsReady() and Everyone.AreUnitsBelowHealthPercentage(Settings.Preservation.Healing, "Spiritbloom") then
     if LowUnitsCount > 2 then
-      SBCastTime = 2
+      SBEmpower = 3
     else
-      SBCastTime = 1.2
+      SBEmpower = 1
     end
     if Press(M.SpiritbloomFocus, nil, true) then return "spirit_bloom aoe_healing"; end
   end
@@ -344,19 +354,31 @@ local function APL()
   end
   
   if Player:IsChanneling(S.FireBreath) then
-    if (GetTime() - Player:ChannelStart()) > FBCastTime or (LowUnitsCount > 1 and (GetTime() - Player:ChannelStart()) > 1) then
+    local FBCastTime = (FBEmpower > 0 and GetUnitEmpowerStageDuration("player", 0) or 0)
+                        + (FBEmpower > 1 and GetUnitEmpowerStageDuration("player", 1) or 0)
+                        + (FBEmpower > 2 and GetUnitEmpowerStageDuration("player", 2) or 0)
+                        + (FBEmpower > 3 and GetUnitEmpowerStageDuration("player", 3) or 0)
+    if (GetTime() - Player:ChannelStart()) * 1000 > FBCastTime or (LowUnitsCount > 1 and ((GetTime() - Player:ChannelStart()) * 1000 > GetUnitEmpowerStageDuration("player", 0))) then
       if Press(M.FireBreathMacro, nil, nil, true) then return "FB " .. FBCastTime; end
     end
     if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for FB " .. FBCastTime; end
   end
   if Player:IsChanneling(S.DreamBreath) then
-    if (GetTime() - Player:ChannelStart()) > DBCastTime then
+    local DBCastTime = (DBEmpower > 0 and GetUnitEmpowerStageDuration("player", 0) or 0)
+                        + (DBEmpower > 1 and GetUnitEmpowerStageDuration("player", 1) or 0)
+                        + (DBEmpower > 2 and GetUnitEmpowerStageDuration("player", 2) or 0)
+                        + (DBEmpower > 3 and GetUnitEmpowerStageDuration("player", 3) or 0)
+    if (GetTime() - Player:ChannelStart()) * 1000 > DBCastTime then
       if Press(M.DreamBreathMacro, nil, nil, true) then return "DB " .. DBCastTime; end
     end
     if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for DB " .. DBCastTime; end
   end
   if Player:IsChanneling(S.Spiritbloom) then
-    if (GetTime() - Player:ChannelStart()) > SBCastTime then
+    local SBCastTime = (SBEmpower > 0 and GetUnitEmpowerStageDuration("player", 0) or 0)
+                        + (SBEmpower > 1 and GetUnitEmpowerStageDuration("player", 1) or 0)
+                        + (SBEmpower > 2 and GetUnitEmpowerStageDuration("player", 2) or 0)
+                        + (SBEmpower > 3 and GetUnitEmpowerStageDuration("player", 3) or 0)
+    if (GetTime() - Player:ChannelStart()) * 1000 > SBCastTime then
       if Press(M.SpiritbloomFocus, nil, nil, true) then return "SB " .. SBCastTime; end
     end
     if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for SB " .. SBCastTime; end
