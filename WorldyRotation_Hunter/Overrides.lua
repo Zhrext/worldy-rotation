@@ -22,12 +22,14 @@ local GetTime = GetTime
 -- Beast Mastery, ID: 253
 local OldBMIsCastable
 OldBMIsCastable = HL.AddCoreOverride("Spell.IsCastable",
-function (self, Range, AoESpell, ThisUnit, BypassRecovery, Offset)
-  local BaseCheck = OldBMIsCastable(self, Range, AoESpell, ThisUnit, BypassRecovery, Offset)
+function (self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
+  local BaseCheck = OldBMIsCastable(self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
   if self == SpellBM.SummonPet then
-    return (not Pet:IsActive()) and BaseCheck
-  elseif self == SpellBM.KillShot then
-    return BaseCheck and self:IsUsable()
+    return (not Pet:IsActive()) and (not Pet:IsDeadOrGhost()) and BaseCheck
+  elseif self == SpellBM.RevivePet then
+    return Pet:IsDeadOrGhost() and BaseCheck
+  elseif self == SpellBM.MendPet then
+    return (not Pet:IsDeadOrGhost()) and Pet:HealthPercentage() > 0 and Pet:HealthPercentage() <= HR.GUISettings.APL.Hunter.Commons.HP.MendPetHighHP and BaseCheck
   else
     return BaseCheck
   end

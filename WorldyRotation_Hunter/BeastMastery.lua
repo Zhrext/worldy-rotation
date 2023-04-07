@@ -175,7 +175,7 @@ local function Precombat()
   end
   -- Kill Command
   if S.KillCommand:IsReady() and TargetInRangePet30y then
-    if Press(S.KillCommand, not Target:IsSpellInRange(S.KillCommand)) then return "kill_command precombat 12"; end
+    if Press(S.KillCommand, not TargetInRangePet30y) then return "kill_command precombat 12"; end
   end
   if PetEnemiesMixedyCount > 1 then
     -- Multi Shot
@@ -479,13 +479,13 @@ local function APL()
   end
   -- Pet Management
   if not (Player:IsMounted() or Player:IsInVehicle()) then
-    if Pet:IsDeadOrGhost() and S.RevivePet:IsCastable() and Settings.Commons.Enabled.RevivePet then
-      if Press(S.RevivePet) then return "Revive Pet"; end
-    end
     if S.SummonPet:IsCastable() and Settings.Commons.Enabled.SummonPet then
       if Press(SummonPetSpells[Settings.Commons.SummonPetSlot]) then return "Summon Pet"; end
     end
-    if (not Pet:IsDeadOrGhost()) and S.MendPet:IsCastable() and Pet:HealthPercentage() <= Settings.Commons.HP.MendPetHigh and Settings.Commons.Enabled.MendPet then
+    if S.RevivePet:IsCastable() and Settings.Commons.Enabled.RevivePet then
+      if Press(S.RevivePet) then return "Revive Pet"; end
+    end
+    if S.MendPet:IsCastable() and Settings.Commons.Enabled.MendPet then
       if Press(S.MendPet) then return "Mend Pet High Priority"; end
     end
   end
