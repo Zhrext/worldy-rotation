@@ -98,7 +98,7 @@ local function SuggestRageDump(RageFromSpell)
       shouldPreRageDump = true
   end
   if shouldPreRageDump then
-    if IgnorePainWillNotCap() then
+    if IsCurrentlyTanking() and IgnorePainWillNotCap() then
       if Press(S.IgnorePain) then return "ignore_pain rage capped"; end
     else
       if Press(S.Revenge, not TargetInMeleeRange) then return "revenge rage capped"; end
@@ -120,41 +120,6 @@ local function Precombat()
     if Settings.Commons.Enabled.Charge and S.Charge:IsCastable() and not Target:IsInRange(8) then
       if Press(S.Charge, not Target:IsSpellInRange(S.Charge)) then return "charge precombat"; end
     end
-  end
-end
-
-local function Defensive()
-  if ShouldPressShieldBlock() then
-    if Press(S.ShieldBlock) then return "shield_block defensive"; end
-  end
-  -- shield_wall,if=!buff.last_stand.up&!buff.rallying_cry.up
-  if Player:HealthPercentage() < Settings.Protection.HP.ShieldWall and Player:AffectingCombat() and S.ShieldWall:IsCastable() and (Player:BuffDown(S.LastStandBuff) and Player:BuffDown(S.RallyingCryBuff)) then
-    if Press(S.ShieldWall) then return "shield_wall defensive"; end
-  end
-  -- last_stand,if=(target.health.pct>=90&talent.unnerving_focus.enabled|target.health.pct<=20&talent.unnerving_focus.enabled)|talent.bolster.enabled
-  if Player:HealthPercentage() < Settings.Protection.HP.LastStand and S.LastStand:IsCastable() and Player:BuffDown(S.ShieldWallBuff) and ((Target:HealthPercentage() >= 90 and S.UnnervingFocus:IsAvailable() or Target:HealthPercentage() <= 20 and S.UnnervingFocus:IsAvailable()) or S.Bolster:IsAvailable()) then
-    if Press(S.LastStand) then return "last_stand defensive"; end
-  end
-  -- rallying_cry,if=!buff.last_stand.up&!buff.shield_wall.up
-  if Player:HealthPercentage() < Settings.Commons.HP.RallyingCry and S.RallyingCry:IsCastable() and (Player:BuffDown(S.LastStandBuff) and Player:BuffDown(S.ShieldWallBuff)) then
-    if Press(S.RallyingCry) then return "rallying_cry defensive"; end
-  end
-  --demoralizing_shout,if=talent.booming_voice.enabled
-  if S.DemoralizingShout:IsCastable() and S.BoomingVoice:IsAvailable() then
-    if Press(S.DemoralizingShout) then return "demoralizing_shout defensive"; end
-  end
-  -- Manually added: VR/IV
-  if Player:HealthPercentage() < Settings.Commons.HP.VictoryRush then
-    if S.VictoryRush:IsReady() then
-      if Press(S.VictoryRush) then return "victory_rush defensive"; end
-    end
-    if S.ImpendingVictory:IsReady() then
-      if Press(S.ImpendingVictory) then return "impending_victory defensive"; end
-    end
-  end
-  -- healthstone
-  if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
-    if Press(M.Healthstone, nil, nil, true) then return "healthstone"; end
   end
 end
 
@@ -245,7 +210,9 @@ local function Generic()
     if Press(S.ThunderClap, not Target:IsInMeleeRange(8)) then return "thunder_clap generic 20"; end
   end
   -- devastate
-  -- Not an active spell ?
+  if S.Devastate:IsCastable() then
+    if Press(S.Devastate, not TargetInMeleeRange) then return "devastate generic 22"; end
+  end
 end
 
 --- ======= ACTION LISTS =======
@@ -275,9 +242,22 @@ local function APL()
     if not Player:AffectingCombat() then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
     end
-    -- Check defensives if tanking
-    if IsCurrentlyTanking() then
-      local ShouldReturn = Defensive(); if ShouldReturn then return ShouldReturn; end
+    -- Manually added: VR/IV
+    if Player:HealthPercentage() < Settings.Commons.HP.VictoryRush then
+      if S.VictoryRush:IsReady() then
+        if Press(S.VictoryRush) then return "victory_rush defensive"; end
+      end
+      if S.ImpendingVictory:IsReady() then
+        if Press(S.ImpendingVictory) then return "impending_victory defensive"; end
+      end
+    end
+    -- rallying_cry,if=!buff.last_stand.up&!buff.shield_wall.up
+    if Player:HealthPercentage() < Settings.Commons.HP.RallyingCry and S.RallyingCry:IsCastable() and (Player:BuffDown(S.LastStandBuff) and Player:BuffDown(S.ShieldWallBuff)) then
+      if Press(S.RallyingCry) then return "rallying_cry defensive"; end
+    end
+    -- healthstone
+    if Player:HealthPercentage() <= Settings.General.HP.Healthstone and I.Healthstone:IsReady() then
+      if Press(M.Healthstone, nil, nil, true) then return "healthstone"; end
     end
     -- Interrupt
     local ShouldReturn = Everyone.Interrupt(S.Pummel, 5, true); if ShouldReturn then return ShouldReturn; end
@@ -285,8 +265,8 @@ local function APL()
     -- shield_charge,if=time=0
     -- charge,if=time=0
     -- Note: Above 2 lines handled in Precombat
-    -- use_items,if=talent.avatar&(cooldown.avatar.remains<=gcd|buff.avatar.up)|!talent.avatar
-    if CDsON() and Settings.General.Enabled.Trinkets and (S.Avatar:IsAvailable() and (S.Avatar:CooldownRemains() <= Player:GCD() or Player:BuffUp(S.AvatarBuff)) or not S.Avatar:IsAvailable()) and TargetInMeleeRange then
+    -- use_items
+    if CDsON() and Settings.General.Enabled.Trinkets and TargetInMeleeRange then
       -- use_item,slot=trinket1
       local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
       if Trinket1ToUse then
@@ -301,6 +281,10 @@ local function APL()
     -- avatar
     if CDsON() and S.Avatar:IsCastable() then
       if Press(S.Avatar) then return "avatar main 2"; end
+    end
+    -- shield_wall,if=!buff.last_stand.up&!buff.rallying_cry.up
+    if IsCurrentlyTanking() and S.ShieldWall:IsCastable() and (S.ImmovableObject:IsAvailable() and Player:BuffDown(S.AvatarBuff)) then
+      if Press(S.ShieldWall) then return "shield_wall defensive"; end
     end
     if CDsON() then
       -- blood_fury
@@ -363,14 +347,19 @@ local function APL()
       if Press(S.IgnorePain) then return "ignore_pain main 20"; end
     end
     -- last_stand,if=(target.health.pct>=90&talent.unnerving_focus.enabled|target.health.pct<=20&talent.unnerving_focus.enabled)|talent.bolster.enabled
-    -- Note: Handled via Defensive()
+    if IsCurrentlyTanking() and S.LastStand:IsCastable() and Player:BuffDown(S.ShieldWallBuff) and ((Target:HealthPercentage() >= 90 and S.UnnervingFocus:IsAvailable() or Target:HealthPercentage() <= 20 and S.UnnervingFocus:IsAvailable()) or S.Bolster:IsAvailable()) then
+      if Press(S.LastStand) then return "last_stand defensive"; end
+    end
     -- ravager
     if CDsON() and S.Ravager:IsCastable() then
       SuggestRageDump(10)
       if Press(M.RavagerPlayer, not TargetInMeleeRange) then return "ravager main 24"; end
     end
     -- demoralizing_shout,if=talent.booming_voice.enabled
-    -- Note: Handled via Defensive()
+    if S.DemoralizingShout:IsCastable() and S.BoomingVoice:IsAvailable() then
+      SuggestRageDump(30)
+      if Press(S.DemoralizingShout) then return "demoralizing_shout main 28"; end
+    end
     -- spear_of_bastion
     if CDsON() and S.SpearofBastion:IsCastable() then
       SuggestRageDump(20)
@@ -390,7 +379,9 @@ local function APL()
       if Press(S.ShieldCharge, not Target:IsSpellInRange(S.ShieldCharge)) then return "shield_charge main 34"; end
     end
     -- shield_block,if=buff.shield_block.duration<=18&talent.enduring_defenses.enabled|buff.shield_block.duration<=12
-    -- Note: Handled via Defensive()
+    if ShouldPressShieldBlock() then
+      if Press(S.ShieldBlock) then return "shield_block main 38"; end
+    end
     -- run_action_list,name=aoe,if=spell_targets.thunder_clap>3
     if EnemiesCount8 > 3 then
       local ShouldReturn = Aoe(); if ShouldReturn then return ShouldReturn; end
