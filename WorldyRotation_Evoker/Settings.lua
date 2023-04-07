@@ -26,6 +26,9 @@ WR.GUISettings.APL.Evoker = {
     },
   },
   Devastation = {
+    Enabled = {
+      DeepBreath = false,
+    },
   },
   Preservation = {
     Healing = {
