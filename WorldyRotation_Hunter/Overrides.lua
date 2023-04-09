@@ -29,7 +29,7 @@ function (self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
   elseif self == SpellBM.RevivePet then
     return Pet:IsDeadOrGhost() and BaseCheck
   elseif self == SpellBM.MendPet then
-    return (not Pet:IsDeadOrGhost()) and Pet:HealthPercentage() > 0 and Pet:HealthPercentage() <= HR.GUISettings.APL.Hunter.Commons.HP.MendPetHighHP and BaseCheck
+    return (not Pet:IsDeadOrGhost()) and Pet:HealthPercentage() > 0 and Pet:HealthPercentage() <= WR.GUISettings.APL.Hunter.Commons.HP.MendPetHigh and BaseCheck
   else
     return BaseCheck
   end
