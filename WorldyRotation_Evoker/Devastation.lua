@@ -471,6 +471,10 @@ local function APL()
     VarR1CastTime = 1.3 * PlayerHaste
     -- invoke_external_buff,name=power_infusion,if=buff.dragonrage.up&!buff.power_infusion.up
     -- Note: Not handling external buffs.
+    -- Manually added: Unravel if enemy has an absorb shield
+    if S.Unravel:IsReady() and Target:EnemyAbsorb() then
+      if Press(S.Unravel, not Target:IsSpellInRange(S.Unravel)) then return "unravel main 4"; end
+    end
     -- call_action_list,name=trinkets
     if Settings.General.Enabled.Trinkets and CDsON() then
       local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
@@ -503,6 +507,7 @@ local function AutoBind()
   Bind(S.TipTheScales)
   Bind(S.WingBuffet)
   Bind(S.Quell)
+  Bind(S.Unravel)
   
   -- Bind Items
   Bind(M.Trinket1)
