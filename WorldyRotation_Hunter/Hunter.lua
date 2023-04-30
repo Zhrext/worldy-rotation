@@ -158,6 +158,47 @@ Spell.Hunter.Marksmanship = MergeTableByKey(Spell.Hunter.Commons, {
   EagletalonsTrueFocusBuff              = Spell(336851),
 })
 
+Spell.Hunter.Survival = MergeTableByKey(Spell.Hunter.Commons, {
+  -- Abilities
+  -- Bombs
+  PheromoneBomb                         = Spell(270323),
+  ShrapnelBomb                          = Spell(270335),
+  VolatileBomb                          = Spell(271045),
+  WildfireBomb                          = Spell(259495),
+  -- Talents
+  AspectoftheEagle                      = Spell(186289),
+  Butchery                              = Spell(212436),
+  Carve                                 = Spell(187708),
+  CoordinatedAssault                    = Spell(360952),
+  CoordinatedKill                       = Spell(385739),
+  FlankingStrike                        = Spell(269751),
+  FuryoftheEagle                        = Spell(203415),
+  Harpoon                               = Spell(190925),
+  MongooseBite                          = Spell(259387),
+  Ranger                                = Spell(385695),
+  RaptorStrike                          = Spell(259387),
+  Spearhead                             = Spell(360966),
+  TermsofEngagement                     = Spell(265895),
+  TipoftheSpear                         = Spell(260285),
+  VipersVenom                           = Spell(268501),
+  WildfireInfusion                      = Spell(271014),
+  -- Buffs
+  BloodseekerBuff                       = Spell(260249),
+  CoordinatedAssaultBuff                = Spell(361738),
+  DeadlyDuoBuff                         = Spell(397568),
+  MongooseFuryBuff                      = Spell(259388),
+  SpearheadBuff                         = Spell(360966),
+  SteelTrapDebuff                       = Spell(162487),
+  TipoftheSpearBuff                     = Spell(260286),
+  -- Debuffs
+  BloodseekerDebuff                     = Spell(259277),
+  InternalBleedingDebuff                = Spell(270343),
+  PheromoneBombDebuff                   = Spell(270332),
+  ShrapnelBombDebuff                    = Spell(270339),
+  VolatileBombDebuff                    = Spell(271049),
+  WildfireBombDebuff                    = Spell(269747),
+})
+
 -- Items
 if not Item.Hunter then Item.Hunter = {}; end
 Item.Hunter.Commons = {
@@ -186,6 +227,9 @@ Item.Hunter.BeastMastery = MergeTableByKey(Item.Hunter.Commons, {
 Item.Hunter.Marksmanship = MergeTableByKey(Item.Hunter.Commons, {
 })
 
+Item.Hunter.Survival = MergeTableByKey(Item.Hunter.Commons, {
+})
+
 -- Macros
 if not Macro.Hunter then Macro.Hunter = {}; end
 Macro.Hunter.Commons = {
@@ -194,6 +238,8 @@ Macro.Hunter.Commons = {
   Trinket2                         = Macro("Trinket2", "/use 14"),
   Healthstone                      = Macro("Healthstone", "/use item:5512"),
   AlgetharPuzzleBox                = Macro("AlgetharPuzzleBox", "/use item:193701"),
+  ManicGrieftorch                  = Macro("ManicGrieftorch", "/use item:194308"),
+  WindscarWhetstone                = Macro("WindscarWhetstone", "/use item:137486"),
   
   -- Spells
   ArcaneShotMouseover              = Macro("ArcaneShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.ArcaneShot:Name()),
@@ -201,6 +247,7 @@ Macro.Hunter.Commons = {
   CounterShotMouseover             = Macro("CounterShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.CounterShot:Name()),
   IntimidationMouseover            = Macro("IntimidationMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.Intimidation:Name()),
   KillShotMouseover                = Macro("KillShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.KillShot:Name()),
+  MuzzleMouseover                  = Macro("MuzzleMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.Muzzle:Name()),
   SerpentStingMouseover            = Macro("SerpentStingMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.SerpentSting:Name()),
   SteelTrapCursor                  = Macro("SteelTrapCursor", "/cast [@cursor] " .. Spell.Hunter.Commons.SteelTrap:Name()),
   MisdirectionFocus                = Macro("MisdirectionFocus", "/cast [@focus] " .. Spell.Hunter.Commons.Misdirection:Name()),
@@ -215,4 +262,7 @@ Macro.Hunter.BeastMastery = MergeTableByKey(Macro.Hunter.Commons, {
 Macro.Hunter.Marksmanship = MergeTableByKey(Macro.Hunter.Commons, {
   AimedShotMouseover               = Macro("AimedShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.Marksmanship.AimedShot:Name()),
   VolleyCursor                     = Macro("VolleyCursor", "/cast [@cursor] " .. Spell.Hunter.Marksmanship.Volley:Name()),
+})
+
+Macro.Hunter.Survival = MergeTableByKey(Macro.Hunter.Commons, {
 })

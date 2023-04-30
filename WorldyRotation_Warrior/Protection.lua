@@ -173,10 +173,6 @@ local function Generic()
   if S.Execute:IsReady() and EnemiesCount8 == 1 and (S.Massacre:IsAvailable() or S.Juggernaut:IsAvailable()) and Player:Rage() >= 50 then
     if Press(S.Execute, not TargetInMeleeRange) then return "execute generic 6"; end
   end
-  -- revenge,if=buff.vanguards_determination.down&rage>=40
-  if S.Revenge:IsReady() and Player:BuffUp(S.VanguardsDeterminationBuff) and Player:Rage() >= 40 then
-    if Press(S.Revenge, not TargetInMeleeRange) then return "revenge generic 8"; end
-  end
   -- execute,if=spell_targets.revenge=1&rage>=50
   if S.Execute:IsReady() and EnemiesCount8 == 1 and Player:Rage() >= 50 then
     if Press(S.Execute, not TargetInMeleeRange) then return "execute generic 10"; end
@@ -347,7 +343,7 @@ local function APL()
       if Press(S.IgnorePain) then return "ignore_pain main 20"; end
     end
     -- last_stand,if=(target.health.pct>=90&talent.unnerving_focus.enabled|target.health.pct<=20&talent.unnerving_focus.enabled)|talent.bolster.enabled
-    if IsCurrentlyTanking() and S.LastStand:IsCastable() and Player:BuffDown(S.ShieldWallBuff) and ((Target:HealthPercentage() >= 90 and S.UnnervingFocus:IsAvailable() or Target:HealthPercentage() <= 20 and S.UnnervingFocus:IsAvailable()) or S.Bolster:IsAvailable()) then
+    if IsCurrentlyTanking() and S.LastStand:IsCastable() and Player:BuffDown(S.ShieldWallBuff) and ((Target:HealthPercentage() >= 90 and S.UnnervingFocus:IsAvailable() or Target:HealthPercentage() <= 20 and S.UnnervingFocus:IsAvailable()) or S.Bolster:IsAvailable() or Player:HasTier(30, 2)) then
       if Press(S.LastStand) then return "last_stand defensive"; end
     end
     -- ravager

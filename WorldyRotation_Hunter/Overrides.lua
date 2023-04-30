@@ -13,6 +13,7 @@ local WR      = WorldyRotation
 -- Spells
 local SpellBM = Spell.Hunter.BeastMastery
 local SpellMM = Spell.Hunter.Marksmanship
+local SpellSV = Spell.Hunter.Survival
 -- Lua
 local mathmax = math.max
 -- WoW API
@@ -126,3 +127,40 @@ HL.AddCoreOverride("Player.FocusP",
     return Focus
   end
 , 254)
+
+-- Survival, ID: 255
+local OldSVIsCastable
+OldSVIsCastable = HL.AddCoreOverride("Spell.IsCastable",
+function (self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
+  local BaseCheck = OldSVIsCastable(self, BypassRecovery, Range, AoESpell, ThisUnit, Offset)
+  if self == SpellSV.SummonPet then
+    return (not Pet:IsActive()) and (not Pet:IsDeadOrGhost()) and BaseCheck
+  elseif self == SpellSV.RevivePet then
+    return Pet:IsDeadOrGhost() and BaseCheck
+  elseif self == SpellSV.MendPet then
+    return (not Pet:IsDeadOrGhost()) and Pet:HealthPercentage() > 0 and Pet:HealthPercentage() <= WR.GUISettings.APL.Hunter.Commons.HP.MendPetHigh and BaseCheck
+  elseif self == SpellSV.AspectoftheEagle then
+    return WR.GUISettings.APL.Hunter.Survival.Enabled.AspectOfTheEagle and BaseCheck
+  elseif self == SpellSV.Harpoon then
+    return (not Target:IsInRange(8)) and BaseCheck
+  else
+    return BaseCheck
+  end
+end
+, 255)
+
+local OldSVIsReady
+OldSVIsReady = HL.AddCoreOverride("Spell.IsReady",
+function (self, Range, AoESpell, ThisUnit, BypassRecovery, Offset)
+  if self == SpellSV.MongooseBite or self == SpellSV.RaptorStrike then
+    return OldSVIsReady(self, "Melee", AoESpell, ThisUnit, BypassRecovery, Offset)
+  else
+    local BaseCheck = OldSVIsReady(self, Range, AoESpell, ThisUnit, BypassRecovery, Offset)
+    if self == SpellSV.Carve or self == SpellSV.Butchery then
+      return BaseCheck and (Player:BuffDown(SpellSV.AspectoftheEagle) or Player:BuffUp(SpellSV.AspectoftheEagle) and Target:IsInMeleeRange(8))
+    else
+      return BaseCheck
+    end
+  end
+end
+, 255)
