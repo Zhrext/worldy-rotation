@@ -88,6 +88,7 @@ Spell.Evoker.Devastation = MergeTableByKey(Spell.Evoker.Commons, {
   Unravel                               = Spell(368432),
   Volatility                            = Spell(369089),
   -- Buffs
+  BlazingShardsBuff                     = Spell(409848),
   BurnoutBuff                           = Spell(375802),
   ChargedBlastBuff                      = Spell(370454),
   EssenceBurstBuff                      = Spell(359618),
