@@ -158,6 +158,11 @@ local function Hac()
   if S.Skullsplitter:IsCastable() and (Player:Rage() < 40 or S.TideofBlood:IsAvailable() and Target:DebuffRemains(S.RendDebuff) > 0 and (Player:BuffUp(S.SweepingStrikes) and EnemiesCount8y > 2 or Target:DebuffUp(S.ColossusSmashDebuff) or Player:BuffUp(S.TestofMightBuff))) then
     if Press(S.Skullsplitter, not Target:IsInMeleeRange(8)) then return "sweeping_strikes execute 81"; end
   end
+  -- mortal_strike,if=buff.sweeping_strikes.up&buff.crushing_advance.stack=3,if=set_bonus.tier30_4pc
+  -- Note: crushing_advance is the tier30_4pc bonus, so don't need to check for tier.
+  if S.MortalStrike:IsReady() and (Player:BuffUp(S.SweepingStrikes) and Player:BuffStack(S.CrushingAdvanceBuff) == 3) then
+    if Press(S.MortalStrike, not TargetInMeleeRange) then return "mortal_strike hac 81.5"; end
+  end
   -- overpower,if=buff.sweeping_strikes.up&talent.dreadnaught
   if S.Overpower:IsCastable() and Player:BuffUp(S.SweepingStrikes) and S.Dreadnaught:IsAvailable() then
     if Press(S.Overpower, not TargetInMeleeRange) then return "overpower hac 82"; end

@@ -96,6 +96,15 @@ local function SingleTarget()
   if S.Rampage:IsReady() and S.AngerManagement:IsAvailable() and (Player:BuffUp(S.RecklessnessBuff) or Player:BuffRemains(S.EnrageBuff) < Player:GCD() or Player:RagePercentage() > 85) then
     if Press(S.Rampage, not TargetInMeleeRange) then return "rampage single_target 10"; end
   end
+  local BTCritChance = Player:CritChancePct() + Player:BuffStack(S.BloodcrazeBuff) * 15
+  -- bloodbath,if=action.bloodbath.crit_pct_current>=95|!talent.cold_steel_hot_blood&set_bonus.tier30_4pc
+  if S.Bloodbath:IsCastable() and (BTCritChance >= 95 or (not S.ColdSteelHotBlood:IsAvailable()) and Player:HasTier(30, 4)) then
+    if Press(S.Bloodbath, not TargetInMeleeRange) then return "bloodbath single_target 12"; end
+  end
+  -- bloodthirst,if=action.bloodthirst.crit_pct_current>=95
+  if S.Bloodthirst:IsCastable() and (BTCritChance >= 95) then
+    if Press(S.Bloodthirst, not TargetInMeleeRange) then return "bloodthirst single_target 14"; end
+  end
   -- execute,if=buff.enrage.up
   if S.Execute:IsReady() and EnrageUp then
     if Press(S.Execute, not TargetInMeleeRange) then return "execute single_target 12"; end
@@ -214,6 +223,17 @@ local function MultiTarget()
   -- odyns_fury,if=active_enemies>1&buff.enrage.up&raid_event.adds.in>15
   if CDsON() and S.OdynsFury:IsCastable() and EnemiesCount8y > 1 and EnrageUp then
     if Press(S.OdynsFury, not Target:IsInMeleeRange(12)) then return "odyns_fury multi_target 12"; end
+  end
+  local BTCritChance = Player:CritChancePct() + Player:BuffStack(S.BloodcrazeBuff) * 15
+  if (BTCritChance >= 95 or (not S.ColdSteelHotBlood:IsAvailable()) and Player:HasTier(30, 4)) then
+    -- bloodbath,if=action.bloodbath.crit_pct_current>=95|!talent.cold_steel_hot_blood&set_bonus.tier30_4pc
+    if S.Bloodbath:IsCastable() then
+      if Press(S.Bloodbath, not TargetInMeleeRange) then return "bloodbath multi_target 14"; end
+    end
+    -- bloodthirst,if=action.bloodthirst.crit_pct_current>=95|!talent.cold_steel_hot_blood&set_bonus.tier30_4pc
+    if S.Bloodthirst:IsCastable() then
+      if Press(S.Bloodthirst, not TargetInMeleeRange) then return "bloodthirst multi_target 16"; end
+    end
   end
   -- crushing_blow,if=talent.wrath_and_fury&buff.enrage.up
   if S.CrushingBlow:IsCastable() and S.WrathandFury:IsAvailable() and EnrageUp then
