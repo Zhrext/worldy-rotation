@@ -156,7 +156,7 @@ local function Precombat()
     if Press(S.SteelTrap, not Target:IsInRange(40)) then return "steel_trap precombat 2"; end
   end
   -- Manually added: harpoon
-  if S.Harpoon:IsCastable() and (Player:BuffDown(S.AspectoftheEagle) or not Target:IsInRange(30)) then
+  if S.Harpoon:IsCastable() and Settings.Survival.Harpoon and (Player:BuffDown(S.AspectoftheEagle) or not Target:IsInRange(30)) then
     if Press(S.Harpoon, not Target:IsSpellInRange(S.Harpoon)) then return "harpoon precombat 4"; end
   end
   -- Manually added: mongoose_bite or raptor_strike
@@ -195,7 +195,7 @@ local function CDs()
     if Press(S.BloodFury) then return "blood_fury cds 2"; end
   end
   -- harpoon,if=talent.terms_of_engagement.enabled&focus<focus.max
-  if S.Harpoon:IsCastable() and (S.TermsofEngagement:IsAvailable() and Player:Focus() < Player:FocusMax()) then
+  if S.Harpoon:IsCastable() and Settings.Survival.Harpoon and (S.TermsofEngagement:IsAvailable() and Player:Focus() < Player:FocusMax()) then
     if Press(S.Harpoon, not Target:IsSpellInRange(S.Harpoon)) then return "harpoon cds 2"; end
   end
   if (Player:BuffUp(S.CoordinatedAssault) or Player:BuffUp(S.SpearheadBuff) or (not S.Spearhead:IsAvailable()) and not S.CoordinatedAssault:IsAvailable()) then
@@ -544,10 +544,10 @@ local function APL()
     -- auto_attack
     -- Manually added: If out of range, use Aspect of the Eagle, otherwise Harpoon to get back into range
     if not EagleUp and not Target:IsInMeleeRange(8) then
-      if S.AspectoftheEagle:IsCastable() then
+      if S.AspectoftheEagle:IsCastable() and Settings.Survival.AspectOfTheEagle then
         if Press(S.AspectoftheEagle) then return "aspect_of_the_eagle oor"; end
       end
-      if S.Harpoon:IsCastable() then
+      if S.Harpoon:IsCastable() and Settings.Survival.Harpoon then
         if Press(S.Harpoon, not Target:IsSpellInRange(S.Harpoon)) then return "harpoon oor"; end
       end
     end

@@ -40,6 +40,7 @@ WR.GUISettings.APL.Hunter = {
   Survival = {
     Enabled = {
       AspectOfTheEagle = true,
+      Harpoon = true,
     }
   }
 }
