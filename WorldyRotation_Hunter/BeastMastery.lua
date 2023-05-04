@@ -242,6 +242,10 @@ local function Cleave()
   if S.MultiShot:IsReady() and (GCDMax - Pet:BuffRemains(S.BeastCleavePetBuff) > 0.25) then
     if Press(S.MultiShot, not Target:IsSpellInRange(S.MultiShot)) then return "multishot cleave 6"; end
   end
+  -- bestial_wrath
+  if S.BestialWrath:IsCastable() and CDsON() then
+    if Press(S.BestialWrath) then return "bestial_wrath cleave 8"; end
+  end
   -- kill_command,if=full_recharge_time<gcd&talent.alpha_predator&talent.kill_cleave
   if S.KillCommand:IsReady() and (S.KillCommand:FullRechargeTime() < GCDMax and S.AlphaPredator:IsAvailable() and S.KillCleave:IsAvailable()) then
     if Press(S.KillCommand, not TargetInRangePet30y) then return "kill_command cleave 8"; end
@@ -265,10 +269,6 @@ local function Cleave()
   -- death_chakram
   if S.DeathChakram:IsCastable() and CDsON() then
     if Press(S.DeathChakram, not Target:IsSpellInRange(S.DeathChakram)) then return "death_chakram cleave 18"; end
-  end
-  -- bestial_wrath
-  if S.BestialWrath:IsCastable() and CDsON() then
-    if Press(S.BestialWrath) then return "bestial_wrath cleave 20"; end
   end
   -- steel_trap
   if S.SteelTrap:IsCastable() then
@@ -302,13 +302,9 @@ local function Cleave()
   if S.Barrage:IsReady() and (Pet:BuffRemains(S.FrenzyPetBuff) > S.Barrage:ExecuteTime()) then
     if Press(S.Barrage, not Target:IsSpellInRange(S.Barrage)) then return "barrage cleave 36"; end
   end
-  -- kill_shot
-  if S.KillShot:IsReady() then
-    if Press(S.KillShot, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot cleave 38"; end
-  end
-  -- kill_shot_mouseover
-  if Mouseover:Exists() and S.KillShot:IsCastable() and Mouseover:HealthPercentage() <= 20  then
-    if Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover cleave 38"; end
+  -- multishot,if=pet.main.buff.beast_cleave.remains<gcd*2
+  if S.MultiShot:IsReady() and (Pet:BuffRemains(S.BeastCleavePetBuff) < Player:GCD() * 2) then
+    if Press(S.MultiShot, not Target:IsSpellInRange(S.MultiShot)) then return "multishot cleave 38"; end
   end
   -- aspect_of_the_wild
   if S.AspectoftheWild:IsCastable() and CDsON() then
@@ -329,6 +325,14 @@ local function Cleave()
   -- arcane_torrent,if=(focus+focus.regen+30)<focus.max
   if S.ArcaneTorrent:IsCastable() and CDsON() and ((Player:Focus() + Player:FocusRegen() + 30) < Player:FocusMax()) then
     if Press(S.ArcaneTorrent) then return "arcane_torrent cleave 48"; end
+  end
+  -- kill_shot
+  if S.KillShot:IsReady() then
+    if Press(S.KillShot, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot cleave 38"; end
+  end
+  -- kill_shot_mouseover
+  if Mouseover:Exists() and S.KillShot:IsCastable() and Mouseover:HealthPercentage() <= 20  then
+    if Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover cleave 38"; end
   end
 end
 

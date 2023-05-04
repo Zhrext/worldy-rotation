@@ -103,14 +103,25 @@ local function EvaluateTargetIfFilterLatentStacks(TargetUnit)
   return (TargetUnit:DebuffStack(S.LatentPoisonDebuff))
 end
 
+local function EvaluateTargetIfKillCommandST(TargetUnit)
+  -- if=cooldown.wildfire_bomb.full_recharge_time<2*gcd&debuff.shredded_armor.down&set_bonus.tier30_4pc
+  -- Note: All but debuff check handled before CastTargetIf.
+  return (TargetUnit:DebuffDown(S.ShreddedArmorDebuff))
+end
+
+local function EvaluateTargetIfKillCommandST2(TargetUnit)
+  -- if=full_recharge_time<gcd&focus+cast_regen<focus.max&(cooldown.flanking_strike.remains|!talent.flanking_strike)|debuff.shredded_armor.down&set_bonus.tier30_4pc
+  return (S.KillCommand:FullRechargeTime() < Player:GCD() and CheckFocusCap(S.KillCommand:ExecuteTime(), 21) and (S.FlankingStrike:CooldownDown() or not S.FlankingStrike:IsAvailable()) or TargetUnit:DebuffDown(S.ShreddedArmorDebuff) and Player:HasTier(30, 4))
+end
+
 local function EvaluateTargetIfRaptorStrikeCleave(TargetUnit)
   -- if=debuff.latent_poison.stack>8
   return (TargetUnit:DebuffStack(S.LatentPoisonDebuff) > 8)
 end
 
 local function EvaluateTargetIfSerpentStingCleave(TargetUnit)
-  -- if=refreshable&target.time_to_die>8
-  return (TargetUnit:DebuffRefreshable(S.SerpentStingDebuff) and TargetUnit:TimeToDie() > 8)
+  -- if=refreshable&target.time_to_die>8&(!talent.vipers_venom|talent.hydras_bite)
+  return (TargetUnit:DebuffRefreshable(S.SerpentStingDebuff) and TargetUnit:TimeToDie() > 8 and ((not S.VipersVenom:IsAvailable()) or S.HydrasBite:IsAvailable()))
 end
 
 local function EvaluateTargetIfSerpentStingST(TargetUnit)
@@ -179,15 +190,15 @@ local function Trinkets()
 end
 
 local function CDs()
+  -- blood_fury,if=buff.coordinated_assault.up|buff.spearhead.up|!talent.spearhead&!talent.coordinated_assault
+  if S.BloodFury:IsCastable() and (Player:BuffUp(S.CoordinatedAssault) or Player:BuffUp(S.SpearheadBuff) or (not S.Spearhead:IsAvailable()) and not S.CoordinatedAssault:IsAvailable()) then
+    if Press(S.BloodFury) then return "blood_fury cds 2"; end
+  end
   -- harpoon,if=talent.terms_of_engagement.enabled&focus<focus.max
   if S.Harpoon:IsCastable() and (S.TermsofEngagement:IsAvailable() and Player:Focus() < Player:FocusMax()) then
     if Press(S.Harpoon, not Target:IsSpellInRange(S.Harpoon)) then return "harpoon cds 2"; end
   end
   if (Player:BuffUp(S.CoordinatedAssault) or Player:BuffUp(S.SpearheadBuff) or (not S.Spearhead:IsAvailable()) and not S.CoordinatedAssault:IsAvailable()) then
-    -- blood_fury,if=buff.coordinated_assault.up|buff.spearhead.up|!talent.spearhead&!talent.coordinated_assault
-    if S.BloodFury:IsCastable() then
-      if Press(S.BloodFury) then return "blood_fury cds 4"; end
-    end
     -- ancestral_call,if=buff.coordinated_assault.up|buff.spearhead.up|!talent.spearhead&!talent.coordinated_assault
     if S.AncestralCall:IsCastable() then
       if Press(S.AncestralCall) then return "ancestral_call cds 6"; end
@@ -224,16 +235,20 @@ local function CDs()
 end
 
 local function Cleave()
-  -- wildfire_bomb,if=full_recharge_time<gcd
-  if (S.WildfireBomb:FullRechargeTime() < Player:GCD()) then
+  -- kill_command,if=debuff.shredded_armor.down&set_bonus.tier30_4pc
+  if S.KillCommand:IsCastable() and (Target:DebuffDown(S.ShreddedArmorDebuff) and Player:HasTier(30, 4)) then
+    if Press(S.KillCommand, not Target:IsSpellInRange(S.KillCommand)) then return "kill_command cleave 1"; end
+  end
+  -- wildfire_bomb,if=full_recharge_time<gcd|talent.bombardier&!cooldown.coordinated_assault.remains
+  if (S.WildfireBomb:FullRechargeTime() < Player:GCD() or S.Bombardier:IsAvailable() and S.CoordinatedAssault:CooldownUp()) then
     for _, Bomb in pairs(Bombs) do
       if Bomb:IsCastable() then
         if Press(Bomb, not Target:IsSpellInRange(Bomb)) then return "wildfire_bomb cleave 2"; end
       end
     end
   end
-  -- death_chakram,if=focus+cast_regen<focus.max
-  if S.DeathChakram:IsCastable() and (CheckFocusCap(S.DeathChakram:ExecuteTime())) then
+  -- death_chakram
+  if S.DeathChakram:IsCastable() then
     if Press(S.DeathChakram, not Target:IsSpellInRange(S.DeathChakram)) then return "death_chakram cleave 4"; end
   end
   -- stampede
@@ -256,8 +271,8 @@ local function Cleave()
   if S.Carve:IsReady() and (S.WildfireBomb:FullRechargeTime() > EnemyCount8ySplash / 2) then
     if Press(S.Carve, not Target:IsInMeleeRange(5)) then return "carve cleave 14"; end
   end
-  -- butchery,if=full_recharge_time<gcd
-  if S.Butchery:IsReady() and (S.Butchery:FullRechargeTime() < Player:GCD()) then
+  -- butchery,if=full_recharge_time<gcd|dot.shrapnel_bomb.ticking&(dot.internal_bleeding.stack<2|dot.shrapnel_bomb.remains<gcd)
+  if S.Butchery:IsReady() and (S.Butchery:FullRechargeTime() < Player:GCD() or Target:DebuffUp(S.ShrapnelBombDebuff) and (Target:DebuffStack(S.InternalBleedingDebuff) < 2 or Target:DebuffRemains(S.ShrapnelBombDebuff) < Player:GCD())) then
     if Press(S.Butchery, not Target:IsInMeleeRange(8)) then return "butchery cleave 16"; end
   end
   -- wildfire_bomb,if=!dot.wildfire_bomb.ticking
@@ -265,10 +280,6 @@ local function Cleave()
     if Bomb:IsCastable() and (Target:DebuffDown(BombDebuffs[BombNum])) then
       if Press(Bomb, not Target:IsSpellInRange(Bomb)) then return "wildfire_bomb cleave 18"; end
     end
-  end
-  -- butchery,if=dot.shrapnel_bomb.ticking&(dot.internal_bleeding.stack<2|dot.shrapnel_bomb.remains<gcd)
-  if S.Butchery:IsReady() and (Target:DebuffUp(S.ShrapnelBombDebuff) and (Target:DebuffStack(S.InternalBleedingDebuff) < 2 or Target:DebuffRemains(S.ShrapnelBombDebuff) < Player:GCD())) then
-    if Press(S.Butchery, not Target:IsInMeleeRange(8)) then return "butchery cleave 20"; end
   end
   -- fury_of_the_eagle
   if S.FuryoftheEagle:IsCastable() then
@@ -282,8 +293,8 @@ local function Cleave()
   if S.FlankingStrike:IsCastable() and (CheckFocusCap(S.FlankingStrike:ExecuteTime(), 30)) then
     if Press(S.FlankingStrike, not Target:IsSpellInRange(S.FlankingStrike)) then return "flanking_strike cleave 26"; end
   end
-  -- butchery,if=(!next_wi_bomb.shrapnel|!talent.wildfire_infusion)&cooldown.wildfire_bomb.full_recharge_time>spell_targets%2
-  if S.Butchery:IsReady() and (((not S.ShrapnelBomb:IsCastable()) or not S.WildfireInfusion:IsAvailable()) and S.WildfireBomb:FullRechargeTime() > EnemyCount8ySplash / 2) then
+  -- butchery,if=(!next_wi_bomb.shrapnel|!talent.wildfire_infusion)
+  if S.Butchery:IsReady() and ((not S.ShrapnelBomb:IsCastable()) or not S.WildfireInfusion:IsAvailable()) then
     if Press(S.Butchery, not Target:IsInMeleeRange(8)) then return "butchery cleave 28"; end
   end
   -- mongoose_bite,target_if=max:debuff.latent_poison.stack,if=debuff.latent_poison.stack>8
@@ -302,15 +313,23 @@ local function Cleave()
   if S.Carve:IsReady() then
     if Press(S.Carve, not Target:IsInMeleeRange(5)) then return "carve cleave 36"; end
   end
-  -- kill_shot
-  if S.KillShot:IsReady() then
+  -- kill_shot,if=!buff.coordinated_assault.up
+  if S.KillShot:IsReady() and (Player:BuffDown(S.CoordinatedAssaultBuff)) then
     if Press(S.KillShot, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot cleave 38"; end
   end
   -- steel_trap,if=focus+cast_regen<focus.max
   if S.SteelTrap:IsCastable() and (CheckFocusCap(S.SteelTrap:ExecuteTime())) then
     if Press(S.SteelTrap, not Target:IsInRange(40)) then return "steel_trap cleave 40"; end
   end
-  -- serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>8
+  -- spearhead
+  if S.Spearhead:IsCastable() and CDsON() then
+    if Press(S.Spearhead, not Target:IsSpellInRange(S.Spearhead)) then return "spearhead cleave 41"; end
+  end
+  -- mongoose_bite,target_if=min:dot.serpent_sting.remains,if=buff.spearhead.remains
+  if S.MongooseBite:IsReady() and (Player:BuffUp(S.SpearheadBuff)) then
+    if Everyone.CastTargetIf(S.MongooseBite, EnemyList, "min", EvaluateTargetIfFilterSerpentStingRemains, nil, not Target:IsInMeleeRange(5)) then return "mongoose_bite cleave 42"; end
+  end
+  -- serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>8&(!talent.vipers_venom|talent.hydras_bite)
   if S.SerpentSting:IsReady() then
     if Everyone.CastTargetIf(S.SerpentSting, EnemyList, "min", EvaluateTargetIfFilterSerpentStingRemains, EvaluateTargetIfSerpentStingCleave, not Target:IsSpellInRange(S.SerpentSting)) then return "serpent_sting cleave 42"; end
   end
@@ -337,9 +356,21 @@ local function ST()
   if S.KillShot:IsReady() and (Player:BuffUp(S.CoordinatedAssaultBuff)) then
     if Press(S.KillShot, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot st 6"; end
   end
+  -- wildfire_bomb,if=(raid_event.adds.in>cooldown.wildfire_bomb.full_recharge_time-(cooldown.wildfire_bomb.full_recharge_time%3.5)&debuff.shredded_armor.up&(full_recharge_time<2*gcd|talent.bombardier&!cooldown.coordinated_assault.remains|talent.bombardier&buff.coordinated_assault.up&buff.coordinated_assault.remains<2*gcd)|!raid_event.adds.exists&time_to_die<7)&set_bonus.tier30_4pc
+  if (Target:DebuffUp(S.ShreddedArmorDebuff) and (S.WildfireBomb:FullRechargeTime() < 2 * Player:GCD() or S.Bombardier:IsAvailable() and S.CoordinatedAssault:CooldownUp() or S.Bombardier:IsAvailable() and Player:BuffUp(S.CoordinatedAssaultBuff) and Player:BuffRemains(S.CoordinatedAssaultBuff) < 2 * Player:GCD()) or FightRemains < 7) then
+    for _, Bomb in pairs(Bombs) do
+      if Bomb:IsCastable() then
+        if Press(Bomb, not Target:IsSpellInRange(Bomb)) then return "wildfire_bomb st 7"; end
+      end
+    end
+  end
   -- kill_command,target_if=min:bloodseeker.remains,if=full_recharge_time<gcd&focus+cast_regen<focus.max&buff.deadly_duo.stack>1
   if S.KillCommand:IsCastable() and (S.KillCommand:FullRechargeTime() < Player:GCD() and CheckFocusCap(S.KillCommand:ExecuteTime(), 21) and Player:BuffStack(S.DeadlyDuoBuff) > 1) then
     if Everyone.CastTargetIf(S.KillCommand, EnemyList, "min", EvaluateTargetIfFilterBloodseekerRemains, nil, not Target:IsSpellInRange(S.KillCommand)) then return "kill_command st 8"; end
+  end
+  -- kill_command,target_if=min:bloodseeker.remains,if=cooldown.wildfire_bomb.full_recharge_time<2*gcd&debuff.shredded_armor.down&set_bonus.tier30_4pc
+  if S.KillCommand:IsCastable() and (S.WildfireBomb:FullRechargeTime() < 2 * Player:GCD() and Player:HasTier(30, 4)) then
+    if Everyone.CastTargetIf(S.KillCommand, EnemyList, "min", EvaluateTargetIfFilterBloodseekerRemains, EvaluateTargetIfKillCommandST, not Target:IsSpellInRange(S.KillCommand)) then return "kill_command st 9"; end
   end
   -- mongoose_bite,if=buff.spearhead.remains
   if S.MongooseBite:IsReady() and (Player:BuffUp(S.SpearheadBuff)) then
@@ -377,13 +408,9 @@ local function ST()
   if S.CoordinatedAssault:IsCastable() and CDsON() and ((not S.CoordinatedKill:IsAvailable()) and Target:HealthPercentage() < 20 and (Player:BuffDown(S.SpearheadBuff) and S.Spearhead:CooldownDown() or not S.Spearhead:IsAvailable()) or S.CoordinatedKill:IsAvailable() and (Player:BuffDown(S.SpearheadBuff) and S.Spearhead:CooldownDown() or not S.Spearhead:IsAvailable())) then
     if Press(S.CoordinatedAssault, not Target:IsSpellInRange(S.CoordinatedAssault)) then return "coordinated_assault st 24"; end
   end
-  -- wildfire_bomb,if=next_wi_bomb.pheromone&!buff.mongoose_fury.up&focus+cast_regen<focus.max-action.kill_command.cast_regen*2|buff.coordinated_assault.up&focus+cast_regen<focus.max&talent.coordinated_kill.rank>1
-  if S.PheromoneBomb:IsCastable() and (S.PheromoneBomb:IsCastable() and Player:BuffDown(S.MongooseFuryBuff) and Player:Focus() + Player:FocusCastRegen(S.PheromoneBomb:ExecuteTime()) < Player:FocusMax() - (Player:FocusCastRegen(S.KillCommand:ExecuteTime()) + 21) * 2 or Player:BuffUp(S.CoordinatedAssaultBuff) and CheckFocusCap(S.PheromoneBomb:ExecuteTime()) and S.CoordinatedKill:TalentRank() > 1) then
-    if Press(S.PheromoneBomb, not Target:IsSpellInRange(S.PheromoneBomb)) then return "wildfire_bomb st 26"; end
-  end
-  -- kill_command,target_if=min:bloodseeker.remains,if=full_recharge_time<gcd&focus+cast_regen<focus.max
-  if S.KillCommand:IsCastable() and (S.KillCommand:FullRechargeTime() < Player:GCD() and CheckFocusCap(S.KillCommand:ExecuteTime(), 21)) then
-    if Everyone.CastTargetIf(S.KillCommand, EnemyList, "min", EvaluateTargetIfFilterBloodseekerRemains, nil, not Target:IsSpellInRange(S.KillCommand)) then return "kill_command st 28"; end
+  -- kill_command,target_if=min:bloodseeker.remains,if=full_recharge_time<gcd&focus+cast_regen<focus.max&(cooldown.flanking_strike.remains|!talent.flanking_strike)|debuff.shredded_armor.down&set_bonus.tier30_4pc
+  if S.KillCommand:IsCastable() then
+    if Everyone.CastTargetIf(S.KillCommand, EnemyList, "min", EvaluateTargetIfFilterBloodseekerRemains, EvaluateTargetIfKillCommandST2, not Target:IsSpellInRange(S.KillCommand)) then return "kill_command st 28"; end
   end
   -- mongoose_bite,if=dot.shrapnel_bomb.ticking
   if S.MongooseBite:IsReady() and (Target:DebuffUp(S.ShrapnelBombDebuff)) then
@@ -393,8 +420,8 @@ local function ST()
   if S.SerpentSting:IsReady() and (not S.VipersVenom:IsAvailable()) then
     if Everyone.CastTargetIf(S.SerpentSting, EnemyList, "min", EvaluateTargetIfFilterSerpentStingRemains, EvaluateTargetIfSerpentStingST2, not Target:IsSpellInRange(S.SerpentSting)) then return "serpent_sting st 32"; end
   end
-  -- wildfire_bomb,if=full_recharge_time<gcd&!set_bonus.tier29_2pc
-  if (S.WildfireBomb:FullRechargeTime() < Player:GCD() and not Player:HasTier(29, 2)) then
+  -- wildfire_bomb,if=raid_event.adds.in>cooldown.wildfire_bomb.full_recharge_time-(cooldown.wildfire_bomb.full_recharge_time%3.5)&full_recharge_time<gcd&(!set_bonus.tier29_2pc|active_enemies>1)
+  if (S.WildfireBomb:FullRechargeTime() < Player:GCD() and ((not Player:HasTier(29, 2)) or EnemyCount8ySplash > 1)) then
     for _, Bomb in pairs(Bombs) do
       if Bomb:IsCastable() then
         if Press(Bomb, not Target:IsSpellInRange(Bomb)) then return "wildfire_bomb st 34"; end
@@ -409,16 +436,16 @@ local function ST()
   if S.ExplosiveShot:IsReady() and (S.Ranger:IsAvailable()) then
     if Press(S.ExplosiveShot, not Target:IsSpellInRange(S.ExplosiveShot)) then return "explosive_shot st 37"; end
   end
-  -- wildfire_bomb,if=full_recharge_time<gcd
-  if (S.WildfireBomb:FullRechargeTime() < Player:GCD()) then
-    for _, Bomb in pairs(Bombs) do
-      if Bomb:IsCastable() then
+  -- wildfire_bomb,if=raid_event.adds.in>cooldown.wildfire_bomb.full_recharge_time-(cooldown.wildfire_bomb.full_recharge_time%3.5)&(full_recharge_time<gcd|!dot.wildfire_bomb.ticking&set_bonus.tier30_4pc)
+  for BombNum, Bomb in pairs(Bombs) do
+    if Bomb:IsCastable() then
+      if (S.WildfireBomb:FullRechargeTime() < Player:GCD() or Target:DebuffDown(BombDebuffs[BombNum]) and Player:HasTier(30, 4)) then
         if Press(Bomb, not Target:IsSpellInRange(Bomb)) then return "wildfire_bomb st 38"; end
       end
     end
   end
-  -- mongoose_bite,target_if=max:debuff.latent_poison.stack,if=focus+action.kill_command.cast_regen>focus.max-10
-  if S.MongooseBite:IsReady() and (Player:Focus() + Player:FocusCastRegen(S.KillCommand:ExecuteTime()) + 21 > Player:FocusMax() - 10) then
+  -- mongoose_bite,target_if=max:debuff.latent_poison.stack,if=focus+action.kill_command.cast_regen>focus.max-10|set_bonus.tier30_4pc
+  if S.MongooseBite:IsReady() and (Player:Focus() + Player:FocusCastRegen(S.KillCommand:ExecuteTime()) + 21 > Player:FocusMax() - 10 or Player:HasTier(30, 4)) then
     if Everyone.CastTargetIf(S.MongooseBite, EnemyList, "max", EvaluateTargetIfFilterLatentStacks, nil, not Target:IsInMeleeRange(5)) then return "mongoose_bite st 40"; end
   end
   -- raptor_strike,target_if=max:debuff.latent_poison.stack

@@ -236,9 +236,13 @@ local function St()
   if S.SteadyShot:IsCastable() and (S.SteadyFocus:IsAvailable() and (SteadyShotTracker.Count == 1 and Player:BuffRemains(S.SteadyFocusBuff) < 5 or Player:BuffDown(S.SteadyFocusBuff) and Player:BuffDown(S.TrueshotBuff) and SteadyShotTracker.Count ~= 2)) then
     if Press(S.SteadyShot, not TargetInRange40y) then return "steady_shot st 2"; end
   end
-  -- kill_shot
-  if S.KillShot:IsReady() then
-    if Press(S.KillShot, not TargetInRange40y) then return "kill_shot st 4"; end
+  -- aimed_shot,if=buff.trueshot.up&full_recharge_time<gcd+cast_time&talent.legacy_of_the_windrunners&talent.windrunners_guidance
+  if S.AimedShot:IsReady() and (Player:BuffUp(S.TrueshotBuff) and S.AimedShot:FullRechargeTime() < Player:GCD() + S.AimedShot:CastTime() and S.LegacyoftheWindrunners:IsAvailable() and S.WindrunnersGuidance:IsAvailable()) then
+    if Press(S.AimedShot, not TargetInRange40y, true) then return "aimed_shot st 4"; end
+  end
+  -- kill_shot,if=buff.trueshot.down
+  if S.KillShot:IsReady() and (Player:BuffDown(S.TrueshotBuff)) then
+    if Press(S.KillShot, not TargetInRange40y) then return "kill_shot st 6"; end
   end
   -- volley,if=buff.salvo.up
   if Settings.Marksmanship.Enabled.Volley and S.Volley:IsReady() and Mouseover:GUID() == Target:GUID() and (Player:BuffUp(S.SalvoBuff)) then
@@ -272,17 +276,17 @@ local function St()
   if S.WailingArrow:IsReady() and (EnemiesCount10ySplash > 1) then
     if Press(S.WailingArrow, not TargetInRange40y, true) then return "wailing_arrow st 18"; end
   end
-  -- volley
-  if Settings.Marksmanship.Enabled.Volley and S.Volley:IsReady() and Mouseover:GUID() == Target:GUID() then
-    if Press(M.VolleyCursor, not TargetInRange40y)  then return "volley st 20"; end
-  end
   -- rapid_fire,if=talent.surging_shots|buff.double_tap.up&talent.streamline&!ca_active
   if S.RapidFire:IsCastable() and (S.SurgingShots:IsAvailable()) then
     if Press(S.RapidFire, not TargetInRange40y) then return "rapid_fire st 22"; end
   end
-  -- trueshot,if=!raid_event.adds.exists|!raid_event.adds.up&(raid_event.adds.duration+raid_event.adds.in<25|raid_event.adds.in>60)|raid_event.adds.up&raid_event.adds.remains>10|active_enemies>1|fight_remains<25
-  if S.Trueshot:IsReady() and CDsON() and not Player:IsCasting(S.SteadyShot) and not Player:IsCasting(S.RapidFire) and not Player:IsChanneling(S.RapidFire) and (VarTrueshotReady) then
-    if Press(S.Trueshot, not TargetInRange40y, nil, true) then return "trueshot st 24"; end
+  -- kill_shot
+  if S.KillShot:IsReady() then
+    if Press(S.KillShot, not TargetInRange40y) then return "kill_shot st 24"; end
+  end
+  -- trueshot,if=variable.trueshot_ready&(buff.trueshot.down|buff.trueshot.remains<5)
+  if S.Trueshot:IsReady() and CDsON() and (VarTrueshotReady and (Player:BuffDown(S.TrueshotBuff) or Player:BuffRemains(S.TrueshotBuff) < 5)) then
+    if Press(S.Trueshot, not TargetInRange40y) then return "trueshot st 26"; end
   end
   -- multishot,if=buff.bombardment.up&buff.trick_shots.down&active_enemies>1|buff.salvo.up&!talent.volley
   if S.MultiShot:IsReady() and (Player:BuffUp(S.BombardmentBuff) and (not TrickShotsBuffCheck()) and EnemiesCount10ySplash > 1 or Player:BuffUp(S.SalvoBuff) and not S.Volley:IsAvailable()) then
@@ -300,6 +304,10 @@ local function St()
   -- Note: Added SteadyShotTracker.Count ~= 2 so we don't suggest this during the cast that will grant us SteadyFocusBuff
   if S.SteadyShot:IsCastable() and (S.SteadyFocus:IsAvailable() and Player:BuffRemains(S.SteadyFocusBuff) < S.SteadyShot:ExecuteTime() * 2) and SteadyShotTracker.Count ~= 2 then
     if Press(S.SteadyShot, not TargetInRange40y) then return "steady_shot st 32"; end
+  end
+  -- volley
+  if Settings.Marksmanship.Enabled.Volley and S.Volley:IsReady() and Mouseover:GUID() == Target:GUID() then
+    if Press(M.VolleyCursor, not TargetInRange40y)  then return "volley st 20"; end
   end
   -- rapid_fire
   if S.RapidFire:IsCastable() then
