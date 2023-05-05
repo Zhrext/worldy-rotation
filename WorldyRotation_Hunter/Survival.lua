@@ -257,7 +257,7 @@ local function Cleave()
   end
   -- coordinated_assault
   if S.CoordinatedAssault:IsCastable() and CDsON() then
-    if Press(S.CoordinatedAssault, not Target:IsSpellInRange(S.CoordinatedAssault)) then return "coordinated_assault cleave 8"; end
+    if Press(S.CoordinatedAssault, not Target:IsInMeleeRange(5)) then return "coordinated_assault cleave 8"; end
   end
   -- kill_shot,if=buff.coordinated_assault_empower.up
   if S.KillShot:IsReady() and (Player:BuffUp(S.CoordinatedAssaultBuff)) then
@@ -291,7 +291,7 @@ local function Cleave()
   end
   -- flanking_strike,if=focus+cast_regen<focus.max
   if S.FlankingStrike:IsCastable() and (CheckFocusCap(S.FlankingStrike:ExecuteTime(), 30)) then
-    if Press(S.FlankingStrike, not Target:IsSpellInRange(S.FlankingStrike)) then return "flanking_strike cleave 26"; end
+    if Press(S.FlankingStrike, not Target:IsInMeleeRange(5)) then return "flanking_strike cleave 26"; end
   end
   -- butchery,if=(!next_wi_bomb.shrapnel|!talent.wildfire_infusion)
   if S.Butchery:IsReady() and ((not S.ShrapnelBomb:IsCastable()) or not S.WildfireInfusion:IsAvailable()) then
@@ -398,7 +398,7 @@ local function ST()
   end
   -- flanking_strike,if=focus+cast_regen<focus.max
   if S.FlankingStrike:IsCastable() and (CheckFocusCap(S.FlankingStrike:ExecuteTime(), 30)) then
-    if Press(S.FlankingStrike, not Target:IsSpellInRange(S.FlankingStrike)) then return "flanking_strike st 22"; end
+    if Press(S.FlankingStrike, not Target:IsInMeleeRange(5)) then return "flanking_strike st 22"; end
   end
   -- stampede
   if S.Stampede:IsCastable() and CDsON() then
@@ -406,7 +406,7 @@ local function ST()
   end
   -- coordinated_assault,if=!talent.coordinated_kill&target.health.pct<20&(!buff.spearhead.remains&cooldown.spearhead.remains|!talent.spearhead)|talent.coordinated_kill&(!buff.spearhead.remains&cooldown.spearhead.remains|!talent.spearhead)
   if S.CoordinatedAssault:IsCastable() and CDsON() and ((not S.CoordinatedKill:IsAvailable()) and Target:HealthPercentage() < 20 and (Player:BuffDown(S.SpearheadBuff) and S.Spearhead:CooldownDown() or not S.Spearhead:IsAvailable()) or S.CoordinatedKill:IsAvailable() and (Player:BuffDown(S.SpearheadBuff) and S.Spearhead:CooldownDown() or not S.Spearhead:IsAvailable())) then
-    if Press(S.CoordinatedAssault, not Target:IsSpellInRange(S.CoordinatedAssault)) then return "coordinated_assault st 24"; end
+    if Press(S.CoordinatedAssault, not Target:IsInMeleeRange(5)) then return "coordinated_assault st 24"; end
   end
   -- kill_command,target_if=min:bloodseeker.remains,if=full_recharge_time<gcd&focus+cast_regen<focus.max&(cooldown.flanking_strike.remains|!talent.flanking_strike)|debuff.shredded_armor.down&set_bonus.tier30_4pc
   if S.KillCommand:IsCastable() then
@@ -468,7 +468,7 @@ local function ST()
   end
   -- coordinated_assault,if=!talent.coordinated_kill&time_to_die>140
   if S.CoordinatedAssault:IsCastable() and ((not S.CoordinatedKill:IsAvailable()) and Target:TimeToDie() > 140) then
-    if Press(S.CoordinatedAssault, not Target:IsSpellInRange(S.CoordinatedAssault)) then return "coordinated_assault st 54"; end
+    if Press(S.CoordinatedAssault, not Target:IsInMeleeRange(5)) then return "coordinated_assault st 54"; end
   end
   -- fury_of_the_eagle,interrupt=1
   if S.FuryoftheEagle:IsCastable() then
