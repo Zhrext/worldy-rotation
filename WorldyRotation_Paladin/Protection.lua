@@ -176,7 +176,7 @@ local function Standard()
     if Everyone.CastTargetIf(S.Judgment, Enemies30y, "min", EvaluateTargetIfFilterJudgment, nil, not Target:IsSpellInRange(S.Judgment), nil, nil, M.JudgmentMouseover) then return "judgment standard 8"; end
   end
   -- divine_toll,if=time>20|((buff.avenging_wrath.up|!talent.avenging_wrath.enabled)&(buff.moment_of_glory.up|!talent.moment_of_glory.enabled))
-  if CDsON() and S.DivineToll:IsReady() and (((Player:BuffUp(S.AvengingWrathBuff) or not S.AvengingWrath:IsAvailable()) and (Player:BuffUp(S.MomentofGloryBuff) or not S.MomentofGlory:IsAvailable()))) then
+  if CDsON() and S.DivineToll:IsReady() then
     if Press(S.DivineToll, not Target:IsInRange(30)) then return "divine_toll standard 10"; end
   end
   -- avengers_shield
