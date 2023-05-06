@@ -104,15 +104,6 @@ HL:RegisterForEvent(function()
 end, "PLAYER_EQUIPMENT_CHANGED")
 
 -- Functions
-local function IsInMeleeRange(range)
-  if S.Felblade:TimeSinceLastCast() <= Player:GCD() then
-    return true
-  elseif S.VengefulRetreat:TimeSinceLastCast() < 1.0 then
-    return false
-  end
-  return range and Target:IsInMeleeRange(range) or Target:IsInMeleeRange(5)
-end
-
 local function EvalutateTargetIfFilterDemonsBite(TargetUnit)
   -- target_if=min:debuff.burning_wound.remains
   return TargetUnit:DebuffRemains(S.BurningWoundDebuff) or TargetUnit:DebuffRemains(S.BurningWoundLegDebuff)
@@ -265,7 +256,7 @@ local function APL()
     -- TODO: Can't detect when orbs actually spawn, we could possibly show a suggested icon when we DON'T want to pick up souls so people can avoid moving?
     -- annihilation,if=buff.inner_demon.up&cooldown.metamorphosis.remains<=gcd*3
     if S.Annihilation:IsReady() and (Player:BuffUp(S.InnerDemonBuff) and S.Metamorphosis:CooldownRemains() <= Player:GCD() * 3) then
-      if Press(S.Annihilation, not IsInMeleeRange(5)) then return "annihilation main 2"; end
+      if Press(S.Annihilation, not Target:IsInMeleeRange(5)) then return "annihilation main 2"; end
     end
     -- vengeful_retreat,use_off_gcd=1,if=talent.initiative&talent.essence_break&time>1&gcd.remains<0.4&(cooldown.essence_break.remains>15|cooldown.essence_break.remains<gcd.max&(!talent.demonic|buff.metamorphosis.up|cooldown.eye_beam.remains>15+(10*talent.cycle_of_hatred)))
     -- Note: Add 250ms to GCDRemains check to allow for internet and human latencies
@@ -282,31 +273,31 @@ local function APL()
     end
     -- essence_break,if=(active_enemies>desired_targets|raid_event.adds.in>40)&!variable.waiting_for_momentum&fury>40&(cooldown.eye_beam.remains>8|buff.metamorphosis.up)&(!talent.tactical_retreat|buff.tactical_retreat.up)
     if S.EssenceBreak:IsCastable() and ((not VarWaitingForMomentum) and Player:Fury() > 40 and (S.EyeBeam:CooldownRemains() > 8 or Player:BuffUp(S.MetamorphosisBuff)) and ((not S.TacticalRetreat:IsAvailable()) or Player:BuffUp(S.TacticalRetreatBuff) or not Settings.Havoc.Enabled.VengefulRetreat)) then
-      if Press(S.EssenceBreak, not IsInMeleeRange(10)) then return "essence_break main 9"; end
+      if Press(S.EssenceBreak, not Target:IsInMeleeRange(10)) then return "essence_break main 9"; end
     end
     -- death_sweep,if=variable.blade_dance&(!talent.essence_break|cooldown.essence_break.remains>(cooldown.death_sweep.duration-4))
     if S.DeathSweep:IsReady() and (VarBladeDance and ((not S.EssenceBreak:IsAvailable()) or S.EssenceBreak:CooldownRemains() > ((9 * Player:SpellHaste()) - 4))) then
-      if Press(S.DeathSweep, not IsInMeleeRange(8)) then return "death_sweep main 10"; end
+      if Press(S.DeathSweep, not Target:IsInMeleeRange(8)) then return "death_sweep main 10"; end
     end
     -- fel_barrage,if=active_enemies>desired_targets|raid_event.adds.in>30
     if S.FelBarrage:IsCastable() then
-      if Press(S.FelBarrage, not IsInMeleeRange(8)) then return "fel_barrage main 12"; end
+      if Press(S.FelBarrage, not Target:IsInMeleeRange(8)) then return "fel_barrage main 12"; end
     end
     -- glaive_tempest,if=active_enemies>desired_targets|raid_event.adds.in>10
     if S.GlaiveTempest:IsReady() then
-      if Press(S.GlaiveTempest) then return "glaive_tempest main 14"; end
+      if Press(S.GlaiveTempest, not Target:IsInMeleeRange(8)) then return "glaive_tempest main 14"; end
     end
     -- annihilation,if=buff.inner_demon.up&cooldown.eye_beam.remains<=gcd
     if S.Annihilation:IsReady() and (Player:BuffUp(S.InnerDemonBuff) and S.EyeBeam:CooldownRemains() <= Player:GCD()) then
-      if Press(S.Annihilation, not IsInMeleeRange(5)) then return "annihilation main 16"; end
+      if Press(S.Annihilation, not Target:IsInMeleeRange(5)) then return "annihilation main 16"; end
     end
     -- eye_beam,if=active_enemies>desired_targets|raid_event.adds.in>(40-talent.cycle_of_hatred*15)&!debuff.essence_break.up
     if S.EyeBeam:IsReady() and (Target:DebuffDown(S.EssenceBreakDebuff)) then
-      if Press(S.EyeBeam, not IsInMeleeRange(20)) then return "eye_beam main 18"; end
+      if Press(S.EyeBeam, not Target:IsInMeleeRange(20)) then return "eye_beam main 18"; end
     end
     -- blade_dance,if=variable.blade_dance&(cooldown.eye_beam.remains>5|!talent.demonic|(raid_event.adds.in>cooldown&raid_event.adds.in<25))
     if S.BladeDance:IsReady() and (VarBladeDance and (S.EyeBeam:CooldownRemains() > 5 or not S.Demonic:IsAvailable())) then
-      if Press(S.BladeDance, not IsInMeleeRange(8)) then return "blade_dance main 20"; end
+      if Press(S.BladeDance, not Target:IsInMeleeRange(8)) then return "blade_dance main 20"; end
     end
     -- throw_glaive,if=talent.soulrend&(active_enemies>desired_targets|raid_event.adds.in>full_recharge_time+9)&spell_targets>=(2-talent.furious_throws)&!debuff.essence_break.up
     if Target:AffectingCombat() and S.ThrowGlaive:IsReady() and (S.Soulrend:IsAvailable() and EnemiesCount8 >= (2 - num(S.FuriousThrows)) and Target:DebuffDown(S.EssenceBreakDebuff)) then
@@ -314,7 +305,7 @@ local function APL()
     end
     -- annihilation,if=!variable.pooling_for_blade_dance
     if S.Annihilation:IsReady() and (not VarPoolingForBladeDance) then
-      if Press(S.Annihilation, not IsInMeleeRange(5)) then return "annihilation main 24"; end
+      if Press(S.Annihilation, not Target:IsInMeleeRange(5)) then return "annihilation main 24"; end
     end
     -- throw_glaive,if=talent.serrated_glaive&cooldown.eye_beam.remains<4&!debuff.serrated_glaive.up&!debuff.essence_break.up
     if Target:AffectingCombat() and S.ThrowGlaive:IsReady() and (S.SerratedGlaive:IsAvailable() and S.EyeBeam:CooldownRemains() < 4 and Target:DebuffDown(S.SerratedGlaiveDebuff) and Target:DebuffDown(S.EssenceBreakDebuff)) then
@@ -322,7 +313,7 @@ local function APL()
     end
     -- immolation_aura,if=!buff.immolation_aura.up&(!talent.ragefire|active_enemies>desired_targets|raid_event.adds.in>15)
     if S.ImmolationAura:IsCastable() and (Player:BuffDown(S.ImmolationAuraBuff)) then
-      if Press(S.ImmolationAura, not IsInMeleeRange(8)) then return "immolation_aura main 26"; end
+      if Press(S.ImmolationAura, not Target:IsInMeleeRange(8)) then return "immolation_aura main 26"; end
     end
     -- fel_rush,if=talent.isolated_prey&active_enemies=1&fury.deficit>=35
     if S.FelRush:IsCastable() and (S.IsolatedPrey:IsAvailable() and EnemiesCount8 == 1 and Player:FuryDeficit() >= 35) and Settings.Havoc.Enabled.FelRush and WR.Toggle(4) then
@@ -330,7 +321,7 @@ local function APL()
     end
     -- felblade,if=fury.deficit>=40
     if S.Felblade:IsCastable() and (Player:FuryDeficit() >= 40) and WR.Toggle(4) then
-      if Press(S.Felblade, not Target:IsSpellInRange(S.Felblade)) then return "felblade main 28"; end
+      if Press(S.Felblade, not Target:IsInMeleeRange(8)) then return "felblade main 28"; end
     end
     -- chaos_strike,if=!variable.pooling_for_blade_dance&!variable.pooling_for_eye_beam
     if S.ChaosStrike:IsReady() and ((not VarPoolingForBladeDance) and not VarPoolingForEyeBeam) then
@@ -357,7 +348,7 @@ local function APL()
       if Press(S.DemonsBite, not Target:IsSpellInRange(S.DemonsBite)) then return "demons_bite main 42"; end
     end
     -- fel_rush,if=movement.distance>15|(buff.out_of_range.up&!talent.momentum)
-    if S.FelRush:IsCastable() and ((not IsInMeleeRange()) and (not S.Momentum:IsAvailable()) and Settings.Havoc.Enabled.FelRush) and WR.Toggle(4) then
+    if S.FelRush:IsCastable() and ((not Target:IsInMeleeRange(8)) and (not S.Momentum:IsAvailable()) and Settings.Havoc.Enabled.FelRush) and WR.Toggle(4) then
       if Press(S.FelRush, not Target:IsInMeleeRange(8)) then return "fel_rush main 46"; end
     end
     -- vengeful_retreat,if=!talent.initiative&movement.distance>15
