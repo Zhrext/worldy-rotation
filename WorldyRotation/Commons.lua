@@ -123,6 +123,67 @@ do
     373395,
     376725,
     192288,
+    -- Underrot
+    265089,
+    265091,
+    278755,
+    278961,
+    266106,
+    272183,
+    413044,
+    265433,
+    265487,
+    -- Freehold
+    257397,
+    281420,
+    257784,
+    259092,
+    -- Neltharions Lair
+    202108,
+    202075,
+    193585,
+    -- Uldaman
+    369400,
+    369365,
+    369411,
+    369675,
+    369823,
+    369399,
+    377500,
+    -- Brackenhide Hollow
+    367500,
+    367503,
+    382347,
+    372711,
+    374544,
+    385029,
+    382474,
+    -- Neltharus
+    378172,
+    395427,
+    372223,
+    372538,
+    384161,
+    383656,
+    396925,
+    -- Vortex
+    410870,
+    88170,
+    88186,
+    88959,
+    87779,
+    -- Halls of Infusion
+    374045,
+    374020,
+    374339,
+    374563,
+    395694,
+    374706,
+    374699,
+    385036,
+    377384,
+    377348,
+    377402,
   };
   Commons.StunWhitelistIDs = {
     210261,
@@ -153,6 +214,68 @@ do
     114646,
     397899,
     397931,
+    -- Underrot
+    265540,
+    265376,
+    265089,
+    265091,
+    278961,
+    266106,
+    272183,
+    413044,
+    -- Freehold
+    257397,
+    272402,
+    281420,
+    257784,
+    257756,
+    257739,
+    -- Neltharions Lair
+    193941,
+    183526,
+    202108,
+    202075,
+    193803,
+    188587,
+    200154,
+    193585,
+    -- Uldaman
+    369400,
+    369365,
+    369423,
+    369411,
+    369674,
+    369675,
+    369823,
+    369465,
+    377486,
+    377500,
+    -- Brackenhide Hollow
+    367484,
+    367521,
+    372711,
+    385029,
+    385039,
+    -- Neltharus
+    378818,
+    371875,
+    372223,
+    384161,
+    -- Vortex
+    410870,
+    88170,
+    88186,
+    88959,
+    -- Halls of Infusion
+    374045,
+    374020,
+    374339,
+    374563,
+    395694,
+    376171,
+    385036,
+    377384,
+    377348,
   };
   function Commons.Interrupt(Spell, Range, OffGCD, Unit, Macro)
     if not Unit then
@@ -293,6 +416,8 @@ do
     384978,
     384686,
     382836,
+    -- Freehold
+    222501,
   };
   function Commons.ShouldMitigate()
     return Utils.ValueIsInArray(Commons.MitigateIDs, Target:CastSpellID()) or Utils.ValueIsInArray(Commons.MitigateIDs, Target:ChannelSpellID());
@@ -306,6 +431,24 @@ do
     Spell(397410),
     Spell(190225),
     Spell(396018),
+    -- Underrot
+    Spell(265081),
+    Spell(266209),
+    -- Freehold
+    Spell(257476),
+    Spell(257739),
+    Spell(257899),
+    -- Neltharions Lair
+    Spell(201983),
+    -- Uldaman
+    Spell(369806),
+    -- Brackenhide Hollow
+    Spell(382555),
+    Spell(385827),
+    -- Neltharus
+    Spell(371875),
+    -- Halls of Infusion
+    Spell(377384),
   };
   function Commons.UnitHasEnrageBuff(U)
     for i = 1, #Commons.DispellableEnrageBuffIDs do
@@ -320,6 +463,19 @@ do
     Spell(392454),
     Spell(398151),
     Spell(386223),
+    -- Underrot
+    Spell(265091),
+    Spell(266201),
+    -- Uldaman
+    Spell(369400),
+    Spell(369823),
+    -- Neltharus
+    Spell(378149),
+    -- Vortex
+    Spell(411743),
+    -- Halls of Infusion
+    Spell(395694),
+    Spell(377402),
   };
   function Commons.UnitHasMagicBuff(U)
     for i = 1, #Commons.DispellableMagicBuffIDs do
@@ -353,6 +509,14 @@ do
     Spell(106113),
     Spell(209516),
     Spell(215429),
+    -- Underrot
+    Spell(266265),
+    -- Freehold
+    Spell(257908),
+    -- Brackenhide Hollow
+    Spell(373899),
+    -- Halls of Infusion
+    Spell(374724),
   };
   function Commons.UnitHasMagicDebuff(U)
     for i = 1, #Commons.DispellableMagicDebuffs do
@@ -363,7 +527,18 @@ do
     return false;
   end
 
-  Commons.DispellableDiseaseDebuffs = {};
+  Commons.DispellableDiseaseDebuffs = {
+    -- Underrot
+    Spell(278961),
+    -- Freehold
+    Spell(258323),
+    Spell(257775),
+    -- Uldaman
+    Spell(369818),
+    -- Brackenhide Hollow
+    Spell(368081),
+    Spell(385039),
+  };
   function Commons.UnitHasDiseaseDebuff(U)
     for i = 1, #Commons.DispellableDiseaseDebuffs do
       if U:DebuffUp(Commons.DispellableDiseaseDebuffs[i], true) then
@@ -376,6 +551,8 @@ do
   Commons.DispellableCurseDebuffs = {
     Spell(397911),
     Spell(387615),
+    -- Uldaman
+    Spell(369365),
   };
   function Commons.UnitHasCurseDebuff(U)
     for i = 1, #Commons.DispellableCurseDebuffs do
