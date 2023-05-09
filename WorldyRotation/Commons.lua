@@ -133,6 +133,7 @@ do
     413044,
     265433,
     265487,
+    260879,
     -- Freehold
     257397,
     281420,
@@ -513,8 +514,10 @@ do
     Spell(266265),
     -- Freehold
     Spell(257908),
+    Spell(256106),
     -- Brackenhide Hollow
     Spell(373899),
+    Spell(381379),
     -- Halls of Infusion
     Spell(374724),
   };
