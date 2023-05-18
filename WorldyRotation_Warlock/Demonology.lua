@@ -203,11 +203,11 @@ local function Items()
   end
   -- use_items,if=!talent.summon_demonic_tyrant|buff.demonic_power.up
   if (not S.SummonDemonicTyrant:IsAvailable()) or Player:BuffUp(S.DemonicPowerBuff) then
-    local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
+    local Trinket1ToUse = Player:GetUseableItems(OnUseExcludes, 13)
     if Trinket1ToUse then
       if Press(M.Trinket1, nil, nil, true) then return "trinket1 trinket 2"; end
     end
-    local Trinket2ToUse = Player:GetUseableTrinkets(OnUseExcludes, 14)
+    local Trinket2ToUse = Player:GetUseableItems(OnUseExcludes, 14)
     if Trinket2ToUse then
       if Press(M.Trinket2, nil, nil, true) then return "trinket2 trinket 4"; end
     end

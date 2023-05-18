@@ -264,12 +264,12 @@ local function APL()
     -- use_items
     if CDsON() and Settings.General.Enabled.Trinkets and TargetInMeleeRange then
       -- use_item,slot=trinket1
-      local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
+      local Trinket1ToUse = Player:GetUseableItems(OnUseExcludes, 13)
       if Trinket1ToUse then
         if Press(M.Trinket1, nil, nil, true) then return "trinket1 main"; end
       end
       -- use_item,slot=trinket2
-      local Trinket2ToUse = Player:GetUseableTrinkets(OnUseExcludes, 14)
+      local Trinket2ToUse = Player:GetUseableItems(OnUseExcludes, 14)
       if Trinket2ToUse then
         if Press(M.Trinket2, nil, nil, true) then return "trinket2 main"; end
       end

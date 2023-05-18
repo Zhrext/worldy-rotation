@@ -137,11 +137,11 @@ local function EvaluateSwiftmend(TargetUnit)
 end
 
 local function Trinkets()
-  local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
+  local Trinket1ToUse = Player:GetUseableItems(OnUseExcludes, 13)
   if Trinket1ToUse and (Player:BuffUp(S.HeartOfTheWild) or Player:BuffUp(S.IncarnationBuff) or Player:BloodlustUp() or BossFightRemains < 60) then
     if Press(M.Trinket1, nil, nil, true) then return "trinket1 trinkets 2"; end
   end
-  local Trinket2ToUse = Player:GetUseableTrinkets(OnUseExcludes, 14)
+  local Trinket2ToUse = Player:GetUseableItems(OnUseExcludes, 14)
   if Trinket2ToUse and (Player:BuffUp(S.HeartOfTheWild) or Player:BuffUp(S.IncarnationBuff) or Player:BloodlustUp() or BossFightRemains < 60) then
     if Press(M.Trinket2, nil, nil, true) then return "trinket2 trinkets 4"; end
   end

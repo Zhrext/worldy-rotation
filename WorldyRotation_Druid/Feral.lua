@@ -439,7 +439,7 @@ local function Bloodtalons()
     if Press(S.Prowl) then return "prowl bloodtalons 4"; end
   end
   -- shadowmeld,if=action.rake.ready&!buff.sudden_ambush.up&(dot.rake.refreshable|dot.rake.pmultiplier<1.4)&!buff.prowl.up&buff.bt_rake.down&cooldown.feral_frenzy.remains<44&!buff.apex_predators_craving.up
-  if S.Shadowmeld:IsReady() and (S.Rake:IsReady() and Player:BuffDown(S.SuddenAmbushBuff) and (Target:DebuffRefreshable(S.RakeDebuff) or Target:PMultiplier() < 1.4) and Player:BuffDown(S.Prowl) and BTBuffDown(S.Rake) and S.FeralFrenzy:CooldownRemains() < 44 and Player:BuffDown(S.ApexPredatorsCravingBuff)) then
+  if S.Shadowmeld:IsReady() and (S.Rake:IsReady() and Player:BuffDown(S.SuddenAmbushBuff) and (Target:DebuffRefreshable(S.RakeDebuff) or Target:PMultiplier(S.Rake) < 1.4) and Player:BuffDown(S.Prowl) and BTBuffDown(S.Rake) and S.FeralFrenzy:CooldownRemains() < 44 and Player:BuffDown(S.ApexPredatorsCravingBuff)) then
     if Press(S.Shadowmeld) then return "shadowmeld bloodtalons 6"; end
   end
   -- rake,target_if=max:druid.rake.ticks_gained_on_refresh,if=(refreshable|1.4*persistent_multiplier>dot.rake.pmultiplier)&buff.bt_rake.down
@@ -602,11 +602,11 @@ local function Cooldown()
   end
   -- use_items
   if Settings.General.Enabled.Trinkets and Target:IsInMeleeRange(8) then
-    local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
+    local Trinket1ToUse = Player:GetUseableItems(OnUseExcludes, 13)
     if Trinket1ToUse then
       if Press(M.Trinket1, nil, nil, true) then return "trinket1 cooldown 14"; end
     end
-    local Trinket2ToUse = Player:GetUseableTrinkets(OnUseExcludes, 14)
+    local Trinket2ToUse = Player:GetUseableItems(OnUseExcludes, 14)
     if Trinket2ToUse then
       if Press(M.Trinket2, nil, nil, true) then return "trinket2 cooldown 16"; end
     end

@@ -170,11 +170,11 @@ local function Trinkets()
   -- Note: Can't handle above trinket tracking, so let's use a generic fallback. When we can do above tracking, the below can be removed.
   -- use_items,if=buff.dragonrage.up|variable.next_dragonrage>20|!talent.dragonrage
   if (VarDragonrageUp or VarNextDragonrage > 20 or not S.Dragonrage:IsAvailable()) then
-    local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
+    local Trinket1ToUse = Player:GetUseableItems(OnUseExcludes, 13)
     if Trinket1ToUse then
       if Press(M.Trinket1, nil, nil, true) then return "trinket1"; end
     end
-    local Trinket2ToUse = Player:GetUseableTrinkets(OnUseExcludes, 14)
+    local Trinket2ToUse = Player:GetUseableItems(OnUseExcludes, 14)
     if Trinket2ToUse then
       if Press(M.Trinket2, nil, nil, true) then return "trinket2"; end
     end

@@ -178,12 +178,12 @@ local function Trinkets()
     if Press(M.ManicGrieftorch, nil, true) then return "manic_grieftorch cds 18"; end
   end
   -- use_items,slots=trinket1,if=buff.call_of_the_wild.up|!talent.call_of_the_wild&(buff.bestial_wrath.up&(buff.bloodlust.up|target.health.pct<20))|fight_remains<31
-  local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
+  local Trinket1ToUse = Player:GetUseableItems(OnUseExcludes, 13)
   if Trinket1ToUse then
     if Press(M.Trinket1, nil, nil, true) then return "trinket1 trinket 2"; end
   end
   -- use_items,slots=trinket2,if=buff.call_of_the_wild.up|!talent.call_of_the_wild&(buff.bestial_wrath.up&(buff.bloodlust.up|target.health.pct<20))|fight_remains<31
-  local Trinket2ToUse = Player:GetUseableTrinkets(OnUseExcludes, 14)
+  local Trinket2ToUse = Player:GetUseableItems(OnUseExcludes, 14)
   if Trinket2ToUse then
     if Press(M.Trinket2, nil, nil, true) then return "trinket2 trinket 4"; end
   end

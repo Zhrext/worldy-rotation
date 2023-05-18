@@ -584,11 +584,11 @@ local function APL()
       if Press(S.Berserking, nil, nil, true) then return "berserking main 2"; end
     end
     if CDsON() and Settings.General.Enabled.Trinkets then
-      local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
+      local Trinket1ToUse = Player:GetUseableItems(OnUseExcludes, 13)
       if Trinket1ToUse and (Player:BuffUp(S.Incarnation) or FightRemains < 13) then
         if Press(M.Trinket1, nil, nil, true) then return "trinket1 cooldown 14"; end
       end
-      local Trinket2ToUse = Player:GetUseableTrinkets(OnUseExcludes, 14)
+      local Trinket2ToUse = Player:GetUseableItems(OnUseExcludes, 14)
       if Trinket2ToUse and (Player:BuffUp(S.Incarnation) or FightRemains < 13) then
         if Press(M.Trinket2, nil, nil, true) then return "trinket2 cooldown 16"; end
       end

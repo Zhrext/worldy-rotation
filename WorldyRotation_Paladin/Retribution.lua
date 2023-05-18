@@ -148,11 +148,11 @@ local function Cooldowns()
   end
   -- use_items
   if CDsON() and Settings.General.Enabled.Trinkets and Target:IsInMeleeRange(8) then
-    local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
+    local Trinket1ToUse = Player:GetUseableItems(OnUseExcludes, 13)
     if Trinket1ToUse then
       if Press(M.Trinket1, nil, nil, true) then return "trinket1 cooldown 14"; end
     end
-    local Trinket2ToUse = Player:GetUseableTrinkets(OnUseExcludes, 14)
+    local Trinket2ToUse = Player:GetUseableItems(OnUseExcludes, 14)
     if Trinket2ToUse then
       if Press(M.Trinket2, nil, nil, true) then return "trinket2 cooldown 16"; end
     end

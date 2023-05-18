@@ -96,7 +96,7 @@ local function SingleTarget()
   if S.Rampage:IsReady() and S.AngerManagement:IsAvailable() and (Player:BuffUp(S.RecklessnessBuff) or Player:BuffRemains(S.EnrageBuff) < Player:GCD() or Player:RagePercentage() > 85) then
     if Press(S.Rampage, not TargetInMeleeRange) then return "rampage single_target 10"; end
   end
-  local BTCritChance = Player:CritChancePct() + Player:BuffStack(S.BloodcrazeBuff) * 15
+  local BTCritChance = Player:CritChancePct() + num(Player:BuffUp(S.RecklessnessBuff)) * 20 + Player:BuffStack(S.MercilessAssaultBuff) * 10 + Player:BuffStack(S.BloodcrazeBuff) * 15
   if (BTCritChance >= 95 or (not S.ColdSteelHotBlood:IsAvailable()) and Player:HasTier(30, 4)) then
     -- bloodbath,if=action.bloodbath.crit_pct_current>=95|!talent.cold_steel_hot_blood&set_bonus.tier30_4pc
     if S.Bloodbath:IsCastable() then
@@ -226,7 +226,7 @@ local function MultiTarget()
   if CDsON() and S.OdynsFury:IsCastable() and EnemiesCount8y > 1 and EnrageUp then
     if Press(S.OdynsFury, not Target:IsInMeleeRange(12)) then return "odyns_fury multi_target 12"; end
   end
-  local BTCritChance = Player:CritChancePct() + Player:BuffStack(S.BloodcrazeBuff) * 15
+  local BTCritChance = Player:CritChancePct() + num(Player:BuffUp(S.RecklessnessBuff)) * 20 + Player:BuffStack(S.MercilessAssaultBuff) * 10 + Player:BuffStack(S.BloodcrazeBuff) * 15
   if (BTCritChance >= 95 or (not S.ColdSteelHotBlood:IsAvailable()) and Player:HasTier(30, 4)) then
     -- bloodbath,if=action.bloodbath.crit_pct_current>=95|!talent.cold_steel_hot_blood&set_bonus.tier30_4pc
     if S.Bloodbath:IsCastable() then
@@ -383,12 +383,12 @@ local function APL()
           if Press(I.ManicGrieftorch) then return "manic_grieftorch main 8"; end
         end
         -- use_item,slot=trinket1
-        local Trinket1ToUse = Player:GetUseableTrinkets(OnUseExcludes, 13)
+        local Trinket1ToUse = Player:GetUseableItems(OnUseExcludes, 13)
         if Trinket1ToUse then
           if Press(M.Trinket1, nil, nil, true) then return "trinket1 main"; end
         end
         -- use_item,slot=trinket2
-        local Trinket2ToUse = Player:GetUseableTrinkets(OnUseExcludes, 14)
+        local Trinket2ToUse = Player:GetUseableItems(OnUseExcludes, 14)
         if Trinket2ToUse then
           if Press(M.Trinket2, nil, nil, true) then return "trinket2 main"; end
         end
