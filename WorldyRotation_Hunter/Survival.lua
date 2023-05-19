@@ -67,9 +67,11 @@ local EnemyCount8ySplash, EnemyList
 local BossFightRemains = 11111
 local FightRemains = 11111
 local MBRSCost = S.MongooseBite:IsAvailable() and S.MongooseBite:Cost() or S.RaptorStrike:Cost()
+local MeleeRange = S.Lunge:IsAvailable() and 8 or 5
 
 HL:RegisterForEvent(function()
   MBRSCost = S.MongooseBite:IsAvailable() and S.MongooseBite:Cost() or S.RaptorStrike:Cost()
+  MeleeRange = S.Lunge:IsAvailable() and 8 or 5
 end, "SPELLS_CHANGED", "LEARNED_SPELL_IN_TAB")
 
 HL:RegisterForEvent(function()
@@ -160,7 +162,7 @@ local function Precombat()
     if Press(S.Harpoon, not Target:IsSpellInRange(S.Harpoon)) then return "harpoon precombat 4"; end
   end
   -- Manually added: mongoose_bite or raptor_strike
-  if Target:IsInMeleeRange(5) or (Player:BuffUp(S.AspectoftheEagle) and Target:IsInRange(40)) then
+  if Target:IsInMeleeRange(MeleeRange) or (Player:BuffUp(S.AspectoftheEagle) and Target:IsInRange(40)) then
     if S.MongooseBite:IsReady() then
       if Press(S.MongooseBite) then return "mongoose_bite precombat 6"; end
     elseif S.RaptorStrike:IsReady() then
@@ -229,7 +231,7 @@ local function CDs()
   -- use_items
   local ShouldReturn = Trinkets(); if ShouldReturn then return ShouldReturn; end
   -- aspect_of_the_eagle,if=target.distance>=6
-  if S.AspectoftheEagle:IsCastable() and Settings.Survival.AspectOfTheEagle and not Target:IsInRange(6) then
+  if S.AspectoftheEagle:IsCastable() and Settings.Survival.AspectOfTheEagle and not Target:IsInRange(MeleeRange) then
     if Press(S.AspectoftheEagle) then return "aspect_of_the_eagle cds 19"; end
   end
 end
@@ -257,7 +259,7 @@ local function Cleave()
   end
   -- coordinated_assault
   if S.CoordinatedAssault:IsCastable() and CDsON() then
-    if Press(S.CoordinatedAssault, not Target:IsInMeleeRange(5)) then return "coordinated_assault cleave 8"; end
+    if Press(S.CoordinatedAssault, not Target:IsInMeleeRange(MeleeRange)) then return "coordinated_assault cleave 8"; end
   end
   -- kill_shot,if=buff.coordinated_assault_empower.up
   if S.KillShot:IsReady() and (Player:BuffUp(S.CoordinatedAssaultBuff)) then
@@ -269,11 +271,11 @@ local function Cleave()
   end
   -- carve,if=cooldown.wildfire_bomb.full_recharge_time>spell_targets%2
   if S.Carve:IsReady() and (S.WildfireBomb:FullRechargeTime() > EnemyCount8ySplash / 2) then
-    if Press(S.Carve, not Target:IsInMeleeRange(5)) then return "carve cleave 14"; end
+    if Press(S.Carve, not Target:IsInMeleeRange(MeleeRange)) then return "carve cleave 14"; end
   end
   -- butchery,if=full_recharge_time<gcd|dot.shrapnel_bomb.ticking&(dot.internal_bleeding.stack<2|dot.shrapnel_bomb.remains<gcd)
   if S.Butchery:IsReady() and (S.Butchery:FullRechargeTime() < Player:GCD() or Target:DebuffUp(S.ShrapnelBombDebuff) and (Target:DebuffStack(S.InternalBleedingDebuff) < 2 or Target:DebuffRemains(S.ShrapnelBombDebuff) < Player:GCD())) then
-    if Press(S.Butchery, not Target:IsInMeleeRange(8)) then return "butchery cleave 16"; end
+    if Press(S.Butchery, not Target:IsInMeleeRange(MeleeRange)) then return "butchery cleave 16"; end
   end
   -- wildfire_bomb,if=!dot.wildfire_bomb.ticking
   for BombNum, Bomb in pairs(Bombs) do
@@ -283,27 +285,27 @@ local function Cleave()
   end
   -- fury_of_the_eagle
   if S.FuryoftheEagle:IsCastable() then
-    if Press(S.FuryoftheEagle, not Target:IsInMeleeRange(5)) then return "fury_of_the_eagle cleave 22"; end
+    if Press(S.FuryoftheEagle, not Target:IsInMeleeRange(MeleeRange)) then return "fury_of_the_eagle cleave 22"; end
   end
   -- carve,if=dot.shrapnel_bomb.ticking
   if S.Carve:IsReady() and (Target:DebuffUp(S.ShrapnelBombDebuff)) then
-    if Press(S.Carve, not Target:IsInMeleeRange(5)) then return "carve cleave 24"; end
+    if Press(S.Carve, not Target:IsInMeleeRange(MeleeRange)) then return "carve cleave 24"; end
   end
   -- flanking_strike,if=focus+cast_regen<focus.max
   if S.FlankingStrike:IsCastable() and (CheckFocusCap(S.FlankingStrike:ExecuteTime(), 30)) then
-    if Press(S.FlankingStrike, not Target:IsInMeleeRange(5)) then return "flanking_strike cleave 26"; end
+    if Press(S.FlankingStrike, not Target:IsInMeleeRange(MeleeRange)) then return "flanking_strike cleave 26"; end
   end
   -- butchery,if=(!next_wi_bomb.shrapnel|!talent.wildfire_infusion)
   if S.Butchery:IsReady() and ((not S.ShrapnelBomb:IsCastable()) or not S.WildfireInfusion:IsAvailable()) then
-    if Press(S.Butchery, not Target:IsInMeleeRange(8)) then return "butchery cleave 28"; end
+    if Press(S.Butchery, not Target:IsInMeleeRange(MeleeRange)) then return "butchery cleave 28"; end
   end
   -- mongoose_bite,target_if=max:debuff.latent_poison.stack,if=debuff.latent_poison.stack>8
   if S.MongooseBite:IsReady() then
-    if Everyone.CastTargetIf(S.MongooseBite, EnemyList, "max", EvaluateTargetIfFilterLatentStacks, EvaluateTargetIfRaptorStrikeCleave, not Target:IsInMeleeRange(5)) then return "mongoose_bite cleave 30"; end
+    if Everyone.CastTargetIf(S.MongooseBite, EnemyList, "max", EvaluateTargetIfFilterLatentStacks, EvaluateTargetIfRaptorStrikeCleave, not Target:IsInMeleeRange(MeleeRange)) then return "mongoose_bite cleave 30"; end
   end
   -- raptor_strike,target_if=max:debuff.latent_poison.stack,if=debuff.latent_poison.stack>8
   if S.RaptorStrike:IsReady() then
-    if Everyone.CastTargetIf(S.RaptorStrike, EnemyList, "max", EvaluateTargetIfFilterLatentStacks, EvaluateTargetIfRaptorStrikeCleave, not Target:IsInMeleeRange(5)) then return "raptor_strike cleave 32"; end
+    if Everyone.CastTargetIf(S.RaptorStrike, EnemyList, "max", EvaluateTargetIfFilterLatentStacks, EvaluateTargetIfRaptorStrikeCleave, not Target:IsInMeleeRange(MeleeRange)) then return "raptor_strike cleave 32"; end
   end
   -- kill_command,target_if=min:bloodseeker.remains,if=focus+cast_regen<focus.max&full_recharge_time<gcd
   if S.KillCommand:IsCastable() and (CheckFocusCap(S.KillCommand:ExecuteTime()) and S.KillCommand:FullRechargeTime() < Player:GCD()) then
@@ -311,7 +313,7 @@ local function Cleave()
   end
   -- carve
   if S.Carve:IsReady() then
-    if Press(S.Carve, not Target:IsInMeleeRange(5)) then return "carve cleave 36"; end
+    if Press(S.Carve, not Target:IsInMeleeRange(MeleeRange)) then return "carve cleave 36"; end
   end
   -- kill_shot,if=!buff.coordinated_assault.up
   if S.KillShot:IsReady() and (Player:BuffDown(S.CoordinatedAssaultBuff)) then
@@ -327,7 +329,7 @@ local function Cleave()
   end
   -- mongoose_bite,target_if=min:dot.serpent_sting.remains,if=buff.spearhead.remains
   if S.MongooseBite:IsReady() and (Player:BuffUp(S.SpearheadBuff)) then
-    if Everyone.CastTargetIf(S.MongooseBite, EnemyList, "min", EvaluateTargetIfFilterSerpentStingRemains, nil, not Target:IsInMeleeRange(5)) then return "mongoose_bite cleave 42"; end
+    if Everyone.CastTargetIf(S.MongooseBite, EnemyList, "min", EvaluateTargetIfFilterSerpentStingRemains, nil, not Target:IsInMeleeRange(MeleeRange)) then return "mongoose_bite cleave 42"; end
   end
   -- serpent_sting,target_if=min:remains,if=refreshable&target.time_to_die>8&(!talent.vipers_venom|talent.hydras_bite)
   if S.SerpentSting:IsReady() then
@@ -335,11 +337,11 @@ local function Cleave()
   end
   -- mongoose_bite,target_if=min:dot.serpent_sting.remains
   if S.MongooseBite:IsReady() then
-    if Everyone.CastTargetIf(S.MongooseBite, EnemyList, "min", EvaluateTargetIfFilterSerpentStingRemains, nil, not Target:IsInMeleeRange(5)) then return "mongoose_bite cleave 44"; end
+    if Everyone.CastTargetIf(S.MongooseBite, EnemyList, "min", EvaluateTargetIfFilterSerpentStingRemains, nil, not Target:IsInMeleeRange(MeleeRange)) then return "mongoose_bite cleave 44"; end
   end
   -- raptor_strike,target_if=min:dot.serpent_sting.remains
   if S.RaptorStrike:IsReady() then
-    if Everyone.CastTargetIf(S.RaptorStrike, EnemyList, "min", EvaluateTargetIfFilterSerpentStingRemains, nil, not Target:IsInMeleeRange(5)) then return "raptor_strike cleave 46"; end
+    if Everyone.CastTargetIf(S.RaptorStrike, EnemyList, "min", EvaluateTargetIfFilterSerpentStingRemains, nil, not Target:IsInMeleeRange(MeleeRange)) then return "raptor_strike cleave 46"; end
   end
 end
 
@@ -374,11 +376,11 @@ local function ST()
   end
   -- mongoose_bite,if=buff.spearhead.remains
   if S.MongooseBite:IsReady() and (Player:BuffUp(S.SpearheadBuff)) then
-    if Press(S.MongooseBite, not Target:IsInMeleeRange(5)) then return "mongoose_bite st 10"; end
+    if Press(S.MongooseBite, not Target:IsInMeleeRange(MeleeRange)) then return "mongoose_bite st 10"; end
   end
   -- mongoose_bite,if=active_enemies=1&target.time_to_die<focus%(variable.mb_rs_cost-cast_regen)*gcd|buff.mongoose_fury.up&buff.mongoose_fury.remains<gcd
   if S.MongooseBite:IsReady() and (EnemyCount8ySplash == 1 and Target:TimeToDie() < Player:Focus() / (MBRSCost - Player:FocusCastRegen(S.MongooseBite:ExecuteTime())) * Player:GCD() or Player:BuffUp(S.MongooseFuryBuff) and Player:BuffRemains(S.MongooseFuryBuff) < Player:GCD()) then
-    if Press(S.MongooseBite, not Target:IsInMeleeRange(5)) then return "mongoose_bite st 12"; end
+    if Press(S.MongooseBite, not Target:IsInMeleeRange(MeleeRange)) then return "mongoose_bite st 12"; end
   end
   -- kill_shot,if=!buff.coordinated_assault.up
   if S.KillShot:IsReady() and (Player:BuffDown(S.CoordinatedAssaultBuff)) then
@@ -386,7 +388,7 @@ local function ST()
   end
   -- raptor_strike,if=active_enemies=1&target.time_to_die<focus%(variable.mb_rs_cost-cast_regen)*gcd
   if S.RaptorStrike:IsReady() and (EnemyCount8ySplash == 1 and Target:TimeToDie() < Player:Focus() / (MBRSCost - Player:FocusCastRegen(S.RaptorStrike:ExecuteTime())) * Player:GCD()) then
-    if Press(S.RaptorStrike, not Target:IsInMeleeRange(5)) then return "raptor_strike st 16"; end
+    if Press(S.RaptorStrike, not Target:IsInMeleeRange(MeleeRange)) then return "raptor_strike st 16"; end
   end
   -- serpent_sting,target_if=min:remains,if=!dot.serpent_sting.ticking&target.time_to_die>7&!talent.vipers_venom
   if S.SerpentSting:IsReady() and (not S.VipersVenom:IsAvailable()) then
@@ -394,11 +396,11 @@ local function ST()
   end
   -- mongoose_bite,if=talent.alpha_predator&buff.mongoose_fury.up&buff.mongoose_fury.remains<focus%(variable.mb_rs_cost-cast_regen)*gcd
   if S.MongooseBite:IsReady() and (S.AlphaPredator:IsAvailable() and Player:BuffUp(S.MongooseFuryBuff) and Player:BuffRemains(S.MongooseFuryBuff) < Player:Focus() / (MBRSCost - Player:FocusCastRegen(S.MongooseBite:ExecuteTime())) * Player:GCD()) then
-    if Press(S.MongooseBite, not Target:IsInMeleeRange(5)) then return "mongoose_bite st 20"; end
+    if Press(S.MongooseBite, not Target:IsInMeleeRange(MeleeRange)) then return "mongoose_bite st 20"; end
   end
   -- flanking_strike,if=focus+cast_regen<focus.max
   if S.FlankingStrike:IsCastable() and (CheckFocusCap(S.FlankingStrike:ExecuteTime(), 30)) then
-    if Press(S.FlankingStrike, not Target:IsInMeleeRange(5)) then return "flanking_strike st 22"; end
+    if Press(S.FlankingStrike, not Target:IsInMeleeRange(MeleeRange)) then return "flanking_strike st 22"; end
   end
   -- stampede
   if S.Stampede:IsCastable() and CDsON() then
@@ -406,7 +408,7 @@ local function ST()
   end
   -- coordinated_assault,if=!talent.coordinated_kill&target.health.pct<20&(!buff.spearhead.remains&cooldown.spearhead.remains|!talent.spearhead)|talent.coordinated_kill&(!buff.spearhead.remains&cooldown.spearhead.remains|!talent.spearhead)
   if S.CoordinatedAssault:IsCastable() and CDsON() and ((not S.CoordinatedKill:IsAvailable()) and Target:HealthPercentage() < 20 and (Player:BuffDown(S.SpearheadBuff) and S.Spearhead:CooldownDown() or not S.Spearhead:IsAvailable()) or S.CoordinatedKill:IsAvailable() and (Player:BuffDown(S.SpearheadBuff) and S.Spearhead:CooldownDown() or not S.Spearhead:IsAvailable())) then
-    if Press(S.CoordinatedAssault, not Target:IsInMeleeRange(5)) then return "coordinated_assault st 24"; end
+    if Press(S.CoordinatedAssault, not Target:IsInMeleeRange(MeleeRange)) then return "coordinated_assault st 24"; end
   end
   -- kill_command,target_if=min:bloodseeker.remains,if=full_recharge_time<gcd&focus+cast_regen<focus.max&(cooldown.flanking_strike.remains|!talent.flanking_strike)|debuff.shredded_armor.down&set_bonus.tier30_4pc
   if S.KillCommand:IsCastable() then
@@ -414,7 +416,7 @@ local function ST()
   end
   -- mongoose_bite,if=dot.shrapnel_bomb.ticking
   if S.MongooseBite:IsReady() and (Target:DebuffUp(S.ShrapnelBombDebuff)) then
-    if Press(S.MongooseBite, not Target:IsInMeleeRange(5)) then return "mongoose_bite st 30"; end
+    if Press(S.MongooseBite, not Target:IsInMeleeRange(MeleeRange)) then return "mongoose_bite st 30"; end
   end
   -- serpent_sting,target_if=min:remains,if=refreshable&!talent.vipers_venom
   if S.SerpentSting:IsReady() and (not S.VipersVenom:IsAvailable()) then
@@ -430,7 +432,7 @@ local function ST()
   end
   -- mongoose_bite,target_if=max:debuff.latent_poison.stack,if=buff.mongoose_fury.up
   if S.MongooseBite:IsReady() and (Player:BuffUp(S.MongooseFuryBuff)) then
-    if Everyone.CastTargetIf(S.MongooseBite, EnemyList, "max", EvaluateTargetIfFilterLatentStacks, nil, not Target:IsInMeleeRange(5)) then return "mongoose_bite st 36"; end
+    if Everyone.CastTargetIf(S.MongooseBite, EnemyList, "max", EvaluateTargetIfFilterLatentStacks, nil, not Target:IsInMeleeRange(MeleeRange)) then return "mongoose_bite st 36"; end
   end
   -- explosive_shot,if=talent.ranger
   if S.ExplosiveShot:IsReady() and (S.Ranger:IsAvailable()) then
@@ -446,11 +448,11 @@ local function ST()
   end
   -- mongoose_bite,target_if=max:debuff.latent_poison.stack,if=focus+action.kill_command.cast_regen>focus.max-10|set_bonus.tier30_4pc
   if S.MongooseBite:IsReady() and (Player:Focus() + Player:FocusCastRegen(S.KillCommand:ExecuteTime()) + 21 > Player:FocusMax() - 10 or Player:HasTier(30, 4)) then
-    if Everyone.CastTargetIf(S.MongooseBite, EnemyList, "max", EvaluateTargetIfFilterLatentStacks, nil, not Target:IsInMeleeRange(5)) then return "mongoose_bite st 40"; end
+    if Everyone.CastTargetIf(S.MongooseBite, EnemyList, "max", EvaluateTargetIfFilterLatentStacks, nil, not Target:IsInMeleeRange(MeleeRange)) then return "mongoose_bite st 40"; end
   end
   -- raptor_strike,target_if=max:debuff.latent_poison.stack
   if S.RaptorStrike:IsReady() then
-    if Everyone.CastTargetIf(S.RaptorStrike, EnemyList, "max", EvaluateTargetIfFilterLatentStacks, nil, not Target:IsInMeleeRange(5)) then return "raptor_strike st 46"; end
+    if Everyone.CastTargetIf(S.RaptorStrike, EnemyList, "max", EvaluateTargetIfFilterLatentStacks, nil, not Target:IsInMeleeRange(MeleeRange)) then return "raptor_strike st 46"; end
   end
   -- steel_trap
   if S.SteelTrap:IsCastable() then
@@ -468,11 +470,11 @@ local function ST()
   end
   -- coordinated_assault,if=!talent.coordinated_kill&time_to_die>140
   if S.CoordinatedAssault:IsCastable() and ((not S.CoordinatedKill:IsAvailable()) and Target:TimeToDie() > 140) then
-    if Press(S.CoordinatedAssault, not Target:IsInMeleeRange(5)) then return "coordinated_assault st 54"; end
+    if Press(S.CoordinatedAssault, not Target:IsInMeleeRange(MeleeRange)) then return "coordinated_assault st 54"; end
   end
   -- fury_of_the_eagle,interrupt=1
   if S.FuryoftheEagle:IsCastable() then
-    if Press(S.FuryoftheEagle, not Target:IsInMeleeRange(5)) then return "fury_of_the_eagle st 56"; end
+    if Press(S.FuryoftheEagle, not Target:IsInMeleeRange(MeleeRange)) then return "fury_of_the_eagle st 56"; end
   end
 end
 
