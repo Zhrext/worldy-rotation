@@ -79,7 +79,7 @@ local Enemies40y, PetEnemiesMixedy, PetEnemiesMixedyCount
 
 -- Range
 local TargetInRange40y, TargetInRange30y
-local TargetInRangePet30y
+local TargetInKillCommandRange30y
 
 local function num(val)
   if val then return 1 else return 0 end
@@ -174,8 +174,8 @@ local function Precombat()
     if Press(S.KillShot, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot precombat 10"; end
   end
   -- Kill Command
-  if S.KillCommand:IsReady() and TargetInRangePet30y then
-    if Press(S.KillCommand, not TargetInRangePet30y) then return "kill_command precombat 12"; end
+  if S.KillCommand:IsReady() then
+    if Press(S.KillCommand, not TargetInKillCommandRange30y) then return "kill_command precombat 12"; end
   end
   if PetEnemiesMixedyCount > 1 then
     -- Multi Shot
@@ -248,7 +248,7 @@ local function Cleave()
   end
   -- kill_command,if=full_recharge_time<gcd&talent.alpha_predator&talent.kill_cleave
   if S.KillCommand:IsReady() and (S.KillCommand:FullRechargeTime() < GCDMax and S.AlphaPredator:IsAvailable() and S.KillCleave:IsAvailable()) then
-    if Press(S.KillCommand, not TargetInRangePet30y) then return "kill_command cleave 8"; end
+    if Press(S.KillCommand, not TargetInKillCommandRange30y) then return "kill_command cleave 8"; end
   end
   -- call_of_the_wild
   if S.CalloftheWild:IsCastable() and CDsON() then
@@ -288,7 +288,7 @@ local function Cleave()
   end
   -- kill_command
   if S.KillCommand:IsReady() then
-    if Press(S.KillCommand, not TargetInRangePet30y) then return "kill_command cleave 30"; end
+    if Press(S.KillCommand, not TargetInKillCommandRange30y) then return "kill_command cleave 30"; end
   end
   -- dire_beast
   if S.DireBeast:IsCastable() then
@@ -346,7 +346,7 @@ local function ST()
   end
   -- kill_command,if=full_recharge_time<gcd&talent.alpha_predator
   if S.KillCommand:IsReady() and (S.KillCommand:FullRechargeTime() < GCDMax and S.AlphaPredator:IsAvailable()) then
-    if Press(S.KillCommand, not TargetInRangePet30y) then return "kill_command st 4"; end
+    if Press(S.KillCommand, not TargetInKillCommandRange30y) then return "kill_command st 4"; end
   end
   -- call_of_the_wild
   if S.CalloftheWild:IsCastable() and CDsON() then
@@ -382,7 +382,7 @@ local function ST()
   end
   -- kill_command
   if S.KillCommand:IsReady() then
-    if Press(S.KillCommand, not TargetInRangePet30y) then return "kill_command st 22"; end
+    if Press(S.KillCommand, not TargetInKillCommandRange30y) then return "kill_command st 22"; end
   end
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=talent.wild_instincts&buff.call_of_the_wild.up|talent.wild_call&charges_fractional>1.4|full_recharge_time<gcd&cooldown.bestial_wrath.remains|talent.scent_of_blood&(cooldown.bestial_wrath.remains<12+gcd|full_recharge_time+gcd<8&cooldown.bestial_wrath.remains<24+(8-gcd)+full_recharge_time)|fight_remains<9
   if S.BarbedShot:IsCastable() then
@@ -470,7 +470,7 @@ local function APL()
   end
   TargetInRange40y = Target:IsInRange(40) -- Most abilities
   TargetInRange30y = Target:IsInRange(30) -- Stampede
-  TargetInRangePet30y = (PetRangeAbility and Target:IsSpellInActionRange(PetRangeAbility)) or Target:IsInRange(30) -- Kill Command
+  TargetInKillCommandRange30y = (PetRangeAbility and Target:IsSpellInActionRange(PetRangeAbility)) or Target:IsSpellInRange(S.KillCommand) -- Kill Command
 
   -- Defensives
   -- Exhilaration
