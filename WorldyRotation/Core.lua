@@ -132,8 +132,8 @@ do
   function WR.Cast(Object, OffGCD, DisplayStyle, OutofRange, CustomTime)
     return WR.Press(Object, OutofRange, nil, OffGCD);
   end
-  function WR.CastAnnotated(Object, OffGCD, Text)
-    return WR.Press(Object, nil, nil, OffGCD);
+  function WR.CastAnnotated(Object, OffGCD, Text, OutofRange)
+    return WR.Press(Object, OutofRange, nil, OffGCD);
   end
   function WR.CastPooling(Object, CustomTime, OutofRange)
     return WR.Press(Object, OutofRange);
