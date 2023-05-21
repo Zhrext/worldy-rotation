@@ -45,7 +45,7 @@ local S = Spell.Warlock.Affliction
 
 -- Items
 local I = Item.Warlock.Affliction
-local TrinketsOnUseExcludes = {
+local OnUseExcludes = {
   I.ConjuredChillglobe:ID(),
   I.DesperateInvokersCodex:ID(),
 }

@@ -40,6 +40,13 @@ local OnUseExcludes = {
 
 -- Variables
 local TargetInMeleeRange
+local BossFightRemains = 11111
+local FightRemains = 11111
+
+HL:RegisterForEvent(function()
+  BossFightRemains = 11111
+  FightRemains = 11111
+end, "PLAYER_REGEN_ENABLED")
 
 -- Enemies Variables
 local Enemies8y
@@ -414,6 +421,15 @@ local function APL()
 
   -- Range check
   TargetInMeleeRange = Target:IsInMeleeRange(5)
+  
+  if Everyone.TargetIsValid() or Player:AffectingCombat() then
+    -- Calculate fight_remains
+    BossFightRemains = HL.BossFightRemains(nil, true)
+    FightRemains = BossFightRemains
+    if FightRemains == 11111 then
+      FightRemains = HL.FightRemains(Enemies10yd, false)
+    end
+  end
   
   -- Manually added: Group buff check
   if not Player:AffectingCombat() and S.BattleShout:IsCastable() and (Player:BuffDown(S.BattleShoutBuff, true) or Everyone.GroupBuffMissing(S.BattleShoutBuff)) then

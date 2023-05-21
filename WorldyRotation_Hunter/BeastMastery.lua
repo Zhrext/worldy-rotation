@@ -167,15 +167,19 @@ local function Precombat()
   -- Manually added opener abilities
   -- Barbed Shot
   if S.BarbedShot:IsCastable() and S.BarbedShot:Charges() >= 2 then
-    if Press(S.BarbedShot, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot precombat 8"; end
+    if Press(M.BarbedShotPetAttack, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot precombat 8"; end
   end
   -- Kill Shot
   if S.KillShot:IsReady() then
     if Press(S.KillShot, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot precombat 10"; end
   end
+  -- kill_shot_mouseover
+  if Mouseover:Exists() and S.KillShot:IsCastable() and Mouseover:HealthPercentage() <= 20  then
+    if Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover precombat 11"; end
+  end
   -- Kill Command
   if S.KillCommand:IsReady() then
-    if Press(S.KillCommand, not TargetInKillCommandRange30y) then return "kill_command precombat 12"; end
+    if Press(M.KillCommandPetAttack, not TargetInKillCommandRange30y) then return "kill_command precombat 12"; end
   end
   if PetEnemiesMixedyCount > 1 then
     -- Multi Shot
@@ -232,11 +236,11 @@ end
 local function Cleave()
   -- barbed_shot,target_if=max:debuff.latent_poison.stack,if=debuff.latent_poison.stack>9&(pet.main.buff.frenzy.up&pet.main.buff.frenzy.remains<=gcd+0.25|talent.scent_of_blood&cooldown.bestial_wrath.remains<12+gcd|full_recharge_time<gcd&cooldown.bestial_wrath.remains)
   if S.BarbedShot:IsCastable() then
-    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "max", EvaluateTargetIfFilterLatentPoison, EvaluateTargetIfBarbedShotCleave, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot cleave 2"; end
+    if Everyone.CastTargetIf(M.BarbedShotPetAttack, Enemies40y, "max", EvaluateTargetIfFilterLatentPoison, EvaluateTargetIfBarbedShotCleave, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot cleave 2"; end
   end
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=pet.main.buff.frenzy.up&pet.main.buff.frenzy.remains<=gcd+0.25|talent.scent_of_blood&cooldown.bestial_wrath.remains<12+gcd|full_recharge_time<gcd&cooldown.bestial_wrath.remains
   if S.BarbedShot:IsCastable() then
-    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotCleave2, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot cleave 4"; end
+    if Everyone.CastTargetIf(M.BarbedShotPetAttack, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotCleave2, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot cleave 4"; end
   end
   -- multishot,if=gcd-pet.main.buff.beast_cleave.remains>0.25
   if S.MultiShot:IsReady() and (GCDMax - Pet:BuffRemains(S.BeastCleavePetBuff) > 0.25) then
@@ -248,7 +252,7 @@ local function Cleave()
   end
   -- kill_command,if=full_recharge_time<gcd&talent.alpha_predator&talent.kill_cleave
   if S.KillCommand:IsReady() and (S.KillCommand:FullRechargeTime() < GCDMax and S.AlphaPredator:IsAvailable() and S.KillCleave:IsAvailable()) then
-    if Press(S.KillCommand, not TargetInKillCommandRange30y) then return "kill_command cleave 8"; end
+    if Press(M.KillCommandPetAttack, not TargetInKillCommandRange30y) then return "kill_command cleave 8"; end
   end
   -- call_of_the_wild
   if S.CalloftheWild:IsCastable() and CDsON() then
@@ -280,15 +284,15 @@ local function Cleave()
   end
   -- barbed_shot,target_if=max:debuff.latent_poison.stack,if=debuff.latent_poison.stack>9&(talent.wild_instincts&buff.call_of_the_wild.up|fight_remains<9|talent.wild_call&charges_fractional>1.2)
   if S.BarbedShot:IsCastable() then
-    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "max", EvaluateTargetIfFilterLatentPoison, EvaluateTargetIfBarbedShotCleave3, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot cleave 26"; end
+    if Everyone.CastTargetIf(M.BarbedShotPetAttack, Enemies40y, "max", EvaluateTargetIfFilterLatentPoison, EvaluateTargetIfBarbedShotCleave3, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot cleave 26"; end
   end
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=talent.wild_instincts&buff.call_of_the_wild.up|fight_remains<9|talent.wild_call&charges_fractional>1.2
   if S.BarbedShot:IsCastable() then
-    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotCleave4, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot cleave 28"; end
+    if Everyone.CastTargetIf(M.BarbedShotPetAttack, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotCleave4, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot cleave 28"; end
   end
   -- kill_command
   if S.KillCommand:IsReady() then
-    if Press(S.KillCommand, not TargetInKillCommandRange30y) then return "kill_command cleave 30"; end
+    if Press(M.KillCommandPetAttack, not TargetInKillCommandRange30y) then return "kill_command cleave 30"; end
   end
   -- dire_beast
   if S.DireBeast:IsCastable() then
@@ -332,21 +336,21 @@ local function Cleave()
   end
   -- kill_shot_mouseover
   if Mouseover:Exists() and S.KillShot:IsCastable() and Mouseover:HealthPercentage() <= 20  then
-    if Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover cleave 38"; end
+    if Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover cleave 39"; end
   end
 end
 
 local function ST()
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=pet.main.buff.frenzy.up&pet.main.buff.frenzy.remains<=gcd+0.25|talent.scent_of_blood&pet.main.buff.frenzy.stack<3&cooldown.bestial_wrath.ready
   if S.BarbedShot:IsCastable() then
-    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotST, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot st 2"; end
+    if Everyone.CastTargetIf(M.BarbedShotPetAttack, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotST, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot st 2"; end
   end
   if S.BarbedShot:IsCastable() and EvaluateTargetIfBarbedShotST(Target) then
-    if Press(S.BarbedShot, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot st mt_backup 3"; end
+    if Press(M.BarbedShotPetAttack, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot st mt_backup 3"; end
   end
   -- kill_command,if=full_recharge_time<gcd&talent.alpha_predator
   if S.KillCommand:IsReady() and (S.KillCommand:FullRechargeTime() < GCDMax and S.AlphaPredator:IsAvailable()) then
-    if Press(S.KillCommand, not TargetInKillCommandRange30y) then return "kill_command st 4"; end
+    if Press(M.KillCommandPetAttack, not TargetInKillCommandRange30y) then return "kill_command st 4"; end
   end
   -- call_of_the_wild
   if S.CalloftheWild:IsCastable() and CDsON() then
@@ -382,14 +386,14 @@ local function ST()
   end
   -- kill_command
   if S.KillCommand:IsReady() then
-    if Press(S.KillCommand, not TargetInKillCommandRange30y) then return "kill_command st 22"; end
+    if Press(M.KillCommandPetAttack, not TargetInKillCommandRange30y) then return "kill_command st 22"; end
   end
   -- barbed_shot,target_if=min:dot.barbed_shot.remains,if=talent.wild_instincts&buff.call_of_the_wild.up|talent.wild_call&charges_fractional>1.4|full_recharge_time<gcd&cooldown.bestial_wrath.remains|talent.scent_of_blood&(cooldown.bestial_wrath.remains<12+gcd|full_recharge_time+gcd<8&cooldown.bestial_wrath.remains<24+(8-gcd)+full_recharge_time)|fight_remains<9
   if S.BarbedShot:IsCastable() then
-    if Everyone.CastTargetIf(S.BarbedShot, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotST2, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot st 24"; end
+    if Everyone.CastTargetIf(M.BarbedShotPetAttack, Enemies40y, "min", EvaluateTargetIfFilterBarbedShot, EvaluateTargetIfBarbedShotST2, not Target:IsSpellInRange(S.BarbedShot), nil, nil, M.BarbedShotMouseover) then return "barbed_shot st 24"; end
   end
   if S.BarbedShot:IsCastable() and EvaluateTargetIfBarbedShotST2(Target) then
-    if Press(S.BarbedShot, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot st mt_backup 25"; end
+    if Press(M.BarbedShotPetAttack, not Target:IsSpellInRange(S.BarbedShot)) then return "barbed_shot st mt_backup 25"; end
   end
   -- dire_beast
   if S.DireBeast:IsCastable() then
@@ -402,6 +406,10 @@ local function ST()
   -- kill_shot
   if S.KillShot:IsReady() then
     if Press(S.KillShot, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot st 30"; end
+  end
+  -- kill_shot_mouseover
+  if Mouseover:Exists() and S.KillShot:IsCastable() and Mouseover:HealthPercentage() <= 20  then
+    if Press(M.KillShotMouseover, not Mouseover:IsSpellInRange(S.KillShot)) then return "kill_shot_mouseover st 31"; end
   end
   -- aspect_of_the_wild
   if S.AspectoftheWild:IsCastable() and CDsON() then
@@ -592,11 +600,13 @@ local function AutoBind()
   
   -- Macros
   Bind(M.BarbedShotMouseover)
+  Bind(M.BarbedShotPetAttack)
   Bind(M.BindingShotCursor)
   Bind(M.CobraShotMouseover)
   Bind(M.CobraShotPetAttack)
   Bind(M.CounterShotMouseover)
   Bind(M.IntimidationMouseover)
+  Bind(M.KillCommandPetAttack)
   Bind(M.KillShotMouseover)
   Bind(M.SerpentStingMouseover)
   Bind(M.MisdirectionFocus)

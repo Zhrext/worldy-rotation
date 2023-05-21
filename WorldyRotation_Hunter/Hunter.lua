@@ -262,8 +262,10 @@ Macro.Hunter.Commons = {
 
 Macro.Hunter.BeastMastery = MergeTableByKey(Macro.Hunter.Commons, {
   BarbedShotMouseover              = Macro("BarbedShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.BeastMastery.BarbedShot:Name()),
+  BarbedShotPetAttack              = Macro("BarbedShotPetAttack", "/cast " .. Spell.Hunter.BeastMastery.BarbedShot:Name() .. "\n/petattack"),
   CobraShotMouseover               = Macro("CobraShotMouseover", "/cast [@mouseover] " .. Spell.Hunter.BeastMastery.CobraShot:Name()),
   CobraShotPetAttack               = Macro("CobraShotPetAttack", "/cast " .. Spell.Hunter.BeastMastery.CobraShot:Name() .. "\n/petattack"),
+  KillCommandPetAttack             = Macro("KillCommandPetAttack", "/cast " .. Spell.Hunter.BeastMastery.KillCommand:Name() .. "\n/petattack"),
 })
 
 Macro.Hunter.Marksmanship = MergeTableByKey(Macro.Hunter.Commons, {
