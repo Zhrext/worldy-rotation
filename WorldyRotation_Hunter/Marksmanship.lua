@@ -486,10 +486,6 @@ local function APL()
       ShouldReturn = Everyone.Interrupt(S.CounterShot, 40, true, Mouseover, M.CounterShotMouseover); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.InterruptWithStun(S.Intimidation, 40, false, Mouseover, M.IntimidationMouseover); if ShouldReturn then return ShouldReturn; end
     end
-    -- Explosives
-    if Settings.General.Enabled.HandleExplosives then
-      local ShouldReturn = Everyone.HandleExplosive(S.ArcaneShot, M.ArcaneShotMouseover); if ShouldReturn then return ShouldReturn; end
-    end
     -- Dispels
     if Settings.General.Enabled.DispelBuffs and S.TranquilizingShot:IsReady() and not Player:IsCasting() and not Player:IsChanneling() and (Everyone.UnitHasEnrageBuff(Target) or Everyone.UnitHasMagicBuff(Target)) then
       if Press(S.TranquilizingShot, not TargetInRange40y) then return "dispel"; end

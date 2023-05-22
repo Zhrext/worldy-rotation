@@ -523,11 +523,6 @@ local function APL()
   if Everyone.TargetIsValid() and not VarInit then
     InitVars()
   end
-  
-  -- Explosives
-  if (Settings.General.Enabled.HandleExplosives) then
-    local ShouldReturn = Everyone.HandleExplosive(S.Moonfire, M.MoonfireMouseover); if ShouldReturn then return ShouldReturn; end
-  end
 
   if Everyone.TargetIsValid() or Player:AffectingCombat() then
     Immovable = true --Player:BuffDown(S.StarfallBuff) or Player:BuffRemains(S.StarfallBuff) < 2

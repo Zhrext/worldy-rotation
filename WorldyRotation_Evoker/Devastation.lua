@@ -412,11 +412,6 @@ local function APL()
       if Press(S.BlessingoftheBronze) then return "blessing_of_the_bronze precombat"; end
     end
   end
-  
-  -- Explosives
-  if (Settings.General.Enabled.HandleExplosives) then
-    local ShouldReturn = Everyone.HandleExplosive(S.AzureStrike, M.AzureStrikeMouseover); if ShouldReturn then return ShouldReturn; end
-  end
 
   if Everyone.TargetIsValid() then
     -- Precombat

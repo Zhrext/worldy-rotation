@@ -11,7 +11,6 @@
   local CreatePanelOption = GUI.CreatePanelOption;
   local CreateARPanelOptions = WR.GUI.CreateARPanelOptions
 
-
 --- ============================ CONTENT ============================
   -- Default settings
   WR.GUISettings = {
@@ -30,8 +29,6 @@
         -- Dispel
         DispelBuffs = false,
         DispelDebuffs = false,
-        -- Explosives
-        HandleExplosives = false,
         -- Misc
         Racials = false,
         Potions = false,
@@ -41,11 +38,10 @@
       },
       Threshold = {
         -- Interrupt
-        Interrupt = 60,
+        Interrupt = 85,
       },
       HP = {
         Healthstone = 40,
-        PhialOfSerenity = 40,
       },
     },
     APL = {}

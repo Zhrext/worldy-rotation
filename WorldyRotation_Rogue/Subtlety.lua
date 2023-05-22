@@ -42,6 +42,9 @@ local S = Spell.Rogue.Subtlety
 local I = Item.Rogue.Subtlety
 local M = Macro.Rogue.Subtlety
 
+local OnUseExcludes = {
+}
+
 -- Rotation Var
 local MeleeRange, AoERange, TargetInMeleeRange, TargetInAoERange
 local Enemies30y, MeleeEnemies10y, MeleeEnemies10yCount, MeleeEnemies5y
@@ -767,9 +770,9 @@ local function APL ()
       ShouldReturn = Everyone.InterruptWithStun(S.Blind, 15, nil, Mouseover, M.BlindMouseover); if ShouldReturn then return ShouldReturn; end
       --ShouldReturn = Everyone.InterruptWithStun(S.KidneyShot, 5, nil, Mouseover, M.KidneyShotMouseover); if ShouldReturn then return ShouldReturn; end
     end
-    -- actions+=/explosives
-    if Settings.General.Enabled.HandleExplosives then
-      ShouldReturn = Everyone.HandleExplosive(S.Backstab, M.BackstabMouseover, 5); if ShouldReturn then return ShouldReturn end
+    -- Dispels
+    if Settings.General.Enabled.DispelBuffs and S.Shiv:IsReady() and not Player:IsCasting() and not Player:IsChanneling() and Everyone.UnitHasEnrageBuff(Target) then
+      if Press(S.Shiv, not TargetInMeleeRange) then return "dispel"; end
     end
   
     --Shortcut this for now.
@@ -874,6 +877,9 @@ local function AutoBind()
   Bind(S.ThistleTea)
   Bind(S.Vanish)
   
+  -- Bind Items
+  Bind(M.Trinket1)
+  Bind(M.Trinket2)
   Bind(M.ElementalPotionOfPower)
   Bind(M.Healthstone)
   Bind(M.RefreshingHealingPotion)

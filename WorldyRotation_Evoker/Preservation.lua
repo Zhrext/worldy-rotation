@@ -384,11 +384,6 @@ local function APL()
     if CastAnnotated(S.Pool, false, "WAIT") then return "Pool for SB " .. SBCastTime; end
   end
   
-  -- explosives
-  if Settings.General.Enabled.HandleExplosives then
-    local ShouldReturn = Everyone.HandleExplosive(S.AzureStrike, M.AzureStrikeMouseover); if ShouldReturn then return ShouldReturn; end
-  end
-  
   -- revive
   if Target and Target:Exists() and Target:IsAPlayer() and Target:IsDeadOrGhost() and not Player:CanAttack(Target) then
     local DeadFriendlyUnitsCount = Everyone.DeadFriendlyUnitsCount()

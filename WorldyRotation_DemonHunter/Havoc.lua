@@ -211,10 +211,6 @@ local function APL()
   end
 
   if Everyone.TargetIsValid() then
-    -- Explosives
-    if (Settings.General.Enabled.HandleExplosives) then
-      local ShouldReturn = Everyone.HandleExplosive(S.ThrowGlaive, M.ThrowGlaiveMouseover); if ShouldReturn then return ShouldReturn; end
-    end
     -- Precombat
     if not Player:AffectingCombat() then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end

@@ -349,7 +349,6 @@ local function APL()
     end
   end
 
-  
   if not Player:AffectingCombat() then
     -- berserker_stance,toggle=on
     if S.BerserkerStance:IsCastable() and Player:BuffDown(S.BerserkerStance, true) then

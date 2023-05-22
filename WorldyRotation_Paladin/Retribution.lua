@@ -348,10 +348,6 @@ local function APL()
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
     end
     -- auto_attack
-    -- Explosives
-    if Settings.General.Enabled.HandleExplosives then
-      local ShouldReturn = Everyone.HandleExplosive(S.Judgment, M.JudgmentMouseover, 30); if ShouldReturn then return ShouldReturn; end
-    end
     -- Interrupts
     if not Player:IsCasting() and not Player:IsChanneling() then
       local ShouldReturn = Everyone.Interrupt(S.Rebuke, 5, true); if ShouldReturn then return ShouldReturn; end

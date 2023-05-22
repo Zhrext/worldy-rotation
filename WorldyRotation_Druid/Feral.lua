@@ -661,10 +661,6 @@ local function APL()
     if not Player:AffectingCombat() then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
     end
-    -- Explosives
-    if Settings.General.Enabled.HandleExplosives then
-      local ShouldReturn = Everyone.HandleExplosive(S.Rake, M.RakeMouseover, 8); if ShouldReturn then return ShouldReturn; end
-    end
     -- Interrupts
     if not Player:IsCasting() and not Player:IsChanneling() then
       local ShouldReturn = Everyone.Interrupt(S.SkullBash, 10, true); if ShouldReturn then return ShouldReturn; end

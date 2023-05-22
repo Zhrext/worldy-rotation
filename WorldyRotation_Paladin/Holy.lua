@@ -435,12 +435,6 @@ local function APL()
   else
     EnemiesCount8y = 1
   end
-  
-  -- explosives
-  if Settings.General.Enabled.HandleExplosives then
-    local ShouldReturn = Everyone.HandleExplosive(S.CrusaderStrike, M.CrusaderStrikeMouseover, 8); if ShouldReturn then return ShouldReturn; end
-    ShouldReturn = Everyone.HandleExplosive(S.Judgment, M.JudgmentMouseover, 30); if ShouldReturn then return ShouldReturn; end
-  end
 
   if not Player:IsChanneling() then
     if Player:AffectingCombat() then

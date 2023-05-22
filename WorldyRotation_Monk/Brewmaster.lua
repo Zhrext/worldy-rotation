@@ -178,10 +178,6 @@ local function APL()
       ShouldReturn = Everyone.InterruptWithStun(S.LegSweep, 8); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.Interrupt(S.SpearHandStrike, 40, true, Mouseover, M.SpearHandStrikeMouseover); if ShouldReturn then return ShouldReturn; end
     end
-    -- Explosives
-    if Settings.General.Enabled.HandleExplosives then
-      local ShouldReturn = Everyone.HandleExplosive(S.TigerPalm, M.TigerPalmMouseover); if ShouldReturn then return ShouldReturn; end
-    end
     -- Defensives
     if IsTanking then
       local ShouldReturn = Defensives(); if ShouldReturn then return ShouldReturn; end

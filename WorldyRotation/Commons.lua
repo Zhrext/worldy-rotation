@@ -63,22 +63,6 @@ function Commons.CanDoTUnit(Unit, HealthThreshold)
   return Unit:Health() >= HealthThreshold or Unit:IsDummy();
 end
 
--- Explosive
-do
-  local ExplosiveNPCID = 120651;
-  function Commons.HandleExplosive(Spell, Macro, Range)
-    if not Range then Range = 40; end
-    if Target and Target:Exists() and Target:NPCID() == ExplosiveNPCID and Target:IsInRange(Range) and Spell:IsReady() then
-      if WR.Press(Spell, not Target:IsSpellInRange(Spell)) then return "Handle Explosive"; end
-    end
-    if Macro then
-      if Mouseover and Mouseover:Exists() and Mouseover:NPCID() == ExplosiveNPCID and Mouseover:IsInRange(Range) and Spell:IsReady() then
-        if WR.Press(Macro, not Mouseover:IsSpellInRange(Spell)) then return "Handle Explosive Mouseover"; end
-      end
-    end
-  end
-end
-
 -- Interrupt
 do
   Commons.InterruptWhitelistIDs = {
