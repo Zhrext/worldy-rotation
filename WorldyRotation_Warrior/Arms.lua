@@ -35,7 +35,6 @@ local M = Macro.Warrior.Arms
 
 -- Create table to exclude above trinkets from On Use function
 local OnUseExcludes = {
-  I.ManicGrieftorch:ID(),
 }
 
 -- Variables
@@ -123,7 +122,7 @@ local function Hac()
   end
   -- avatar,if=raid_event.adds.in>15|talent.blademasters_torment&active_enemies>1|target.time_to_die<20
   if CDsON() and S.Avatar:IsCastable() and ((S.BlademastersTorment:IsAvailable() and EnemiesCount8y > 1) or HL.FightRemains() < 20) then
-    if Press(S.Avatar) then return "avatar hac 71"; end
+    if Press(S.Avatar, not TargetInMeleeRange) then return "avatar hac 71"; end
   end
   -- warbreaker,if=raid_event.adds.in>22|active_enemies>1
   if S.Warbreaker:IsCastable() and EnemiesCount8y > 1 then
@@ -255,7 +254,7 @@ local function Execute()
   end
   -- avatar,if=cooldown.colossus_smash.ready|debuff.colossus_smash.up|target.time_to_die<20
   if CDsON() and S.Avatar:IsCastable() and (S.ColossusSmash:CooldownUp() or Target:DebuffUp(S.ColossusSmashDebuff) or HL.FightRemains() < 20) then
-    if Press(S.Avatar) then return "avatar execute 53"; end
+    if Press(S.Avatar, not TargetInMeleeRange) then return "avatar execute 53"; end
   end
   -- warbreaker
   if CDsON() and S.Warbreaker:IsCastable() then
@@ -322,7 +321,7 @@ local function SingleTarget()
   end
   -- avatar,if=talent.warlords_torment&rage.pct<33&(cooldown.colossus_smash.ready|debuff.colossus_smash.up|buff.test_of_might.up)|!talent.warlords_torment&(cooldown.colossus_smash.ready|debuff.colossus_smash.up)
   if CDsON() and S.Avatar:IsCastable() and ((S.WarlordsTorment:IsAvailable() and Player:RagePercentage() < 33 and (S.ColossusSmash:CooldownUp() or Target:DebuffUp(S.ColossusSmashDebuff) or Player:BuffUp(S.TestofMightBuff))) or (not S.WarlordsTorment:IsAvailable() and (S.ColossusSmash:CooldownUp() or Target:DebuffUp(S.ColossusSmashDebuff)))) then
-    if Press(S.Avatar) then return "avatar single_target 101"; end
+    if Press(S.Avatar, not TargetInMeleeRange) then return "avatar single_target 101"; end
   end
   -- spear_of_bastion,if=cooldown.colossus_smash.remains<=gcd|cooldown.warbreaker.remains<=gcd
   if CDsON() and S.SpearofBastion:IsCastable() and (S.ColossusSmash:CooldownRemains() <= Player:GCD() or S.Warbreaker:CooldownRemains() <= Player:GCD() ) then
@@ -334,7 +333,7 @@ local function SingleTarget()
   end
   -- colossus_smash
   if CDsON() and S.ColossusSmash:IsCastable() then
-    if Press(S.ColossusSmash,not TargetInMeleeRange) then return "colossus_smash single_target 104"; end
+    if Press(S.ColossusSmash, not TargetInMeleeRange) then return "colossus_smash single_target 104"; end
   end
   -- thunderous_roar,if=buff.test_of_might.up|talent.test_of_might&debuff.colossus_smash.up&rage.pct<33|!talent.test_of_might&debuff.colossus_smash.up
   if CDsON() and S.ThunderousRoar:IsCastable() and (Player:BuffUp(S.TestofMightBuff) or (S.TestofMight:IsAvailable() and Target:DebuffUp(S.ColossusSmashDebuff) and Player:RagePercentage() < 33) or (not S.TestofMight:IsAvailable() and Target:DebuffUp(S.ColossusSmashDebuff))) then
@@ -444,6 +443,8 @@ local function APL()
     -- Interrupts
     local ShouldReturn = Everyone.Interrupt(S.Pummel, 5, true); if ShouldReturn then return ShouldReturn; end
     ShouldReturn = Everyone.InterruptWithStun(S.StormBolt, 8); if ShouldReturn then return ShouldReturn; end
+    ShouldReturn = Everyone.Interrupt(S.Pummel, 5, true, Mouseover, M.PummelMouseover); if ShouldReturn then return ShouldReturn; end
+    ShouldReturn = Everyone.InterruptWithStun(S.StormBolt, 8, nil, Mouseover, M.StormBoltMouseover); if ShouldReturn then return ShouldReturn; end
     -- charge
     if Settings.Commons.Enabled.Charge and S.Charge:IsCastable() and (not TargetInMeleeRange) then
       if Press(S.Charge, not Target:IsSpellInRange(S.Charge)) then return "charge main 34"; end
@@ -467,13 +468,7 @@ local function APL()
     end
     -- auto_attack
     -- potion,if=gcd.remains=0&debuff.colossus_smash.remains>8|target.time_to_die<25
-    -- use_item,name=manic_grieftorch,if=!buff.avatar.up&!debuff.colossus_smash.up
-    if Settings.General.Enabled.Trinkets and CDsON() then
-      if I.ManicGrieftorch:IsEquippedAndReady() and not Player:BuffUp(S.Avatar) and not Target:DebuffRemains(S.ColossusSmashDebuff) then
-        if Press(I.ManicGrieftorch) then return "manic_grieftorch main 38"; end
-      end
-    end
-    if CDsON() then
+    if CDsON() and TargetInMeleeRange then
       -- blood_fury,if=debuff.colossus_smash.up
       if S.BloodFury:IsCastable() and Target:DebuffUp(S.ColossusSmashDebuff) then
         if Press(S.BloodFury) then return "blood_fury main 39"; end
@@ -502,14 +497,8 @@ local function APL()
       if S.BagofTricks:IsCastable() and (Target:DebuffDown(S.ColossusSmashDebuff) and not S.MortalStrike:CooldownUp()) then
         if Press(S.BagofTricks, not Target:IsSpellInRange(S.BagofTricks)) then return "bag_of_tricks main 10"; end
       end
-      -- use_item,name=manic_grieftorch
-      if Settings.General.Enabled.Trinkets and CDsON() then
-        if I.ManicGrieftorch:IsEquippedAndReady() then
-          if Press(I.ManicGrieftorch) then return "manic_grieftorch main 46"; end
-        end
-      end
     end
-    if CDsON() and (Settings.General.Enabled.Trinkets) and Target:IsInMeleeRange(8) then
+    if CDsON() and (Settings.General.Enabled.Trinkets) and TargetInMeleeRange then
       -- use_item,slot=trinket1
       local Trinket1ToUse = Player:GetUseableItems(OnUseExcludes, 13)
       if Trinket1ToUse then
@@ -543,33 +532,40 @@ local function AutoBind()
   Bind(S.ArcaneTorrent)
   Bind(S.BagofTricks)
   Bind(S.BattleShout)
+  Bind(S.BattleStance)
   Bind(S.Berserking)
   Bind(S.Bladestorm)
   Bind(S.Charge)
   Bind(S.Cleave)
   Bind(S.Execute)
   Bind(S.Fireblood)
+  Bind(S.IgnorePain)
+  Bind(S.ImpendingVictory)
   Bind(S.LightsJudgment)
   Bind(S.MortalStrike)
+  Bind(S.Overpower)
   Bind(S.Rend)
   Bind(S.Slam)
   Bind(S.Shockwave)
   Bind(S.Skullsplitter)
   Bind(S.SpearofBastion)
+  Bind(S.SweepingStrikes)
   Bind(S.ThunderClap)
   Bind(S.ThunderousRoar)
   Bind(S.WarStomp)
   Bind(S.RallyingCry)
   Bind(S.StormBolt)
   Bind(S.Pummel)
+  Bind(S.Warbreaker)
+  Bind(S.Whirlwind)
   
   -- Bind Items
   Bind(M.Trinket1)
   Bind(M.Trinket2)
   Bind(M.Healthstone)
-  Bind(I.ManicGrieftorch)
   
   -- Macros
+  Bind(M.PummelMouseover)
   Bind(M.SpearofBastionPlayer)
 end
 

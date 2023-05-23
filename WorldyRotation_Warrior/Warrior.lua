@@ -231,6 +231,8 @@ Macro.Warrior.Commons = {
   Trinket2                         = Macro("Trinket2", "/use 14"),
   Healthstone                      = Macro("Healthstone", "/use item:5512"),
   -- Spells
+  PummelMouseover                  = Macro("PummelMouseover", "/cast [@mouseover] " .. Spell.Warrior.Commons.Pummel:Name()),
+  StormBoltMouseover               = Macro("StormBoltMouseover", "/cast [@mouseover] " .. Spell.Warrior.Commons.StormBolt:Name()),
   SpearofBastionPlayer             = Macro("SpearofBastionPlayer", "/cast [@player] " .. Spell.Warrior.Commons.SpearofBastion:Name()),
 }
 
