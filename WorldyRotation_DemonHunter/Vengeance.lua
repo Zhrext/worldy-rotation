@@ -65,6 +65,8 @@ local ActiveMitigationNeeded
 local IsTanking
 local Enemies8yMelee
 local EnemiesCount8yMelee
+local BossFightRemains = 11111
+local FightRemains = 11111
 -- Vars to calculate SpB Fragments generated
 local VarSpiritBombFragmentsInMeta = (S.Fracture:IsAvailable()) and 3 or 4
 local VarSpiritBombFragmentsNotInMeta = (S.Fracture:IsAvailable()) and 4 or 5
@@ -101,6 +103,11 @@ HL:RegisterForEvent(function()
   VarCDFrailtyReqAoE = (S.SoulCrush:IsAvailable()) and 5 * VarVulnFrailtyStack or VarVulnFrailtyStack
   VarCDFrailtyReqST = (S.SoulCrush:IsAvailable()) and 6 * VarVulnFrailtyStack or VarVulnFrailtyStack
 end, "PLAYER_EQUIPMENT_CHANGED", "SPELLS_CHANGED", "LEARNED_SPELL_IN_TAB")
+
+HL:RegisterForEvent(function()
+  BossFightRemains = 11111
+  FightRemains = 11111
+end, "PLAYER_REGEN_ENABLED")
 
 -- Soul Fragments function taking into consideration aura lag
 local function UpdateSoulFragments()
@@ -231,6 +238,15 @@ local function APL()
   ActiveMitigationNeeded = Player:ActiveMitigationNeeded()
   IsTanking = Player:IsTankingAoE(8) or Player:IsTanking(Target)
 
+  if Everyone.TargetIsValid() or Player:AffectingCombat() then
+    -- Calculate fight_remains
+    BossFightRemains = HL.BossFightRemains(nil, true)
+    FightRemains = BossFightRemains
+    if FightRemains == 11111 then
+      FightRemains = HL.FightRemains(Enemies8y, false)
+    end
+  end
+  
   if Everyone.TargetIsValid() then
     -- FodderToTheFlames
     if S.ThrowGlaive:IsCastable() and Utils.ValueIsInArray(FodderToTheFlamesDeamonIds, Target:NPCID()) then

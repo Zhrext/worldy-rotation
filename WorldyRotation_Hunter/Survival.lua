@@ -193,14 +193,14 @@ end
 
 local function CDs()
   -- blood_fury,if=buff.coordinated_assault.up|buff.spearhead.up|!talent.spearhead&!talent.coordinated_assault
-  if S.BloodFury:IsCastable() and (Player:BuffUp(S.CoordinatedAssault) or Player:BuffUp(S.SpearheadBuff) or (not S.Spearhead:IsAvailable()) and not S.CoordinatedAssault:IsAvailable()) then
+  if S.BloodFury:IsCastable() and (Player:BuffUp(S.CoordinatedAssaultBuff) or Player:BuffUp(S.SpearheadBuff) or (not S.Spearhead:IsAvailable()) and not S.CoordinatedAssault:IsAvailable()) then
     if Press(S.BloodFury) then return "blood_fury cds 2"; end
   end
   -- harpoon,if=talent.terms_of_engagement.enabled&focus<focus.max
   if S.Harpoon:IsCastable() and Settings.Survival.Harpoon and (S.TermsofEngagement:IsAvailable() and Player:Focus() < Player:FocusMax()) then
     if Press(S.Harpoon, not Target:IsSpellInRange(S.Harpoon)) then return "harpoon cds 2"; end
   end
-  if (Player:BuffUp(S.CoordinatedAssault) or Player:BuffUp(S.SpearheadBuff) or (not S.Spearhead:IsAvailable()) and not S.CoordinatedAssault:IsAvailable()) then
+  if (Player:BuffUp(S.CoordinatedAssaultBuff) or Player:BuffUp(S.SpearheadBuff) or (not S.Spearhead:IsAvailable()) and not S.CoordinatedAssault:IsAvailable()) then
     -- ancestral_call,if=buff.coordinated_assault.up|buff.spearhead.up|!talent.spearhead&!talent.coordinated_assault
     if S.AncestralCall:IsCastable() then
       if Press(S.AncestralCall) then return "ancestral_call cds 6"; end
@@ -219,7 +219,7 @@ local function CDs()
     if Press(S.BagofTricks, not Target:IsSpellInRange(S.BagofTricks)) then return "bag_of_tricks cds 12"; end
   end
   -- berserking,if=buff.coordinated_assault.up|buff.spearhead.up|!talent.spearhead&!talent.coordinated_assault|time_to_die<13
-  if S.Berserking:IsCastable() and (Player:BuffUp(S.CoordinatedAssault) or Player:BuffUp(S.SpearheadBuff) or (not S.Spearhead:IsAvailable()) and (not S.CoordinatedAssault:IsAvailable()) or FightRemains < 13) then
+  if S.Berserking:IsCastable() and (Player:BuffUp(S.CoordinatedAssaultBuff) or Player:BuffUp(S.SpearheadBuff) or (not S.Spearhead:IsAvailable()) and (not S.CoordinatedAssault:IsAvailable()) or FightRemains < 13) then
     if Press(S.Berserking) then return "berserking cds 14"; end
   end
   -- muzzle
@@ -241,6 +241,10 @@ local function Cleave()
   if S.KillCommand:IsCastable() and (Target:DebuffDown(S.ShreddedArmorDebuff) and Player:HasTier(30, 4)) then
     if Press(S.KillCommand, not Target:IsSpellInRange(S.KillCommand)) then return "kill_command cleave 1"; end
   end
+  -- kill_shot,if=buff.coordinated_assault_empower.up
+  if S.KillShot:IsReady() and (Player:BuffUp(S.CoordinatedAssaultEmpowerBuff) and (S.Bite:IsReady() or S.Claw:IsReady() or S.Smack:IsReady())) then
+    if Press(S.KillShot, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot cleave"; end
+  end
   -- wildfire_bomb,if=full_recharge_time<gcd|talent.bombardier&!cooldown.coordinated_assault.remains
   if (S.WildfireBomb:FullRechargeTime() < Player:GCD() or S.Bombardier:IsAvailable() and S.CoordinatedAssault:CooldownUp()) then
     for _, Bomb in pairs(Bombs) do
@@ -257,13 +261,9 @@ local function Cleave()
   if S.Stampede:IsCastable() and CDsON() then
     if Press(S.Stampede, not Target:IsSpellInRange(S.Stampede)) then return "stampede cleave 6"; end
   end
-  -- coordinated_assault
-  if S.CoordinatedAssault:IsCastable() and CDsON() then
+  -- coordinated_assault,if=cooldown.fury_of_the_eagle.remains|!talent.fury_of_the_eagle
+  if S.CoordinatedAssault:IsCastable() and CDsON() and (S.FuryoftheEagle:CooldownDown() or not S.FuryoftheEagle:IsAvailable()) then
     if Press(S.CoordinatedAssault, not Target:IsInMeleeRange(MeleeRange)) then return "coordinated_assault cleave 8"; end
-  end
-  -- kill_shot,if=buff.coordinated_assault_empower.up
-  if S.KillShot:IsReady() and (Player:BuffUp(S.CoordinatedAssaultBuff)) then
-    if Press(S.KillShot, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot cleave 10"; end
   end
   -- explosive_shot
   if S.ExplosiveShot:IsReady() then
@@ -355,7 +355,7 @@ local function ST()
     if Press(S.Spearhead, not Target:IsSpellInRange(S.Spearhead)) then return "spearhead st 4"; end
   end
   -- kill_shot,if=buff.coordinated_assault_empower.up
-  if S.KillShot:IsReady() and (Player:BuffUp(S.CoordinatedAssaultBuff)) then
+  if S.KillShot:IsReady() and (Player:BuffUp(S.CoordinatedAssaultEmpowerBuff) and (S.Bite:IsReady() or S.Claw:IsReady() or S.Smack:IsReady())) then
     if Press(S.KillShot, not Target:IsSpellInRange(S.KillShot)) then return "kill_shot st 6"; end
   end
   -- wildfire_bomb,if=(raid_event.adds.in>cooldown.wildfire_bomb.full_recharge_time-(cooldown.wildfire_bomb.full_recharge_time%3.5)&debuff.shredded_armor.up&(full_recharge_time<2*gcd|talent.bombardier&!cooldown.coordinated_assault.remains|talent.bombardier&buff.coordinated_assault.up&buff.coordinated_assault.remains<2*gcd)|!raid_event.adds.exists&time_to_die<7)&set_bonus.tier30_4pc
