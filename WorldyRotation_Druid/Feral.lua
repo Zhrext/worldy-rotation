@@ -704,11 +704,11 @@ local function APL()
     -- call_action_list,name=variables
     Variables()
     -- tigers_fury,if=!talent.convoke_the_spirits.enabled&(!buff.tigers_fury.up|energy.deficit>65)
-    if S.TigersFury:IsCastable() and CDsON() and ((not S.ConvokeTheSpirits:IsAvailable()) and (Player:BuffDown(S.TigersFury) or Player:EnergyDeficit() > 65)) then
+    if S.TigersFury:IsCastable() and ((not S.ConvokeTheSpirits:IsAvailable()) and (Player:BuffDown(S.TigersFury) or Player:EnergyDeficit() > 65)) then
       if Press(S.TigersFury) then return "tigers_fury main 6"; end
     end
     -- tigers_fury,if=talent.convoke_the_spirits.enabled&(!variable.lastConvoke|(variable.lastConvoke&!buff.tigers_fury.up))
-    if S.TigersFury:IsCastable() and CDsON() and (S.ConvokeTheSpirits:IsAvailable() and ((not VarLastConvoke) or (VarLastConvoke and Player:BuffDown(S.TigersFury)))) then
+    if S.TigersFury:IsCastable() and (S.ConvokeTheSpirits:IsAvailable() and ((not VarLastConvoke) or (VarLastConvoke and Player:BuffDown(S.TigersFury)))) then
       if Press(S.TigersFury) then return "tigers_fury main 8"; end
     end
     -- rake,target_if=1.4*persistent_multiplier>dot.rake.pmultiplier,if=buff.prowl.up|buff.shadowmeld.up

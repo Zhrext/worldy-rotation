@@ -210,7 +210,7 @@ end
 
 local function MultiTarget()
   -- recklessness,if=raid_event.adds.in>15|active_enemies>1|target.time_to_die<12
-  if CDsON() and S.Recklessness:IsCastable() and (EnemiesCount8y > 1 or HL.FightRemains() < 12) then
+  if CDsON() and S.Recklessness:IsCastable() and (EnemiesCount8y > 1 or FightRemains < 12) then
     if Press(S.Recklessness, not TargetInMeleeRange) then return "recklessness multi_target 2"; end
   end
   -- odyns_fury,if=active_enemies>1&talent.titanic_rage&(!buff.meat_cleaver.up|buff.avatar.up|buff.recklessness.up)
@@ -411,7 +411,7 @@ local function APL()
       end
       -- ravager,if=cooldown.recklessness.remains<3|buff.recklessness.up
       -- Note: manually added end of fight
-      if S.Ravager:IsCastable() and (S.Avatar:CooldownRemains() < 3 or Player:BuffUp(S.RecklessnessBuff) or HL.FightRemains() < 10) then
+      if S.Ravager:IsCastable() and (S.Avatar:CooldownRemains() < 3 or Player:BuffUp(S.RecklessnessBuff) or FightRemains < 10) then
         if Press(M.RavagerPlayer, not TargetInMeleeRange) then return "ravager main 10"; end
       end
       -- blood_fury
@@ -438,12 +438,12 @@ local function APL()
       -- if S.BagofTricks:IsCastable() and Player:BuffDown(S.RecklessnessBuff) and EnrageUp then
       --   if Cast(S.BagofTricks, Settings.Commons.OffGCDasOffGCD.Racials, nil, not Target:IsSpellInRange(S.BagofTricks)) then return "bag_of_tricks main 22"; end
       -- end
-      -- avatar,if=talent.titans_torment&buff.enrage.up&raid_event.adds.in>15|!talent.titans_torment&(buff.recklessness.up|target.time_to_die<20)
-      if S.Avatar:IsCastable() and (S.TitansTorment:IsAvailable() and EnrageUp or not S.TitansTorment:IsAvailable() and (Player:BuffUp(S.RecklessnessBuff) or HL.FightRemains() < 20)) then
+      -- avatar,if=talent.titans_torment&buff.enrage.up&raid_event.adds.in>15|talent.berserkers_torment&buff.enrage.up&!buff.avatar.up&raid_event.adds.in>15|!talent.titans_torment&!talent.berserkers_torment&(buff.recklessness.up|target.time_to_die<20)
+      if S.Avatar:IsCastable() and (S.TitansTorment:IsAvailable() and EnrageUp or S.BerserkersTorment:IsAvailable() and EnrageUp and Player:BuffDown(S.AvatarBuff) or (not S.TitansTorment:IsAvailable()) and (not S.BerserkersTorment:IsAvailable()) and (Player:BuffUp(S.RecklessnessBuff) or FightRemains < 20)) then
         if Press(S.Avatar, not TargetInMeleeRange) then return "avatar main 24"; end
       end
       -- recklessness,if=!raid_event.adds.exists&(talent.annihilator&cooldown.avatar.remains<1|cooldown.avatar.remains>40|!talent.avatar|target.time_to_die<12)
-      if S.Recklessness:IsCastable() and (S.Annihilator:IsAvailable() and S.Avatar:CooldownRemains() < 1 or S.Avatar:CooldownRemains() > 40 or (not S.Avatar:IsAvailable()) or HL.FightRemains() < 12) then
+      if S.Recklessness:IsCastable() and (S.Annihilator:IsAvailable() and S.Avatar:CooldownRemains() < 1 or S.Avatar:CooldownRemains() > 40 or (not S.Avatar:IsAvailable()) or FightRemains < 12) then
         if Press(S.Recklessness, not TargetInMeleeRange) then return "recklessness main 26"; end
       end
       -- recklessness,if=!raid_event.adds.exists&!talent.annihilator|target.time_to_die<12
@@ -451,7 +451,7 @@ local function APL()
         if Press(S.Recklessness, not TargetInMeleeRange) then return "recklessness main 28"; end
       end
       -- spear_of_bastion,if=buff.enrage.up&(buff.recklessness.up|buff.avatar.up|target.time_to_die<20|active_enemies>1)&raid_event.adds.in>15
-      if S.SpearofBastion:IsCastable() and (EnrageUp and (Player:BuffUp(S.RecklessnessBuff) or Player:BuffUp(S.AvatarBuff) or HL.FightRemains() < 20 or EnemiesCount8y > 1)) then
+      if S.SpearofBastion:IsCastable() and (EnrageUp and (Player:BuffUp(S.RecklessnessBuff) or Player:BuffUp(S.AvatarBuff) or FightRemains < 20 or EnemiesCount8y > 1)) then
         if Press(M.SpearofBastionPlayer, not TargetInMeleeRange) then return "spear_of_bastion main 30"; end
       end
     end

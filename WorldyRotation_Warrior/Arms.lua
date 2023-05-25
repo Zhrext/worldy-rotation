@@ -121,7 +121,7 @@ local function Hac()
     if Press(S.Rend, not TargetInMeleeRange) then return "rend hac 70"; end
   end
   -- avatar,if=raid_event.adds.in>15|talent.blademasters_torment&active_enemies>1|target.time_to_die<20
-  if CDsON() and S.Avatar:IsCastable() and ((S.BlademastersTorment:IsAvailable() and EnemiesCount8y > 1) or HL.FightRemains() < 20) then
+  if CDsON() and S.Avatar:IsCastable() and ((S.BlademastersTorment:IsAvailable() and EnemiesCount8y > 1) or FightRemains < 20) then
     if Press(S.Avatar, not TargetInMeleeRange) then return "avatar hac 71"; end
   end
   -- warbreaker,if=raid_event.adds.in>22|active_enemies>1
@@ -253,7 +253,7 @@ local function Execute()
     if Press(S.Rend, not TargetInMeleeRange) then return "rend execute 52"; end
   end
   -- avatar,if=cooldown.colossus_smash.ready|debuff.colossus_smash.up|target.time_to_die<20
-  if CDsON() and S.Avatar:IsCastable() and (S.ColossusSmash:CooldownUp() or Target:DebuffUp(S.ColossusSmashDebuff) or HL.FightRemains() < 20) then
+  if CDsON() and S.Avatar:IsCastable() and (S.ColossusSmash:CooldownUp() or Target:DebuffUp(S.ColossusSmashDebuff) or FightRemains < 20) then
     if Press(S.Avatar, not TargetInMeleeRange) then return "avatar execute 53"; end
   end
   -- warbreaker
@@ -394,6 +394,10 @@ local function SingleTarget()
   -- bladestorm
   if CDsON() and S.Bladestorm:IsCastable() then
     if Press(S.Bladestorm, not TargetInMeleeRange) then return "bladestorm single_target 106"; end
+  end
+  -- arcane_torrent
+  if CDsON() and S.ArcaneTorrent:IsCastable() then
+    if Press(S.ArcaneTorrent, not Target:IsInRange(8)) then return "arcane_torrent single_target 46"; end
   end
   -- cleave
   if S.Cleave:IsReady() then

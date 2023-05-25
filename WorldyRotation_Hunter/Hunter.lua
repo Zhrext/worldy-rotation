@@ -259,6 +259,8 @@ Macro.Hunter.Commons = {
   SerpentStingMouseover            = Macro("SerpentStingMouseover", "/cast [@mouseover] " .. Spell.Hunter.Commons.SerpentSting:Name()),
   SteelTrapCursor                  = Macro("SteelTrapCursor", "/cast [@cursor] " .. Spell.Hunter.Commons.SteelTrap:Name()),
   MisdirectionFocus                = Macro("MisdirectionFocus", "/cast [@focus] " .. Spell.Hunter.Commons.Misdirection:Name()),
+  TarTrapCursor                    = Macro("TarTrapCursor", "/cast [@cursor] " .. Spell.Hunter.Commons.TarTrap:Name()),
+  FreezingTrapCursor               = Macro("FreezingTrapCursor", "/cast [@cursor] " .. Spell.Hunter.Commons.FreezingTrap:Name()),
 }
 
 Macro.Hunter.BeastMastery = MergeTableByKey(Macro.Hunter.Commons, {
