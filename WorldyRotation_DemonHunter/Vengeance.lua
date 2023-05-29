@@ -243,7 +243,7 @@ local function APL()
     BossFightRemains = HL.BossFightRemains(nil, true)
     FightRemains = BossFightRemains
     if FightRemains == 11111 then
-      FightRemains = HL.FightRemains(Enemies8y, false)
+      FightRemains = HL.FightRemains(Enemies8yMelee, false)
     end
   end
   

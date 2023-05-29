@@ -121,11 +121,11 @@ local function Precombat()
   -- snapshot_stats
   VarTrinketSyncSlot = 0
   -- variable,name=trinket_sync_slot,value=1,if=trinket.1.has_stat.any_dps&(!trinket.2.has_stat.any_dps|trinket.1.cooldown.duration>=trinket.2.cooldown.duration)
-  if (trinket1:TrinketHasStatAnyDps() and ((not trinket2:TrinketHasStatAnyDps()) or trinket1:Cooldown() >= trinket2:Cooldown())) then
+  if (trinket1:HasStatAnyDps() and ((not trinket2:HasStatAnyDps()) or trinket1:Cooldown() >= trinket2:Cooldown())) then
     VarTrinketSyncSlot = 1
   end
   -- variable,name=trinket_sync_slot,value=2,if=trinket.2.has_stat.any_dps&(!trinket.1.has_stat.any_dps|trinket.2.cooldown.duration>trinket.1.cooldown.duration)
-  if (trinket2:TrinketHasStatAnyDps() and ((not trinket1:TrinketHasStatAnyDps()) or trinket2:Cooldown() >= trinket1:Cooldown())) then
+  if (trinket2:HasStatAnyDps() and ((not trinket1:HasStatAnyDps()) or trinket2:Cooldown() >= trinket1:Cooldown())) then
     VarTrinketSyncSlot = 2
   end
   -- use_item,name=algethar_puzzle_box
