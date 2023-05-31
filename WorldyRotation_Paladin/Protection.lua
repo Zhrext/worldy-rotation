@@ -128,14 +128,15 @@ local function Cooldowns()
     if Press(S.AvengingWrath, not Target:IsInMeleeRange(8)) then return "avenging_wrath cooldowns 4"; end
   end
   -- potion,if=buff.avenging_wrath.up
-  -- TODO
+  -- TODO  
+  -- sentinel
+  -- Note: Protection Paladin APL has back-end code to replace AW with Sentinel when talented.
+  if S.Sentinel:IsCastable() then
+    if Press(S.Sentinel, not Target:IsInMeleeRange(8)) then return "sentinel cooldowns 6"; end
+  end
   -- moment_of_glory,if=(buff.avenging_wrath.remains<15|(time>10|(cooldown.avenging_wrath.remains>15))&(cooldown.avengers_shield.remains&cooldown.judgment.remains&cooldown.hammer_of_wrath.remains))
   if S.MomentofGlory:IsCastable() and (Player:BuffRemains(S.AvengingWrathBuff) < 15 or (HL.CombatTime() > 10 or (S.AvengingWrath:CooldownRemains() > 15)) and (S.AvengersShield:CooldownDown() and S.Judgment:CooldownDown() and S.HammerofWrath:CooldownDown())) then
     if Press(S.MomentofGlory, not Target:IsInMeleeRange(8)) then return "moment_of_glory cooldowns 8"; end
-  end
-  -- holy_avenger,if=buff.avenging_wrath.up|cooldown.avenging_wrath.remains>60
-  if S.HolyAvenger:IsCastable() and (Player:BuffUp(S.AvengingWrathBuff) or S.AvengingWrath:CooldownRemains() > 60) then
-    if Press(S.HolyAvenger, not Target:IsInMeleeRange(8)) then return "holy_avenger cooldowns 10"; end
   end
   -- bastion_of_light,if=buff.avenging_wrath.up
   if S.BastionofLight:IsCastable() and (Player:BuffUp(S.AvengingWrathBuff)) then
@@ -260,6 +261,8 @@ local function APL()
     if not Player:IsCasting() and not Player:IsChanneling() then
       local ShouldReturn = Everyone.Interrupt(S.Rebuke, 5, true); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.InterruptWithStun(S.HammerofJustice, 8); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.Interrupt(S.Rebuke, 5, true, Mouseover, M.RebukeMouseover); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.InterruptWithStun(S.HammerofJustice, 8, nil, Mouseover, M.HammerofJusticeMouseover); if ShouldReturn then return ShouldReturn; end
     end
     -- Manually added: Defensives!
     if IsTanking then
@@ -305,6 +308,7 @@ local function AutoBind()
   Bind(S.MomentofGlory)
   Bind(S.Judgment)
   Bind(S.Rebuke)
+  Bind(S.Sentinel)
   Bind(S.ShieldoftheRighteous)
   Bind(S.WordofGlory)
   Bind(S.HolyAvenger)
@@ -315,6 +319,8 @@ local function AutoBind()
   Bind(M.CleanseToxinsMouseover)
   Bind(M.LayonHandsPlayer)
   Bind(M.JudgmentMouseover)
+  Bind(M.HammerofJusticeMouseover)
+  Bind(M.RebukeMouseover)
   Bind(M.WordofGloryFocus)
   Bind(M.WordofGloryPlayer)
   -- Items

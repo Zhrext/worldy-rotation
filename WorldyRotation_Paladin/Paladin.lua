@@ -74,7 +74,7 @@ Spell.Paladin.Commons = {
   -- Debuffs
   ConsecrationDebuff                    = Spell(204242),
   JudgmentDebuff                        = Spell(197277),
-  Forbearance                           = Spell(25771),
+  ForbearanceDebuff                     = Spell(25771),
   -- Pool
   Pool                                  = Spell(999910),
 }
@@ -90,15 +90,19 @@ Spell.Paladin.Protection = MergeTableByKey(Spell.Paladin.Commons, {
   CrusadersJudgment                     = Spell(204023),
   DivineToll                            = Spell(375576),
   EyeofTyr                              = Spell(387174),
-  GuardianofAncientKings                = Spell(86659),
+  GuardianofAncientKings                = MultiSpell(86659,212641),
   HammeroftheRighteous                  = Spell(53595),
+  InmostLight                           = Spell(405757),
   MomentofGlory                         = Spell(327193),
   RighteousProtector                    = Spell(204074),
+  Sentinel                              = Spell(389539),
   -- Buffs
+  AllyoftheLightBuff                    = Spell(394714),
   ArdentDefenderBuff                    = Spell(31850),
   BastionofLightBuff                    = Spell(378974),
-  GuardianofAncientKingsBuff            = Spell(86659),
+  GuardianofAncientKingsBuff            = MultiSpell(86659,212641),
   MomentofGloryBuff                     = Spell(327193),
+  SentinelBuff                          = Spell(389539),
   ShiningLightFreeBuff                  = Spell(327510),
   -- Debuffs
 })
@@ -217,6 +221,8 @@ Macro.Paladin.Commons = {
   LayonHandsPlayer                 = Macro("LayonHandsPlayer", "/cast [@player] " .. Spell.Paladin.Commons.LayonHands:Name()),
   LayonHandsMouseover              = Macro("LayonHandsMouseover", "/cast [@mouseover] " .. Spell.Paladin.Commons.LayonHands:Name()),
   JudgmentMouseover                = Macro("JudgmentMouseover", "/cast [@mouseover] " .. Spell.Paladin.Commons.Judgment:Name()),
+  HammerofJusticeMouseover         = Macro("HammerofJusticeMouseover", "/cast [@mouseover] " .. Spell.Paladin.Commons.HammerofJustice:Name()),
+  RebukeMouseover                  = Macro("RebukeMouseover", "/cast [@mouseover] " .. Spell.Paladin.Commons.Rebuke:Name()),
   WordofGloryFocus                 = Macro("WordofGloryFocus", "/cast [@focus] " .. Spell.Paladin.Commons.WordofGlory:Name()),
   WordofGloryPlayer                = Macro("WordofGloryPlayer", "/cast [@player] " .. Spell.Paladin.Commons.WordofGlory:Name()),
   -- Items
