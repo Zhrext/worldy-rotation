@@ -188,7 +188,6 @@ local function SnD_Condition ()
   return Player:BuffUp(S.SliceandDice) or MeleeEnemies10yCount >= Rogue.CPMaxSpend()
 end
 local function Skip_Rupture (ShadowDanceBuff)
-  -- actions.finish+=/variable,name=skip_rupture,value=master_assassin_remains>0|!talent.nightstalker.enabled&talent.dark_shadow.enabled&buff.shadow_dance.up|spell_targets.shuriken_storm>=(4-stealthed.all*talent.shadow_focus.enabled)
   -- actions.finish+=/variable,name=skip_rupture,value=buff.thistle_tea.up&spell_targets.shuriken_storm=1|buff.shadow_dance.up&(spell_targets.shuriken_storm=1|dot.rupture.ticking&spell_targets.shuriken_storm>=2)
   return Player:BuffUp(S.ThistleTea) and MeleeEnemies10yCount == 1 or ShadowDanceBuff and (MeleeEnemies10yCount == 1 or Target:DebuffUp(S.Rupture) and MeleeEnemies10yCount >= 2)
 end
@@ -198,25 +197,36 @@ local function Rotten_Condition ()
 end
 local function Rotten_Threshold ()
   -- variable,name=rotten_threshold,value=!buff.the_rotten.up|spell_targets.shuriken_storm>1|combo_points<=2&buff.the_rotten.up&!set_bonus.tier30_2pc
-  return not Player:BuffUp(S.TheRotten) or MeleeEnemies10yCount > 1 or (ComboPoints <= 2 and Player:BuffUp(S.TheRotten) and not Player:HasTier(30, 2))
+  return Player:BuffDown(S.PremeditationBuff) or MeleeEnemies10yCount > 1 or (ComboPoints <= 2 and Player:BuffUp(S.TheRottenBuff) and not Player:HasTier(30, 2))
 end
-local function Secret_Condition()
+local function Secret_Condition(ShadowDanceBuff, PremeditationBuff)
   -- actions.finish=variable,name=secret_condition,value=buff.shadow_dance.up&(buff.danse_macabre.stack>=3|!talent.danse_macabre)&(!buff.premeditation.up|spell_targets.shuriken_storm!=2)
-  return Player:BuffUp(S.ShadowDanceBuff)
-      and (Player:BuffStack(S.DanseMacabreBuff) >= 3 or not S.DanseMacabre:IsAvailable())
-      and (not Player:BuffUp(S.Premeditation) or MeleeEnemies10yCount ~= 2)
+  return ShadowDanceBuff and (Player:BuffStack(S.DanseMacabreBuff) >= 3 or not S.DanseMacabre:IsAvailable())
+      and (not PremeditationBuff or MeleeEnemies10yCount ~= 2)
 end
-local function Used_For_Danse(spell)
-  return spell:TimeSinceLastCast() < S.ShadowDance:TimeSinceLastCast()
+local function Used_For_Danse(Spell)
+  return Player:BuffUp(S.ShadowDanceBuff) and Spell:TimeSinceLastCast() < S.ShadowDance:TimeSinceLastCast()
 end
 
 -- # Finishers
 -- ReturnSpellOnly and StealthSpell parameters are to Predict Finisher in case of Stealth Macros
 local function Finish(ReturnSpellOnly, StealthSpell)
-  local ShadowDanceBuff = Player:BuffUp(S.ShadowDanceBuff) or (StealthSpell and StealthSpell:ID() == S.ShadowDance:ID())
+  local ShadowDanceBuff = Player:BuffUp(S.ShadowDanceBuff)
   local ShadowDanceBuffRemains = Player:BuffRemains(S.ShadowDanceBuff)
+  local SymbolsofDeathBuffRemains = Player:BuffRemains(S.SymbolsofDeath)
+  local FinishComboPoints = ComboPoints
+
+  -- State changes based on predicted Stealth casts
+  local PremeditationBuff = StealthSpell or Player:BuffUp(S.PremeditationBuff)
   if StealthSpell and StealthSpell:ID() == S.ShadowDance:ID() then
-    ShadowDanceBuffRemains = 8
+    ShadowDanceBuff = true
+    ShadowDanceBuffRemains = 8 + S.ImprovedShadowDance:TalentRank()
+    if S.TheFirstDance:IsAvailable() then
+      FinishComboPoints = mathmin(Player:ComboPointsMax(), ComboPoints + 4)
+    end
+    if Player:HasTier(30, 2) then
+      SymbolsofDeathBuffRemains = mathmax(SymbolsofDeathBuffRemains, 6)
+    end
   end
 
   if S.SliceandDice:IsCastable() and HL.FilteredFightRemains(MeleeEnemies10y, ">", Player:BuffRemains(S.SliceandDice)) then
@@ -224,7 +234,7 @@ local function Finish(ReturnSpellOnly, StealthSpell)
     if S.Premeditation:IsAvailable() and MeleeEnemies10yCount < 5 then
       -- actions.finish+=/slice_and_dice,if=variable.premed_snd_condition&cooldown.shadow_dance.charges_fractional<1.75&buff.slice_and_dice.remains<cooldown.symbols_of_death.remains&(cooldown.shadow_dance.ready&buff.symbols_of_death.remains-buff.shadow_dance.remains<1.2)
       if S.ShadowDance:ChargesFractional() < 1.75 and Player:BuffRemains(S.SliceandDice) < S.SymbolsofDeath:CooldownRemains()
-        and (S.ShadowDance:Charges() >= 1 and Player:BuffRemains(S.SymbolsofDeath) - Player:BuffRemains(S.ShadowDanceBuff) < 1.2) then
+        and (S.ShadowDance:Charges() >= 1 and SymbolsofDeathBuffRemains - ShadowDanceBuffRemains < 1.2) then
         if ReturnSpellOnly then
           return S.SliceandDice
         else
@@ -234,7 +244,7 @@ local function Finish(ReturnSpellOnly, StealthSpell)
     else
       -- actions.finish+=/slice_and_dice,if=!variable.premed_snd_condition&spell_targets.shuriken_storm<6&!buff.shadow_dance.up&buff.slice_and_dice.remains<fight_remains&refreshable
       if MeleeEnemies10yCount < 6 and not ShadowDanceBuff
-        and Player:BuffRemains(S.SliceandDice) < (1 + ComboPoints * 1.8) then
+        and Player:BuffRemains(S.SliceandDice) < (1 + FinishComboPoints * 1.8) then
         if ReturnSpellOnly then
           return S.SliceandDice
         else
@@ -258,17 +268,22 @@ local function Finish(ReturnSpellOnly, StealthSpell)
   -- actions.finish+=/rupture,if=!variable.skip_rupture&buff.finality_rupture.up&cooldown.shadow_dance.remains<12&cooldown.shadow_dance.charges_fractional<=1&spell_targets.shuriken_storm=1&(talent.dark_brew|talent.danse_macabre)
   if not SkipRupture and S.Rupture:IsCastable() and ComboPoints > 0 then
     if MeleeEnemies10yCount == 1 and Player:BuffUp(S.FinalityRuptureBuff) and (S.DarkBrew:IsAvailable() or S.DanseMacabre:IsAvailable()) and S.ShadowDance:CooldownRemains() < 12 and S.ShadowDance:ChargesFractional() <= 1 then
-      if S.Rupture:IsReady() and WR.Cast(S.Rupture) then return "Cast Rupture (Finality)" end
+      if ReturnSpellOnly then
+        return S.Rupture
+      else
+        if S.Rupture:IsReady() and WR.Cast(S.Rupture) then return "Cast Rupture (Finality)" end
+      end
     end
   end
   -- actions.finish+=/cold_blood,if=variable.secret_condition&cooldown.secret_technique.ready
-  if S.ColdBlood:IsReady() and Secret_Condition() and S.SecretTechnique:CooldownUp() then
+  if S.ColdBlood:IsReady() and Secret_Condition(ShadowDanceBuff, PremeditationBuff) and S.SecretTechnique:CooldownUp() then
     if ReturnSpellOnly then return M.SecretTechnique end
     if Press(M.SecretTechnique) then return "Cast Cold Blood" end
   end
   -- actions.finish+=/secret_technique,if=variable.secret_condition&(!talent.cold_blood|cooldown.cold_blood.remains>buff.shadow_dance.remains-2)
-  if S.SecretTechnique:IsReady() and Secret_Condition()
-    and (not S.ColdBlood:IsAvailable() or S.ColdBlood:IsReady() or Player:BuffUp(S.ColdBlood) or S.ColdBlood:CooldownRemains() > Player:BuffRemains(S.ShadowDanceBuff) - 2) then
+  if S.SecretTechnique:IsReady() and Secret_Condition(ShadowDanceBuff, PremeditationBuff)
+      and (not S.ColdBlood:IsAvailable() or S.ColdBlood:IsReady()
+        or Player:BuffUp(S.ColdBlood) or S.ColdBlood:CooldownRemains() > ShadowDanceBuffRemains - 2) then
       if ReturnSpellOnly then return S.SecretTechnique end
       if Press(S.SecretTechnique) then return "Cast Secret Technique" end
   end
@@ -279,7 +294,7 @@ local function Finish(ReturnSpellOnly, StealthSpell)
         return Everyone.CanDoTUnit(TargetUnit, RuptureDMGThreshold)
           and TargetUnit:DebuffRefreshable(S.Rupture, RuptureThreshold)
       end
-      ShouldReturn = SuggestCycleDoT(S.Rupture, Evaluate_Rupture_Target, (2 * ComboPoints), MeleeEnemies5y, M.RuptureMouseover); if ShouldReturn then return ShouldReturn end
+      ShouldReturn = SuggestCycleDoT(S.Rupture, Evaluate_Rupture_Target, (2 * FinishComboPoints), MeleeEnemies5y, M.RuptureMouseover); if ShouldReturn then return ShouldReturn end
     end
     -- actions.finish+=/rupture,if=!variable.skip_rupture&remains<cooldown.symbols_of_death.remains+10&cooldown.symbols_of_death.remains<=5&target.time_to_die-remains>cooldown.symbols_of_death.remains+5
     if TargetInMeleeRange and Target:DebuffRemains(S.Rupture) < S.SymbolsofDeath:CooldownRemains() + 10 and ComboPoints > 0
@@ -293,10 +308,9 @@ local function Finish(ReturnSpellOnly, StealthSpell)
       end
     end
   end
-  -- actions.finish+=/black_powder,if=!variable.priority_rotation&spell_targets>=3|!used_for_danse&buff.shadow_dance.up&spell_targets.shuriken_storm=2&talent.danse_macabre
-  if S.BlackPowder:IsCastable() and
-    (not PriorityRotation and MeleeEnemies10yCount >= 3
-    or not Used_For_Danse(S.BlackPowder) and Player:BuffUp(S.ShadowDanceBuff) and S.DanseMacabre:IsAvailable()) then
+  -- actions.finish+=/black_powder,if=!variable.priority_rotation&spell_targets>=3|!used_for_danse&buff.shadow_dance.up&spell_targets.shuriken_storm=2&talent.danse_macabre  
+  if S.BlackPowder:IsCastable() and (not PriorityRotation and MeleeEnemies10yCount >= 3
+    or (MeleeEnemies10yCount == 2 and ShadowDanceBuff and S.DanseMacabre:IsAvailable() and not Used_For_Danse(S.BlackPowder))) then
     if ReturnSpellOnly then
       return S.BlackPowder
     else
@@ -317,15 +331,29 @@ end
 -- # Stealthed Rotation
 -- ReturnSpellOnly and StealthSpell parameters are to Predict Finisher in case of Stealth Macros
 local function Stealthed(ReturnSpellOnly, StealthSpell)
-  local StealthBuff = Player:BuffUp(Rogue.StealthSpell()) or (StealthSpell and StealthSpell:ID() == Rogue.StealthSpell():ID())
-  local VanishBuffCheck = Player:BuffUp(Rogue.VanishBuffSpell()) or (StealthSpell and StealthSpell:ID() == Rogue.VanishBuffSpell():ID())
-  local ShadowDanceBuff = Player:BuffUp(S.ShadowDanceBuff) or (StealthSpell and StealthSpell:ID() == S.ShadowDance:ID())
+  local ShadowDanceBuff = Player:BuffUp(S.ShadowDanceBuff)
   local ShadowDanceBuffRemains = Player:BuffRemains(S.ShadowDanceBuff)
   local PremeditationBuff = StealthSpell or Player:BuffUp(S.PremeditationBuff)
-  if StealthSpell and StealthSpell:ID() == S.ShadowDance:ID() then 
-    ShadowDanceBuffRemains = 8
+  local TheRottenBuff = Player:BuffUp(S.TheRottenBuff)
+  local StealthComboPoints, StealthComboPointsDeficit = ComboPoints, ComboPointsDeficit
+  
+  -- State changes based on predicted Stealth casts
+  local StealthBuff = Player:BuffUp(Rogue.StealthSpell()) or (StealthSpell and StealthSpell:ID() == Rogue.StealthSpell():ID())
+  local VanishBuffCheck = Player:BuffUp(Rogue.VanishBuffSpell()) or (StealthSpell and StealthSpell:ID() == S.Vanish:ID())
+  if StealthSpell and StealthSpell:ID() == S.ShadowDance:ID() then
+    ShadowDanceBuff = true
+    ShadowDanceBuffRemains = 8 + S.ImprovedShadowDance:TalentRank()
+    if Player:HasTier(30, 2) then
+      TheRottenBuff = true
+    end
+    if S.TheFirstDance:IsAvailable() then
+      StealthComboPoints = mathmin(Player:ComboPointsMax(), ComboPoints + 4)
+      StealthComboPointsDeficit = Player:ComboPointsMax() - StealthComboPoints
+    end
   end
-  local ShadowstrikeIsCastable = S.Shadowstrike:IsCastable() or StealthBuff or VanishBuffCheck or ShadowDanceBuff
+
+  local StealthEffectiveComboPoints = Rogue.EffectiveComboPoints(StealthComboPoints)
+  local ShadowstrikeIsCastable = S.Shadowstrike:IsCastable() or StealthBuff or VanishBuffCheck or ShadowDanceBuff or Player:BuffUp(S.SepsisBuff)
   if StealthBuff or VanishBuffCheck then
     ShadowstrikeIsCastable = ShadowstrikeIsCastable and Target:IsInRange(25)
   else
@@ -334,63 +362,68 @@ local function Stealthed(ReturnSpellOnly, StealthSpell)
 
   -- actions.stealthed=shadowstrike,if=(buff.stealth.up|buff.vanish.up)&(spell_targets.shuriken_storm<4|variable.priority_rotation)
   if ShadowstrikeIsCastable and (StealthBuff or VanishBuffCheck) and (MeleeEnemies10yCount < 4 or PriorityRotation) then
-    if ReturnSpellOnly then return S.Shadowstrike end
+    if ReturnSpellOnly then
+      return S.Shadowstrike
+    else
+      if Press(S.Shadowstrike) then return "Cast Shadowstrike (Stealth)" end
+    end
   end
 
   -- #Variable to Gloomblade / Backstab when on 4 or 5 combo points with premediation and when the combo point is not anima charged
   -- actions.stealthed+=/variable,name=gloomblade_condition,value=buff.danse_macabre.stack<5&(combo_points.deficit=2|combo_points.deficit=3)&(buff.premeditation.up|effective_combo_points<7)&(spell_targets.shuriken_storm<=8|talent.lingering_shadow)
-  if Player:BuffStack(S.DanseMacabreBuff) < 5 and (ComboPointsDeficit == 2 or ComboPointsDeficit == 3) and (PremeditationBuff or EffectiveComboPoints < 7) and (MeleeEnemies10yCount <= 8 or S.LingeringShadow:IsAvailable()) then
-    -- actions.stealthed+=/shuriken_storm,if=variable.gloomblade_condition&buff.silent_storm.up&!debuff.find_weakness.remains&talent.improved_shuriken_storm.enabled|combo_points<=1&!used_for_danse&spell_targets.shuriken_storm=2&talent.danse_macabre
-    if (MeleeEnemies10yCount == 2 and Player:BuffUp(S.SilentStormBuff) and Target:DebuffDown(S.FindWeaknessDebuff) and S.ImprovedShurikenStorm:IsAvailable())
-      or (ComboPoints <= 1 and not Used_For_Danse(S.ShurikenStorm) and S.DanseMacabre:IsAvailable()) then
-      if ReturnSpellOnly then
-        return S.ShurikenStorm
+  local GloombladeCondition = (Player:BuffStack(S.DanseMacabreBuff) < 5 and (StealthComboPointsDeficit == 2 or StealthComboPointsDeficit == 3)
+    and (PremeditationBuff or StealthEffectiveComboPoints < 7) and (MeleeEnemies10yCount <= 8 or S.LingeringShadow:IsAvailable()))
+
+  -- actions.stealthed+=/shuriken_storm,if=variable.gloomblade_condition&buff.silent_storm.up&!debuff.find_weakness.remains&talent.improved_shuriken_storm.enabled|combo_points<=1&!used_for_danse&spell_targets.shuriken_storm=2&talent.danse_macabre
+  if (GloombladeCondition and Player:BuffUp(S.SilentStormBuff) and Target:DebuffDown(S.FindWeaknessDebuff) and S.ImprovedShurikenStorm:IsAvailable())
+    or (S.DanseMacabre:IsAvailable() and StealthComboPoints <= 1 and MeleeEnemies10yCount == 2 and not Used_For_Danse(S.ShurikenStorm)) then
+    if ReturnSpellOnly then
+      return S.ShurikenStorm
+    else
+      if Press(S.ShurikenStorm) then return "Cast Shuriken Storm (FW)"; end
+    end
+  end
+    
+  -- actions.stealthed+=/gloomblade,if=variable.gloomblade_condition&(!used_for_danse|spell_targets.shuriken_storm!=2)|combo_points<=2&buff.the_rotten.up&spell_targets.shuriken_storm<=3
+  if S.Gloomblade:IsCastable() and ((GloombladeCondition and (not Used_For_Danse(S.Gloomblade) or MeleeEnemies10yCount ~= 2))
+    or (StealthComboPoints <= 2 and TheRottenBuff and MeleeEnemies10yCount <= 3)) then
+    if ReturnSpellOnly then
+      if StealthSpell then
+        return S.Gloomblade
       else
-        if Press(S.ShurikenStorm) then return "Cast Shuriken Storm (FW)"; end
+        return { S.Gloomblade, S.Stealth }
       end
     end
+  end
     
-    -- actions.stealthed+=/gloomblade,if=variable.gloomblade_condition&(!used_for_danse|spell_targets.shuriken_storm!=2)|combo_points<=2&buff.the_rotten.up&spell_targets.shuriken_storm<=3
-    if S.Gloomblade:IsCastable()
-      and ((not Used_For_Danse(S.Gloomblade) or MeleeEnemies10yCount ~= 2)
-      or (ComboPoints <= 2 and Player:BuffUp(S.TheRottenBuff) and MeleeEnemies10yCount <= 3)) then
-      if ReturnSpellOnly then
-        if StealthSpell then
-          return S.Gloomblade
-        else
-          return { S.Gloomblade, S.Stealth }
-        end
-      end
-    end
-    
-    -- actions.stealthed+=/backstab,if=variable.gloomblade_condition&talent.danse_macabre&buff.danse_macabre.stack<=2&spell_targets.shuriken_storm<=2
-    if S.Backstab:IsCastable() and S.DanseMacabre:IsAvailable() and Player:BuffStack(S.DanseMacabreBuff) <= 2 and MeleeEnemies10yCount <= 2 then
-      if ReturnSpellOnly then
-        -- If calling from a Stealth macro, we don't need the PV suggestion since it's already a macro cast
-        if StealthSpell then
-          return S.Backstab
-        else
-          return { S.Backstab, S.Stealth }
-        end
+  -- actions.stealthed+=/backstab,if=variable.gloomblade_condition&talent.danse_macabre&buff.danse_macabre.stack<=2&spell_targets.shuriken_storm<=2
+  if S.Backstab:IsCastable() and GloombladeCondition and S.DanseMacabre:IsAvailable() and not Used_For_Danse(S.Backstab)
+    and Player:BuffStack(S.DanseMacabreBuff) <= 2 and MeleeEnemies10yCount <= 2 then
+    if ReturnSpellOnly then
+      -- If calling from a Stealth macro, we don't need the PV suggestion since it's already a macro cast
+      if StealthSpell then
+        return S.Backstab
+      else
+        return { S.Backstab, S.Stealth }
       end
     end
   end
 
   -- actions.stealthed+=/call_action_list,name=finish,if=effective_combo_points>=cp_max_spend
   
-  if EffectiveComboPoints >= Rogue.CPMaxSpend() then
+  if StealthEffectiveComboPoints >= Rogue.CPMaxSpend() then
     return Finish(ReturnSpellOnly, StealthSpell)
   end
   -- actions.stealthed+=/call_action_list,name=finish,if=buff.shuriken_tornado.up&combo_points.deficit<=2
-  if Player:BuffUp(S.ShurikenTornado) and ComboPointsDeficit <= 2 then
+  if Player:BuffUp(S.ShurikenTornado) and StealthComboPointsDeficit <= 2 then
     return Finish(ReturnSpellOnly, StealthSpell)
   end
   -- actions.stealthed+=/call_action_list,name=finish,if=spell_targets.shuriken_storm>=4-talent.seal_fate&variable.effective_combo_points>=4
-  if MeleeEnemies10yCount >= (4 - BoolToInt(S.SealFate:IsAvailable())) and EffectiveComboPoints >= 4  then
+  if MeleeEnemies10yCount >= (4 - BoolToInt(S.SealFate:IsAvailable())) and StealthEffectiveComboPoints >= 4  then
     return Finish(ReturnSpellOnly, StealthSpell)
   end
   -- actions.stealthed+=/call_action_list,name=finish,if=combo_points.deficit<=1+(talent.seal_fate|talent.deeper_stratagem|talent.secret_stratagem)
-  if ComboPointsDeficit <= 1 + num(S.SealFate:IsAvailable() or S.DeeperStratagem:IsAvailable() or S.SecretStratagem:IsAvailable()) then
+  if StealthComboPointsDeficit <= 1 + num(S.SealFate:IsAvailable() or S.DeeperStratagem:IsAvailable() or S.SecretStratagem:IsAvailable()) then
     return Finish(ReturnSpellOnly, StealthSpell)
   end
 
@@ -426,7 +459,7 @@ local function Stealthed(ReturnSpellOnly, StealthSpell)
   end
   -- actions.stealthed+=/shuriken_storm,if=spell_targets>=3+buff.the_rotten.up&(!buff.premeditation.up|spell_targets>=7&!variable.priority_rotation)
   if WR.AoEON() and S.ShurikenStorm:IsCastable()
-    and MeleeEnemies10yCount >= (3 + BoolToInt(Player:BuffUp(S.TheRottenBuff)))
+    and MeleeEnemies10yCount >= (3 + BoolToInt(TheRottenBuff))
     and (not PremeditationBuff or (MeleeEnemies10yCount >= 7 and not PriorityRotation)) then
     if ReturnSpellOnly then
         return S.ShurikenStorm
@@ -439,12 +472,16 @@ local function Stealthed(ReturnSpellOnly, StealthSpell)
     and Target:DebuffRemains(S.FindWeaknessDebuff) < S.SymbolsofDeath:CooldownRemains()) then
     if ReturnSpellOnly then
       return S.Shadowstrike
+    else
+      if Press(S.Shadowstrike) then return "Cast Shadowstrike (FW Refresh)" end
     end
   end
   -- actions.stealthed+=/shadowstrike
   if ShadowstrikeIsCastable then
     if ReturnSpellOnly then
       return S.Shadowstrike
+    else
+      if Press(S.Shadowstrike) then return "Cast Shadowstrike 2" end
     end
   end
   return false
@@ -461,13 +498,13 @@ local function StealthMacro(StealthSpell, EnergyThreshold)
 
   -- Handle StealthMacro GUI options
   -- If false, just suggest them as off-GCD and bail out of the macro functionality
-  if StealthSpell == S.Vanish and (not Settings.Subtlety.StealthMacro.Vanish or not MacroAbility) then
+  if StealthSpell:ID() == S.Vanish:ID() and (not Settings.Subtlety.StealthMacro.Vanish or not MacroAbility) then
     if WR.Cast(S.Vanish, true) then return "Cast Vanish" end
     return false
-  elseif StealthSpell == S.Shadowmeld and (not Settings.Subtlety.StealthMacro.Shadowmeld or not MacroAbility) then
+  elseif StealthSpell:ID() == S.Shadowmeld:ID() and (not Settings.Subtlety.StealthMacro.Shadowmeld or not MacroAbility) then
     if WR.Cast(S.Shadowmeld, true) then return "Cast Shadowmeld" end
     return false
-  elseif StealthSpell == S.ShadowDance and (not Settings.Subtlety.StealthMacro.ShadowDance or not MacroAbility) and CDsON() then
+  elseif StealthSpell:ID() == S.ShadowDance:ID() and (not Settings.Subtlety.StealthMacro.ShadowDance or not MacroAbility) and CDsON() then
     if WR.Cast(M.ShadowDance, true) then return "Cast Shadow Dance" end
     return false
   end
@@ -494,7 +531,7 @@ local function CDs()
   if Player:BuffUp(S.ShurikenTornado) then
     -- actions.cds+=/shadow_dance,off_gcd=1,if=!buff.shadow_dance.up&buff.shuriken_tornado.up&buff.shuriken_tornado.remains<=3.5
     -- actions.cds+=/symbols_of_death,use_off_gcd=1,if=buff.shuriken_tornado.up&buff.shuriken_tornado.remains<=3.5
-    if S.SymbolsofDeath:IsCastable() and S.ShadowDance:IsCastable() and not Player:BuffUp(S.SymbolsofDeath) and not Player:BuffUp(S.ShadowDance) then
+    if S.SymbolsofDeath:IsCastable() and S.ShadowDance:IsCastable() and not Player:BuffUp(S.SymbolsofDeath) and not Player:BuffUp(S.ShadowDanceBuff) then
       if WR.Cast(S.SymbolsofDeath, true) then return "Dance + Symbols (during Tornado)" end
     end
   end
@@ -534,13 +571,10 @@ local function CDs()
     end
     -- actions.cds+=/symbols_of_death,if=(buff.symbols_of_death.remains<=3&!cooldown.shadow_dance.ready|!set_bonus.tier30_2pc)&variable.rotten_condition&variable.snd_condition&(!talent.flagellation&(combo_points<=1|!talent.the_rotten)|cooldown.flagellation.remains>10|cooldown.flagellation.up&combo_points>=5)
     if S.SymbolsofDeath:IsCastable() then
-      if ((Player:BuffRemains(S.SymbolsofDeath) <= 3 and not S.ShadowDance:CooldownUp()) or not Player:HasTier(30, 2))
-          and Rotten_Condition()
-          and SnDCondition
-          and ((not S.Flagellation:IsAvailable() and (ComboPoints <= 1 or not S.TheRotten:IsAvailable()))
-              or S.Flagellation:CooldownRemains() > 10
-              or (S.Flagellation:CooldownUp() and ComboPoints >= 5)) then
-          if Press(S.SymbolsofDeath) then return "Cast Symbols of Death" end
+      if ((Player:BuffRemains(S.SymbolsofDeath) <= 3 and not S.ShadowDance:CooldownUp()) or not Player:HasTier(30, 2)) and Rotten_Condition() and SnDCondition
+        and ((not S.Flagellation:IsAvailable() and (ComboPoints <= 1 or not S.TheRotten:IsAvailable()))
+          or S.Flagellation:CooldownRemains() > 10 or (S.Flagellation:CooldownUp() and ComboPoints >= 5)) then
+        if Press(S.SymbolsofDeath) then return "Cast Symbols of Death" end
       end
     end
   end
@@ -583,18 +617,14 @@ local function CDs()
       if ShouldReturn then return "Shadow Dance Macro (Low TTD) " .. ShouldReturn end
     end
     -- actions.cds+=/thistle_tea,if=(cooldown.symbols_of_death.remains>=3|buff.symbols_of_death.up)&!buff.thistle_tea.up&(energy.deficit>=100&(combo_points.deficit>=2|spell_targets.shuriken_storm>=3)|cooldown.thistle_tea.charges_fractional>=2.75&buff.shadow_dance.up)|buff.shadow_dance.remains>=4&!buff.thistle_tea.up&spell_targets.shuriken_storm>=3|!buff.thistle_tea.up&fight_remains<=(6*cooldown.thistle_tea.charges)
-    if S.ThistleTea:IsReady() and ((S.SymbolsofDeath:CooldownRemains() >= 3 or Player:BuffUp(S.SymbolsofDeath))
-      -- &!buff.thistle_tea.up
-      and not Player:BuffUp(S.ThistleTea)
-      -- &(energy.deficit>=100&(combo_points.deficit>=2|spell_targets.shuriken_storm>=3)
-      and (Player:EnergyDeficitPredicted() >= 100 and (Player:ComboPointsDeficit() >= 2 or MeleeEnemies10yCount >= 3)
-      -- |cooldown.thistle_tea.charges_fractional>=2.75&buff.shadow_dance.up)
-      or S.ThistleTea:ChargesFractional() >= 2.75 and Player:BuffUp(S.ShadowDance))
-      -- |buff.shadow_dance.remains>=4&!buff.thistle_tea.up&spell_targets.shuriken_storm>=3
-      or Player:BuffRemains(S.ShadowDanceBuff) >= 4 and not Player:BuffUp(S.ThistleTea) and MeleeEnemies10yCount >= 3
-      -- |!buff.thistle_tea.up&fight_remains<=(6*cooldown.thistle_tea.charges)
-      or not Player:BuffUp(S.ThistleTea) and HL.BossFilteredFightRemains("<=", 6 * S.ThistleTea:Charges())) then
-      if Press(S.ThistleTea, nil, nil, true) then return "Thistle Tea"; end
+    if S.ThistleTea:IsReady() then
+      if (S.SymbolsofDeath:CooldownRemains() >= 3 or Player:BuffUp(S.SymbolsofDeath)) and not Player:BuffUp(S.ThistleTea)
+        and (Player:EnergyDeficitPredicted() >= 100 and (Player:ComboPointsDeficit() >= 2 or MeleeEnemies10yCount >= 3)
+          or S.ThistleTea:ChargesFractional() >= 2.75 and Player:BuffUp(S.ShadowDanceBuff))
+        or Player:BuffRemains(S.ShadowDanceBuff) >= 4 and not Player:BuffUp(S.ThistleTea) and MeleeEnemies10yCount >= 3
+        or not Player:BuffUp(S.ThistleTea) and HL.BossFilteredFightRemains("<=", 6 * S.ThistleTea:Charges()) then
+        if Press(S.ThistleTea, nil, nil, true) then return "Thistle Tea"; end
+      end
     end
 
     -- TODO: Add Potion Suggestion
@@ -653,9 +683,7 @@ local function Stealth_CDs(EnergyThreshold)
   if WR.CDsON() and S.ShadowDance:TimeSinceLastDisplay() > 0.3 and S.Shadowmeld:TimeSinceLastDisplay() > 0.3 and not Player:IsTanking(Target) then
     -- actions.stealth_cds+=/vanish,if=(!talent.danse_macabre|spell_targets.shuriken_storm>=3)&!variable.shd_threshold&combo_points.deficit>1&(cooldown.flagellation.remains>=60|!talent.flagellation|fight_remains<=(30*cooldown.vanish.charges))
     if S.Vanish:IsCastable()
-      and (not S.DanseMacabre:IsAvailable() or MeleeEnemies10yCount >= 3)
-      and not ShD_Threshold()
-      and ComboPointsDeficit > 1
+      and (not S.DanseMacabre:IsAvailable() or MeleeEnemies10yCount >= 3) and not ShD_Threshold() and ComboPointsDeficit > 1
       and (S.Flagellation:CooldownRemains() >= 60 or not S.Flagellation:IsAvailable() or HL.BossFilteredFightRemains("<=", 30 * S.Vanish:Charges())) then
       ShouldReturn = StealthMacro(S.Vanish, EnergyThreshold)
       if ShouldReturn then return "Vanish Macro " .. ShouldReturn end
@@ -663,13 +691,9 @@ local function Stealth_CDs(EnergyThreshold)
   end
   if TargetInMeleeRange and CDsON() and S.ShadowDance:IsCastable() and S.ShadowDance:Charges() >= 1 and S.Vanish:TimeSinceLastDisplay() > 0.3 and S.Shadowmeld:TimeSinceLastDisplay() > 0.3 and (WR.CDsON() or (S.ShadowDance:ChargesFractional() >= Settings.Subtlety.ShDEcoCharge - (not S.ShadowDanceTalent:IsAvailable() and 0.75 or 0))) then
     -- actions.stealth_cds+=/shadow_dance,if=(variable.shd_combo_points&(!talent.shadow_dance&buff.symbols_of_death.remains>=(2.2-talent.flagellation.enabled)|variable.shd_threshold)|talent.shadow_dance&cooldown.secret_technique.remains<=9&(spell_targets.shuriken_storm<=3|talent.danse_macabre)|buff.flagellation.up|buff.flagellation_persist.remains>=6|spell_targets.shuriken_storm>=4&cooldown.symbols_of_death.remains>10)&variable.rotten_threshold
-    if (ShD_Combo_Points()
-      and ((not S.ShadowDance:IsAvailable() and Player:BuffRemains(S.SymbolsofDeath) >= (2.2 - BoolToInt(S.Flagellation:IsAvailable())))
-      or ShD_Threshold())
-      or (S.ShadowDance:IsAvailable() and S.SecretTechnique:CooldownRemains() <= 9 and (MeleeEnemies10yCount <= 3 or S.DanseMacabre:IsAvailable()))
-      or Player:BuffUp(S.Flagellation)
-      or Player:BuffRemains(S.FlagellationPersistBuff) >= 6
-      or MeleeEnemies10yCount >= 4 and S.SymbolsofDeath:CooldownRemains() > 10)
+    if ((ShD_Combo_Points() and (not S.ShadowDanceTalent:IsAvailable() and Player:BuffRemains(S.SymbolsofDeath) >= (2.2 - BoolToInt(S.Flagellation:IsAvailable())) or ShD_Threshold()))
+      or (S.ShadowDanceTalent:IsAvailable() and S.SecretTechnique:CooldownRemains() <= 9 and (MeleeEnemies10yCount <= 3 or S.DanseMacabre:IsAvailable()))
+      or Player:BuffRemains(S.FlagellationPersistBuff) >= 6 or MeleeEnemies10yCount >= 4 and S.SymbolsofDeath:CooldownRemains() > 10)
       and Rotten_Threshold() then
       ShouldReturn = StealthMacro(S.ShadowDance, EnergyThreshold)
       if ShouldReturn then return "ShadowDance Macro 1 " .. ShouldReturn end
@@ -730,13 +754,11 @@ local function APL ()
     MeleeEnemies10y = Player:GetEnemiesInMeleeRange(AoERange) -- Shuriken Storm & Black Powder
     MeleeEnemies10yCount = #MeleeEnemies10y
     MeleeEnemies5y = Player:GetEnemiesInMeleeRange(MeleeRange) -- Melee cycle
-    MeleeEnemies5yCount = #MeleeEnemies5y
   else
     Enemies30y = {}
     MeleeEnemies10y = {}
     MeleeEnemies10yCount = 1
     MeleeEnemies5y = {}
-    MeleeEnemies5yCount = 1
   end
   
   -- Cache updates
