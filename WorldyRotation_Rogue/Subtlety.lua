@@ -284,7 +284,7 @@ local function Finish(ReturnSpellOnly, StealthSpell)
   if S.SecretTechnique:IsReady() and Secret_Condition(ShadowDanceBuff, PremeditationBuff)
       and (not S.ColdBlood:IsAvailable() or S.ColdBlood:IsReady()
         or Player:BuffUp(S.ColdBlood) or S.ColdBlood:CooldownRemains() > ShadowDanceBuffRemains - 2) then
-      if ReturnSpellOnly then return S.SecretTechnique end
+      if ReturnSpellOnly then return M.SecretTechnique end
       if Press(S.SecretTechnique) then return "Cast Secret Technique" end
   end
   if not SkipRupture and S.Rupture:IsCastable() then
@@ -365,8 +365,8 @@ local function Stealthed(ReturnSpellOnly, StealthSpell)
   if ShadowstrikeIsCastable and (StealthBuff or VanishBuffCheck) and (MeleeEnemies10yCount < 4 or PriorityRotation) then
     if ReturnSpellOnly then
       return S.Shadowstrike
-    else
-      if Press(S.Shadowstrike) then return "Cast Shadowstrike (Stealth)" end
+--     else
+--       if Press(S.Shadowstrike) then return "Cast Shadowstrike (Stealth)" end
     end
   end
 
@@ -380,8 +380,8 @@ local function Stealthed(ReturnSpellOnly, StealthSpell)
     or (S.DanseMacabre:IsAvailable() and StealthComboPoints <= 1 and MeleeEnemies10yCount == 2 and not Used_For_Danse(S.ShurikenStorm)) then
     if ReturnSpellOnly then
       return S.ShurikenStorm
-    else
-      if Press(S.ShurikenStorm) then return "Cast Shuriken Storm (FW)"; end
+--     else
+--       if Press(S.ShurikenStorm) then return "Cast Shuriken Storm (FW)"; end
     end
   end
     
@@ -464,8 +464,8 @@ local function Stealthed(ReturnSpellOnly, StealthSpell)
     and (not PremeditationBuff or (MeleeEnemies10yCount >= 7 and not PriorityRotation)) then
     if ReturnSpellOnly then
         return S.ShurikenStorm
-    else
-        if Press(S.ShurikenStorm) then return "Cast Shuriken Storm" end
+--     else
+--         if Press(S.ShurikenStorm) then return "Cast Shuriken Storm" end
     end
   end
   -- actions.stealthed+=/shadowstrike,if=debuff.find_weakness.remains<=1|cooldown.symbols_of_death.remains<18&debuff.find_weakness.remains<cooldown.symbols_of_death.remains
@@ -481,8 +481,8 @@ local function Stealthed(ReturnSpellOnly, StealthSpell)
   if ShadowstrikeIsCastable then
     if ReturnSpellOnly then
       return S.Shadowstrike
-    else
-      if Press(S.Shadowstrike) then return "Cast Shadowstrike 2" end
+--     else
+--       if Press(S.Shadowstrike) then return "Cast Shadowstrike 2" end
     end
   end
   return false
@@ -618,7 +618,7 @@ local function CDs()
       if ShouldReturn then return "Shadow Dance Macro (Low TTD) " .. ShouldReturn end
     end
     -- actions.cds+=/thistle_tea,if=(cooldown.symbols_of_death.remains>=3|buff.symbols_of_death.up)&!buff.thistle_tea.up&(energy.deficit>=100&(combo_points.deficit>=2|spell_targets.shuriken_storm>=3)|cooldown.thistle_tea.charges_fractional>=2.75&buff.shadow_dance.up)|buff.shadow_dance.remains>=4&!buff.thistle_tea.up&spell_targets.shuriken_storm>=3|!buff.thistle_tea.up&fight_remains<=(6*cooldown.thistle_tea.charges)
-    if S.ThistleTea:IsReady() then
+    if CDsON() and S.ThistleTea:IsReady() then
       if (S.SymbolsofDeath:CooldownRemains() >= 3 or Player:BuffUp(S.SymbolsofDeath)) and not Player:BuffUp(S.ThistleTea)
         and (Player:EnergyDeficitPredicted() >= 100 and (Player:ComboPointsDeficit() >= 2 or MeleeEnemies10yCount >= 3)
           or S.ThistleTea:ChargesFractional() >= 2.75 and Player:BuffUp(S.ShadowDanceBuff))
