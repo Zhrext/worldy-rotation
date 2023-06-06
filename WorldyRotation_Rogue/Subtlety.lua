@@ -473,8 +473,8 @@ local function Stealthed(ReturnSpellOnly, StealthSpell)
     and Target:DebuffRemains(S.FindWeaknessDebuff) < S.SymbolsofDeath:CooldownRemains()) then
     if ReturnSpellOnly then
       return S.Shadowstrike
-    else
-      if Press(S.Shadowstrike) then return "Cast Shadowstrike (FW Refresh)" end
+--     else
+--       if Press(S.Shadowstrike) then return "Cast Shadowstrike (FW Refresh)" end
     end
   end
   -- actions.stealthed+=/shadowstrike
