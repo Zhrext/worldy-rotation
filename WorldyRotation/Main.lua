@@ -393,10 +393,15 @@ function WR.PulseInit ()
       );
     else
       -- Fill Rotation Setting
+      local RotationIsValid = WR.GUISettings.Profile.Rotation and HL.Utils.ValueIsInTable(EnabledRotation[SpecID], WR.GUISettings.Profile.Rotation);
+      if not RotationIsValid and #EnabledRotation[SpecID] > 0 then
+        WR.GUISettings.Profile.Rotation = EnabledRotation[SpecID][1];
+        WorldyRotationCharDB.GUISettings.Rotation = WR.GUISettings.Profile.Rotation;
+        RotationIsValid = WR.GUISettings.Profile.Rotation and HL.Utils.ValueIsInTable(EnabledRotation[SpecID], WR.GUISettings.Profile.Rotation);
+      end
+      
       WR.GUI.CreateDropdown(HL.GUI.PanelsTable["Profile"], "Rotation", WorldyRotationCharDB.GUISettings, EnabledRotation[SpecID], "Rotation", "Choose a rotation you want to play with.", {ReloadRequired = true});
     
-      local RotationIsValid = WR.GUISettings.Profile.Rotation and HL.Utils.ValueIsInTable(EnabledRotation[SpecID], WR.GUISettings.Profile.Rotation)
-      
       -- Load the Class Module if it's possible and not already loaded
       if RotationIsValid and not IsAddOnLoaded(WR.GUISettings.Profile.Rotation) then
         LoadAddOn(WR.GUISettings.Profile.Rotation);
