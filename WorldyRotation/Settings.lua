@@ -14,6 +14,9 @@
 --- ============================ CONTENT ============================
   -- Default settings
   WR.GUISettings = {
+    Profile = {
+      Rotation = nil,
+    },
     General = {
       -- Main Frame Strata
       MainFrameStrata = "BACKGROUND",
@@ -51,6 +54,7 @@
     -- GUI
     local WRPanel = CreatePanel(WR.GUI, "WorldyRotation", "PanelFrame", WR.GUISettings, WorldyRotationDB.GUISettings);
     -- Child Panel
+    local CP_Profile = CreateChildPanel(WRPanel, "Profile");
     local CP_General = CreateChildPanel(WRPanel, "General");
     -- Controls
     CreatePanelOption("Dropdown", CP_General, "General.MainFrameStrata", {"HIGH", "MEDIUM", "LOW", "BACKGROUND"}, "Main Frame Strata", "Choose the frame strata to use for icons.", {ReloadRequired = true});

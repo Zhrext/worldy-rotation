@@ -111,7 +111,9 @@ WR.MainFrame:SetScript("OnEvent", function (self, Event, Arg1)
         WorldyRotationCharDB.Toggles = {};
       end
       WR.GUI.LoadSettingsRecursively(WR.GUISettings);
+      WR.GUISettings.Profile.Rotation = WorldyRotationCharDB.GUISettings.Rotation;
       WR.GUI.CorePanelSettingsInit();
+    
       -- UI
       WR.MainFrame:SetFrameStrata(WR.GUISettings.General.MainFrameStrata);
       WR.MainFrame:Show();
@@ -316,56 +318,56 @@ end
 --- ======= MAIN =======
 local EnabledRotation = {
   ---- Death Knight
-  -- [250]   = "WorldyRotation_DeathKnight",   -- Blood
-  --  [251]   = "WorldyRotation_DeathKnight",   -- Frost
-  --  [252]   = "WorldyRotation_DeathKnight",   -- Unholy
+  -- [250]   = { "WorldyRotation_DeathKnight" },   -- Blood
+  --  [251]   = { "WorldyRotation_DeathKnight" },   -- Frost
+  --  [252]   = { "WorldyRotation_DeathKnight" },   -- Unholy
   ---- Demon Hunter
-  [577]   = "WorldyRotation_DemonHunter",   -- Havoc
-  [581]   = "WorldyRotation_DemonHunter",   -- Vengeance
+  [577]   = { "WorldyRotation_DemonHunter" },   -- Havoc
+  [581]   = { "WorldyRotation_DemonHunter" },   -- Vengeance
   ---- Druid
-  [102]   = "WorldyRotation_Druid",         -- Balance
-  [103]   = "WorldyRotation_Druid",         -- Feral
-  --  [104]   = "WorldyRotation_Druid",         -- Guardian
-    [105]   = "WorldyRotation_Druid",         -- Restoration
+  [102]   = { "WorldyRotation_Druid" },         -- Balance
+  [103]   = { "WorldyRotation_Druid" },         -- Feral
+  --  [104]   = { "WorldyRotation_Druid" },         -- Guardian
+    [105]   = { "WorldyRotation_Druid" },         -- Restoration
     -- Evoker
-    [1467]  = "WorldyRotation_Evoker",        -- Devastation
-    [1468] = "WorldyRotation_Evoker",         -- Preservation
+    [1467]  = { "WorldyRotation_Evoker" },        -- Devastation
+    [1468] = { "WorldyRotation_Evoker" },         -- Preservation
   ---- Hunter
-    [253]   = "WorldyRotation_Hunter",        -- Beast Mastery
-    [254]   = "WorldyRotation_Hunter",        -- Marksmanship
-    [255]   = "WorldyRotation_Hunter",        -- Survival
+    [253]   = { "WorldyRotation_Hunter" },        -- Beast Mastery
+    [254]   = { "WorldyRotation_Hunter" },        -- Marksmanship
+    [255]   = { "WorldyRotation_Hunter" },        -- Survival
   ---- Mage
-  --  [62]    = "WorldyRotation_Mage",          -- Arcane
-  --  [63]    = "WorldyRotation_Mage",          -- Fire
-  [64]    = "WorldyRotation_Mage",          -- Frost
+  --  [62]    = { "WorldyRotation_Mage" },          -- Arcane
+  --  [63]    = { "WorldyRotation_Mage" },          -- Fire
+  [64]    = { "WorldyRotation_Mage" },          -- Frost
   ---- Monk
-    [268]   = "WorldyRotation_Monk",          -- Brewmaster
-      [269]   = "WorldyRotation_Monk",          -- Windwalker
-  --  [270]   = "WorldyRotation_Monk",          -- Mistweaver
+    [268]   = { "WorldyRotation_Monk" },          -- Brewmaster
+      [269]   = { "WorldyRotation_Monk" },          -- Windwalker
+  --  [270]   = { "WorldyRotation_Monk" },          -- Mistweaver
   ---- Paladin
-  [65]    = "WorldyRotation_Paladin",       -- Holy
-  [66]    = "WorldyRotation_Paladin",       -- Protection
-  [70]    = "WorldyRotation_Paladin",       -- Retribution
+  [65]    = { "WorldyRotation_Paladin" },       -- Holy
+  [66]    = { "WorldyRotation_Paladin" },       -- Protection
+  [70]    = { "WorldyRotation_Paladin" },       -- Retribution
   -- Priest
-  --  [256]   = "WorldyRotation_Priest",        -- Discipline
-  --    [257]   = "WorldyRotation_Priest",        -- Holy
-  --  [258]   = "WorldyRotation_Priest",        -- Shadow
+  --  [256]   = { "WorldyRotation_Priest" },        -- Discipline
+  --    [257]   = { "WorldyRotation_Priest" },        -- Holy
+  --  [258]   = { "WorldyRotation_Priest" },        -- Shadow
   ---- Rogue
-  --  [259]   = "WorldyRotation_Rogue",         -- Assassination
-  [261]   = "WorldyRotation_Rogue",         -- Subtlety
-  [260]   = "WorldyRotation_Rogue",         -- Outlaw
+  --  [259]   = { "WorldyRotation_Rogue" },         -- Assassination
+  [261]   = { "WorldyRotation_Rogue" },         -- Subtlety
+  [260]   = { "WorldyRotation_Rogue" },         -- Outlaw
   ---- Shaman
-  --  [262]   = "WorldyRotation_Shaman",        -- Elemental
-    [263]   = "WorldyRotation_Shaman",        -- Enhancement
-  --  [264]   = "WorldyRotation_Shaman",        -- Restoration
+  --  [262]   = { "WorldyRotation_Shaman" },        -- Elemental
+    [263]   = { "WorldyRotation_Shaman" },        -- Enhancement
+  --  [264]   = { "WorldyRotation_Shaman" },        -- Restoration
   ---- Warlock
-  [265]   = "WorldyRotation_Warlock",       -- Affliction
-  [266]   = "WorldyRotation_Warlock",       -- Demonology
-  [267]   = "WorldyRotation_Warlock",       -- Destruction
+  [265]   = { "WorldyRotation_Warlock" },       -- Affliction
+  [266]   = { "WorldyRotation_Warlock" },       -- Demonology
+  [267]   = { "WorldyRotation_Warlock" },       -- Destruction
   ---- Warrior
-  [71]    = "WorldyRotation_Warrior",       -- Arms
-  [72]    = "WorldyRotation_Warrior",       -- Fury
-  [73]    = "WorldyRotation_Warrior"        -- Protection
+  [71]    = { "WorldyRotation_Warrior" },       -- Arms
+  [72]    = { "WorldyRotation_Warrior" },       -- Fury
+  [73]    = { "WorldyRotation_Warrior" }        -- Protection
 };
 local LatestSpecIDChecked = 0;
 function WR.PulseInit ()
@@ -390,15 +392,20 @@ function WR.PulseInit ()
       end
       );
     else
+      -- Fill Rotation Setting
+      WR.GUI.CreateDropdown(HL.GUI.PanelsTable["Profile"], "Rotation", WorldyRotationCharDB.GUISettings, EnabledRotation[SpecID], "Rotation", "Choose a rotation you want to play with.", {ReloadRequired = true});
+    
+      local RotationIsValid = WR.GUISettings.Profile.Rotation and HL.Utils.ValueIsInTable(EnabledRotation[SpecID], WR.GUISettings.Profile.Rotation)
+      
       -- Load the Class Module if it's possible and not already loaded
-      if EnabledRotation[SpecID] and not IsAddOnLoaded(EnabledRotation[SpecID]) then
-        LoadAddOn(EnabledRotation[SpecID]);
+      if RotationIsValid and not IsAddOnLoaded(WR.GUISettings.Profile.Rotation) then
+        LoadAddOn(WR.GUISettings.Profile.Rotation);
         HL.LoadOverrides(SpecID)
       end
 
       -- Check if there is a Rotation for this Spec
       if LatestSpecIDChecked ~= SpecID then
-        if EnabledRotation[SpecID] and WR.APLs[SpecID] then
+        if RotationIsValid and WR.APLs[SpecID] then
           WR.MainFrame:Show();
           WR.MainFrame:SetScript("OnUpdate", WR.Pulse);
           -- Spec Registers
@@ -417,7 +424,7 @@ function WR.PulseInit ()
             WR.Print("It looks like enemy nameplates are disabled, you should enable them in order to get proper AoE rotation.");
           end
         else
-          WR.Print("No Rotation found for this class/spec (SpecID: ".. SpecID .. "), addon disabled. This is likely due to the rotation being unsupported at this time. Please check supported rotations.");
+          WR.Print("No Rotation selected for this class/spec (SpecID: ".. SpecID .. "), addon disabled. This is likely due to the rotation being unsupported at this time or you have to select it in the addon settings. Please check supported rotations.");
           WR.MainFrame:Hide();
           WR.MainFrame:SetScript("OnUpdate", nil);
         end
