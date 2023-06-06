@@ -254,7 +254,7 @@ end
       local Index = v;
       if ArgumentLower == Toggle then
         WorldyRotationCharDB.Toggles[Index] = not WorldyRotationCharDB.Toggles[Index];
-        WR.Print("WorldyRotation: " .. Toggle .. " is now "..(WorldyRotationCharDB.Toggles[Index] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
+        WR.Print(Toggle .. " is now "..(WorldyRotationCharDB.Toggles[Index] and "|cff00ff00enabled|r." or "|cffff0000disabled|r."));
         WR.ToggleFrame:UpdateButtonText(Index);
         if ArgumentLower == "toggle" then
           WR.MainFrame:ChangePixel(1, WR.ON());
