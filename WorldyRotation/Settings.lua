@@ -49,6 +49,8 @@
     },
     APL = {}
   };
+  
+  WR.RotationDropdown = nil;
 
   function WR.GUI.CorePanelSettingsInit ()
     -- GUI
@@ -59,4 +61,5 @@
     -- Controls
     CreatePanelOption("Dropdown", CP_General, "General.MainFrameStrata", {"HIGH", "MEDIUM", "LOW", "BACKGROUND"}, "Main Frame Strata", "Choose the frame strata to use for icons.", {ReloadRequired = true});
     CreateARPanelOptions(CP_General, "General")
+    WR.RotationDropdown = WR.GUI.CreateDropdown(HL.GUI.PanelsTable["Profile"], "Rotation", WorldyRotationCharDB.GUISettings, { "NONE" }, "Rotation", "Choose a rotation you want to play with.", {ReloadRequired = true});
   end

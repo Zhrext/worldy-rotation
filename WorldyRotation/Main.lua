@@ -113,7 +113,7 @@ WR.MainFrame:SetScript("OnEvent", function (self, Event, Arg1)
       WR.GUI.LoadSettingsRecursively(WR.GUISettings);
       WR.GUISettings.Profile.Rotation = WorldyRotationCharDB.GUISettings.Rotation;
       WR.GUI.CorePanelSettingsInit();
-    
+      
       -- UI
       WR.MainFrame:SetFrameStrata(WR.GUISettings.General.MainFrameStrata);
       WR.MainFrame:Show();
@@ -400,8 +400,8 @@ function WR.PulseInit ()
         RotationIsValid = WR.GUISettings.Profile.Rotation and HL.Utils.ValueIsInTable(EnabledRotation[SpecID], WR.GUISettings.Profile.Rotation);
       end
       
-      WR.GUI.CreateDropdown(HL.GUI.PanelsTable["Profile"], "Rotation", WorldyRotationCharDB.GUISettings, EnabledRotation[SpecID], "Rotation", "Choose a rotation you want to play with.", {ReloadRequired = true});
-    
+      WR.GUI.SetDropdownValues(WR.RotationDropdown, EnabledRotation[SpecID], WR.GUISettings.Profile.Rotation);
+      
       -- Load the Class Module if it's possible and not already loaded
       if RotationIsValid and not IsAddOnLoaded(WR.GUISettings.Profile.Rotation) then
         LoadAddOn(WR.GUISettings.Profile.Rotation);

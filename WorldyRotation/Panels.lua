@@ -88,6 +88,22 @@
   end
   
   local LastOptionAttached = {}
+  function WR.GUI.SetDropdownValues(Dropdown, Values, SelectedValue)
+    local function Initialize(Self, Level)
+      local Info = UIDropDownMenu_CreateInfo()
+      for Key, Value in pairs(Values) do
+        Info = UIDropDownMenu_CreateInfo()
+        Info.text = Value
+        Info.value = Value
+        Info.func = UpdateSetting
+        UIDropDownMenu_AddButton(Info, Level)
+      end
+    end
+  
+    UIDropDownMenu_Initialize(Dropdown, Initialize)
+    UIDropDownMenu_SetSelectedValue(Dropdown, SelectedValue)
+  end
+  
   function WR.GUI.CreateDropdown(Parent, Setting, SavedVariablesTable, Values, Text, Tooltip, Optionals)
     -- Constructor
     local Dropdown = CreateFrame("Frame", "$parent_" .. Setting, Parent, "UIDropDownMenuTemplate")
@@ -144,6 +160,7 @@
     Title:SetText("|c00dfb802" .. Text .. "|r")
   
     AnchorTooltip(Dropdown, FilterTooltip(Tooltip, Optionals))
+    return Dropdown
   end
 
   do
