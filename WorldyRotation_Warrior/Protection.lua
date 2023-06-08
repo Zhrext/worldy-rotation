@@ -257,6 +257,9 @@ local function APL()
     end
     -- Interrupt
     local ShouldReturn = Everyone.Interrupt(S.Pummel, 5, true); if ShouldReturn then return ShouldReturn; end
+    ShouldReturn = Everyone.InterruptWithStun(S.StormBolt, 8); if ShouldReturn then return ShouldReturn; end
+    ShouldReturn = Everyone.Interrupt(S.Pummel, 5, true, Mouseover, M.PummelMouseover); if ShouldReturn then return ShouldReturn; end
+    ShouldReturn = Everyone.InterruptWithStun(S.StormBolt, 8, nil, Mouseover, M.StormBoltMouseover); if ShouldReturn then return ShouldReturn; end
     -- auto_attack
     -- shield_charge,if=time=0
     -- charge,if=time=0
@@ -421,6 +424,8 @@ local function AutoBind()
   Bind(M.Healthstone)
   Bind(M.RavagerPlayer)
   Bind(M.SpearofBastionPlayer)
+  Bind(M.PummelMouseover)
+  Bind(M.StormBoltMouseover)
 end
 
 local function Init()

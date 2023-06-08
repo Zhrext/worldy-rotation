@@ -375,6 +375,8 @@ local function APL()
     -- Interrupts
     local ShouldReturn = Everyone.Interrupt(S.Pummel, 5, true); if ShouldReturn then return ShouldReturn; end
     ShouldReturn = Everyone.InterruptWithStun(S.StormBolt, 8); if ShouldReturn then return ShouldReturn; end
+    ShouldReturn = Everyone.Interrupt(S.Pummel, 5, true, Mouseover, M.PummelMouseover); if ShouldReturn then return ShouldReturn; end
+    ShouldReturn = Everyone.InterruptWithStun(S.StormBolt, 8, nil, Mouseover, M.StormBoltMouseover); if ShouldReturn then return ShouldReturn; end
     -- Manually added: VR/IV
     if Player:HealthPercentage() < Settings.Commons.HP.VictoryRush then
       if S.VictoryRush:IsReady() then
@@ -501,6 +503,8 @@ local function AutoBind()
   Bind(I.ManicGrieftorch)
   
   -- Macros
+  Bind(M.PummelMouseover)
+  Bind(M.StormBoltMouseover)
   Bind(M.RavagerPlayer)
   Bind(M.SpearofBastionPlayer)
 end

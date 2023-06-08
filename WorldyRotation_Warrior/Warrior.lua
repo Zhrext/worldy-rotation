@@ -160,6 +160,7 @@ Spell.Warrior.Fury = MergeTableByKey(Spell.Warrior.Commons, {
   -- Buffs
   BloodcrazeBuff                        = Spell(393951),
   EnrageBuff                            = Spell(184362),
+  MercilessAssaultBuff                  = Spell(409983),
 })
 
 Spell.Warrior.Protection = MergeTableByKey(Spell.Warrior.Commons, {

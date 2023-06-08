@@ -570,6 +570,7 @@ local function AutoBind()
   
   -- Macros
   Bind(M.PummelMouseover)
+  Bind(M.StormBoltMouseover)
   Bind(M.SpearofBastionPlayer)
 end
 
