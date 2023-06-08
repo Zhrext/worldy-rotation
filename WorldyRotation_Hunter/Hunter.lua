@@ -39,6 +39,12 @@ Spell.Hunter.Commons = {
   Flare                                 = Spell(1543),
   FreezingTrap                          = Spell(187650),
   HuntersMark                           = Spell(257284),
+  -- Pet Abilities
+  Bite                                 = Spell(17253, "Pet"),
+  BloodBolt                            = Spell(288962, "Pet"),
+  Claw                                 = Spell(16827, "Pet"),
+  Growl                                = Spell(2649, "Pet"),
+  Smack                                = Spell(49966, "Pet"),
   -- Pet Utility Abilities
   MendPet                               = Spell(136),
   RevivePet                             = Spell(982),
@@ -84,12 +90,6 @@ Spell.Hunter.Commons = {
 
 Spell.Hunter.BeastMastery = MergeTableByKey(Spell.Hunter.Commons, {
   -- Abilities
-  -- Pet Abilities
-  Bite                                 = Spell(17253, "Pet"),
-  BloodBolt                            = Spell(288962, "Pet"),
-  Claw                                 = Spell(16827, "Pet"),
-  Growl                                = Spell(2649, "Pet"),
-  Smack                                = Spell(49966, "Pet"),
   -- Talents
   AMurderofCrows                        = Spell(131894),
   AnimalCompanion                       = Spell(267116),
