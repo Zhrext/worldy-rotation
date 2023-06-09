@@ -217,6 +217,7 @@ Macro.Paladin.Commons = {
   CleanseToxinsMouseover           = Macro("CleanseToxinsMouseover", "/cast [@mouseover] " .. Spell.Paladin.Commons.CleanseToxins:Name()),
   CrusaderStrikeMouseover          = Macro("CrusaderStrikeMouseover", "/cast [@mouseover] " .. Spell.Paladin.Commons.CrusaderStrike:Name()),
   FlashofLightFocus                = Macro("FlashofLightFocus", "/cast [@focus] " .. Spell.Paladin.Commons.FlashofLight:Name()),
+  IntercessionMouseover            = Macro("IntercessionMouseover", "/cast [@mouseover] " .. Spell.Paladin.Commons.Intercession:Name()),
   LayonHandsFocus                  = Macro("LayonHandsFocus", "/cast [@focus] " .. Spell.Paladin.Commons.LayonHands:Name()),
   LayonHandsPlayer                 = Macro("LayonHandsPlayer", "/cast [@player] " .. Spell.Paladin.Commons.LayonHands:Name()),
   LayonHandsMouseover              = Macro("LayonHandsMouseover", "/cast [@mouseover] " .. Spell.Paladin.Commons.LayonHands:Name()),

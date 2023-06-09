@@ -256,6 +256,9 @@ local function APL()
     if not Player:AffectingCombat() then
       local ShouldReturn = Precombat(); if ShouldReturn then return ShouldReturn; end
     end
+    if S.Intercession:IsCastable() and Player:HolyPower() >=3 and S.Intercession:IsReady() and Player:AffectingCombat() and Mouseover:Exists() and Mouseover:IsDeadOrGhost() and Mouseover:IsAPlayer() and (not Player:CanAttack(Mouseover))  then
+      if Press(M.IntercessionMouseover) then return "Intercession" end
+    end
     -- auto_attack
     -- Interrupts
     if not Player:IsCasting() and not Player:IsChanneling() then
@@ -317,6 +320,7 @@ local function AutoBind()
   Bind(M.BlessingofFreedomMouseover)
   Bind(M.BlessingofProtectionMouseover)
   Bind(M.CleanseToxinsMouseover)
+  Bind(M.IntercessionMouseover)
   Bind(M.LayonHandsPlayer)
   Bind(M.JudgmentMouseover)
   Bind(M.HammerofJusticeMouseover)
