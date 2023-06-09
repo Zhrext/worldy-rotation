@@ -217,7 +217,7 @@ local function Finish(ReturnSpellOnly, StealthSpell)
   local FinishComboPoints = ComboPoints
 
   -- State changes based on predicted Stealth casts
-  local PremeditationBuff = StealthSpell or Player:BuffUp(S.PremeditationBuff)
+  local PremeditationBuff = Player:BuffUp(S.PremeditationBuff) or (StealthSpell and S.Premeditation:IsAvailable())
   if StealthSpell and StealthSpell:ID() == S.ShadowDance:ID() then
     ShadowDanceBuff = true
     ShadowDanceBuffRemains = 8 + S.ImprovedShadowDance:TalentRank()
@@ -276,7 +276,7 @@ local function Finish(ReturnSpellOnly, StealthSpell)
     end
   end
   -- actions.finish+=/cold_blood,if=variable.secret_condition&cooldown.secret_technique.ready
-  if S.ColdBlood:IsReady() and Secret_Condition(ShadowDanceBuff, PremeditationBuff) and S.SecretTechnique:CooldownUp() then
+  if S.ColdBlood:IsReady() and Secret_Condition(ShadowDanceBuff, PremeditationBuff) and S.SecretTechnique:IsReady() then
     if ReturnSpellOnly then return M.SecretTechnique end
     if Press(M.SecretTechnique) then return "Cast Cold Blood" end
   end
@@ -285,7 +285,7 @@ local function Finish(ReturnSpellOnly, StealthSpell)
       and (not S.ColdBlood:IsAvailable() or S.ColdBlood:IsReady()
         or Player:BuffUp(S.ColdBlood) or S.ColdBlood:CooldownRemains() > ShadowDanceBuffRemains - 2) then
       if ReturnSpellOnly then return M.SecretTechnique end
-      if Press(S.SecretTechnique) then return "Cast Secret Technique" end
+      if Press(M.SecretTechnique) then return "Cast Secret Technique" end
   end
   if not SkipRupture and S.Rupture:IsCastable() then
     -- actions.finish+=/rupture,cycle_targets=1,if=!variable.skip_rupture&!variable.priority_rotation&spell_targets.shuriken_storm>=2&target.time_to_die>=(2*combo_points)&refreshable
@@ -845,11 +845,13 @@ local function APL ()
     -- actions+=/interrupts
     if not Player:IsCasting() and not Player:IsChanneling() then
       ShouldReturn = Everyone.Interrupt(S.Kick, 5, true); if ShouldReturn then return ShouldReturn; end
-      ShouldReturn = Everyone.InterruptWithStun(S.Blind, 15); if ShouldReturn then return ShouldReturn; end
-      --ShouldReturn = Everyone.InterruptWithStun(S.KidneyShot, 5); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.Interrupt(S.Kick, 5, true, Mouseover, M.KickMouseover); if ShouldReturn then return ShouldReturn; end
+      ShouldReturn = Everyone.InterruptWithStun(S.Blind, 15); if ShouldReturn then return ShouldReturn; end
       ShouldReturn = Everyone.InterruptWithStun(S.Blind, 15, nil, Mouseover, M.BlindMouseover); if ShouldReturn then return ShouldReturn; end
-      --ShouldReturn = Everyone.InterruptWithStun(S.KidneyShot, 5, nil, Mouseover, M.KidneyShotMouseover); if ShouldReturn then return ShouldReturn; end
+      if Settings.Commons.Enabled.KidneyShotInterrupt then
+        ShouldReturn = Everyone.InterruptWithStun(S.KidneyShot, 5); if ShouldReturn then return ShouldReturn; end
+        ShouldReturn = Everyone.InterruptWithStun(S.KidneyShot, 5, nil, Mouseover, M.KidneyShotMouseover); if ShouldReturn then return ShouldReturn; end
+      end
     end
     -- Dispels
     if Settings.General.Enabled.DispelBuffs and S.Shiv:IsReady() and not Player:IsCasting() and not Player:IsChanneling() and Everyone.UnitHasEnrageBuff(Target) then
