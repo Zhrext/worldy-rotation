@@ -357,7 +357,7 @@ local function APL()
     -- demoralizing_shout,if=talent.booming_voice.enabled
     if S.DemoralizingShout:IsCastable() and S.BoomingVoice:IsAvailable() then
       SuggestRageDump(30)
-      if Press(S.DemoralizingShout) then return "demoralizing_shout main 28"; end
+      if Press(S.DemoralizingShout, not TargetInMeleeRange) then return "demoralizing_shout main 28"; end
     end
     -- spear_of_bastion
     if CDsON() and S.SpearofBastion:IsCastable() then
