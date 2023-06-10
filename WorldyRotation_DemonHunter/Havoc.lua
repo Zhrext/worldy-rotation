@@ -53,6 +53,7 @@ local trinket2 = equip[14] and Item(equip[14]) or Item(0)
 -- Rotation Var
 local Enemies8y, Enemies20y
 local EnemiesCount8, EnemiesCount20
+local FelbladeRange = 15
 
 -- GUI Settings
 local Settings = {
@@ -200,6 +201,8 @@ local function APL()
     EnemiesCount8 = 1
     EnemiesCount20 = 1
   end
+  FelbladeRange = 15
+  if not (Settings.Havoc.Enabled.FelRush and Settings.Havoc.Enabled.VengefulRetreat) then FelbladeRange = 8 end
 
   if Everyone.TargetIsValid() or Player:AffectingCombat() then
     -- Calculate fight_remains
@@ -317,7 +320,7 @@ local function APL()
     end
     -- felblade,if=fury.deficit>=40
     if S.Felblade:IsCastable() and (Player:FuryDeficit() >= 40) and WR.Toggle(4) then
-      if Press(S.Felblade, not Target:IsInMeleeRange(8)) then return "felblade main 28"; end
+      if Press(S.Felblade, not Target:IsInRange(FelbladeRange)) then return "felblade main 28"; end
     end
     -- chaos_strike,if=!variable.pooling_for_blade_dance&!variable.pooling_for_eye_beam
     if S.ChaosStrike:IsReady() and ((not VarPoolingForBladeDance) and not VarPoolingForEyeBeam) then
