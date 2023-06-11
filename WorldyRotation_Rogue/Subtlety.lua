@@ -546,7 +546,7 @@ local function CDs()
     if ShouldReturn then return "Vanish Macro (DM) " .. ShouldReturn end
   end
   -- actions.cds+=/cold_blood,if=!talent.secret_technique&combo_points>=5
-  if S.ColdBlood:IsReady() and not S.SecretTechnique:IsAvailable() and ComboPoints >= 5 then
+  if S.ColdBlood:IsReady() and (not S.SecretTechnique:IsAvailable()) and ComboPoints >= 5 then
     if WR.Cast(S.ColdBlood, true) then return "Cast Cold Blood" end
   end
   if TargetInMeleeRange then

@@ -30,7 +30,7 @@ WR.GUISettings.APL.Rogue = {
     STMfDAsDPSCD = false, -- Single Target MfD as DPS CD
     Enabled = {
       KidneyShotInterrupt = false,
-    }
+    },
     GCDasOffGCD = {
       Racials = true,
     },
