@@ -1,4 +1,4 @@
-## Interface: 100100
+## Interface: 90207
 
 ## Title: Worldy|cFFA330C9Rotation|r
 ## Author: Worldy
